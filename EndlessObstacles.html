@@ -1,0 +1,144 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <title>Endless Map</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+    var config = {
+        type: Phaser.AUTO,
+        width: 1200,
+        height: 600,
+        //might be able to use this later
+        // physics: {
+        //     default: 'arcade',
+        //     arcade: {
+        //         gravity: { y: 300 },
+        //         debug: false
+        //     }
+        // },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var ollie;
+    var sx = 0;
+    var cursors;
+
+    var game = new Phaser.Game(config);
+
+    function preload ()
+    {
+        this.load.image('sky', 'assets/background_V1.png');
+        this.load.image('rock1', 'assets/cactuses_big_1.png');
+        this.load.image('rock2', 'assets/cactuses_big_2.png');
+        this.load.image('rock3', 'assets/cactuses_big_3.png');
+        this.load.image('puffer', 'assets/puffer.png');
+        this.load.image('shell', 'assets/shell.png');
+        this.load.spritesheet('ollie', 'assets/ollie.png', { frameWidth: 180, frameHeight: 60 });
+    }
+
+    function create ()
+    {
+
+      this.groundObstacles = this.add.group();
+      this.floatObstacles = this.add.group();
+
+      this.background = this.add.tileSprite(0, 0, game.config.width, game.config.height, 'sky').setOrigin(0,0).setScale(1.7);
+
+      ollie = this.add.image(450, 450, 'ollie');
+
+      cursors = this.input.keyboard.createCursorKeys();
+      
+      setInterval(() => createGroundObstacles(this.groundObstacles), 3000);
+      setInterval(() => createFloatObstacles(this.floatObstacles), 2000);
+
+    }
+
+    function update (time, delta)
+    {
+        sx += 8; //change this to diff number divisible by 4 to slow down movement
+       
+        if (sx === 16){
+            this.groundObstacles.getChildren().forEach(obstacle => {
+              if (obstacle.getBounds().right < 0) {
+                this.groundObstacles.killAndHide(obstacle);
+              }
+              else {
+                obstacle.x -= 3;
+              }
+            });
+            this.floatObstacles.getChildren().forEach(floatObstacle => {
+              if (floatObstacle.getBounds().right < 0) {
+                this.floatObstacles.killAndHide(floatObstacle);
+              }
+              else {
+                floatObstacle.x -= 3;
+              }
+            });
+            this.background.tilePositionX += 3;
+            sx = 0;
+        }
+
+        // this.obstacles.forEachAlive(this.updateObstacle, this);
+    
+    //basic controls
+        if (cursors.up.isDown)
+        {
+            ollie.y -= 8;
+        }
+        else if (cursors.down.isDown){
+            ollie.y += 8
+        }
+    }
+
+
+    //creates random floating obstacles from pool of pngs
+    //figure out how to not make the floating obstacles and ground obstacles collid
+    function createFloatObstacles(floatObstacles) {
+      var floatObstacleList = ['puffer', 'shell'];
+      let floatObstacleIndex = Phaser.Math.RND.between(0, 1);
+      var chosenFloatObstacle = floatObstacleList[floatObstacleIndex];
+
+      var floatObstacle = floatObstacles.create(game.config.width + 20, Phaser.Math.RND.between(100, 500), chosenFloatObstacle);
+      floatObstacle.setScale(0.05);
+      //floatObstacle.setOrigin(0.5, Phaser.Math.RND.between(0, game.config.height));
+    }
+
+    //creates obstacles randomly from pool of pngs
+    function createGroundObstacles(groundObstacles) {
+      var obstacleList = ['rock1', 'rock2', 'rock3'];
+      let obstacleIndex = Phaser.Math.RND.between(0, 2);
+      var chosenObstacle = obstacleList[obstacleIndex];
+
+      var obstacle = groundObstacles.create(game.config.width + 20, game.config.height, chosenObstacle);
+      obstacle.setOrigin(0.5, 1);
+      console.log(obstacle);
+
+      //example code had these setings but console error when i use it
+      //obstacle.body.allowGravity = false;
+      //obstacle.body.setImmovable(true);
+      //obstacle.body.moves = false;
+    }
+
+  
+</script>
+
+</body>
+</html>
+
+
+ <!-- -->
+
