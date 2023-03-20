@@ -6,7 +6,7 @@ window.onload = function() {
         type: Phaser.AUTO,
         width: 3000,
         height: 1452,
-        autoCenter: true,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
         scene: GameScene,
         physics: {
             default: "arcade",
