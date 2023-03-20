@@ -24,8 +24,6 @@ let camera,
     lerp,
     ollie,
     cursors
-    
-    
 
 class GameScene extends Phaser.Scene {
     constructor() { 
