@@ -4,8 +4,9 @@ window.onload = function() {
     // object containing configuration options
     let config = {
         type: Phaser.AUTO,
-        width: 2000,
+        width: 3000,
         height: 1452,
+        autoCenter: true,
         scene: GameScene,
         physics: {
             default: "arcade",
