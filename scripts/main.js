@@ -44,6 +44,7 @@ class GameScene extends Phaser.Scene {
         background.fixedToCamera = true;
         
         ollie = this.physics.add.sprite(game.config.width / 3, game.config.height * .75, 'ollie')
+        .setScale(2)
         ollie.setCollideWorldBounds(true)
 
         camera = this.cameras.main
