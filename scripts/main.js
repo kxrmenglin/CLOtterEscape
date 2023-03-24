@@ -23,7 +23,8 @@ let camera,
     background,
     lerp,
     ollie,
-    cursors
+    cursors,
+    waterLevel
 
 class GameScene extends Phaser.Scene {
     constructor() { 
@@ -51,19 +52,39 @@ class GameScene extends Phaser.Scene {
         camera.startFollow(ollie, false, 0.5, 0.03)
         
         cursors = this.input.keyboard.createCursorKeys()
+
+        //create variable to use for stopping ollie from moving up ocean level
+        waterLevel = background.y / 2.1
     }
     update() {
         this.movement()
         background._tilePosition.x += 1.69;
     }
 
-    movement() {
-        if (cursors.up.isDown) {
-            ollie.setVelocityY(-500)
-        } else if (cursors.down.isDown){
-            ollie.setVelocityY(500)
+    movement() { 
+        if(ollie.y >= waterLevel) { //while underwater
+            if (cursors.up.isDown) {
+                ollie.setVelocityY(-500)
+            } if (cursors.down.isDown){
+                ollie.setVelocityY(500)
+            }
         }
+        else {
+            ollie.setVelocityY(0); // stops ollie from moving up the water level 
+            if (cursors.up.isDown && ollie.y >= waterLevel) {
+                ollie.setVelocityY(-500)
+            } if (cursors.down.isDown){
+                ollie.setVelocityY(500)
+            }
+            
+            // if (ollie.y < waterLevel + 1 && cursors.space.isDown){ //jump
+            //     // ollie.setVelocityY(-1000) 
+            //     // ollie.setGravityY(1000)
+            // }
+        }
+        
     }
+    
 
 
 } //END GameScene
