@@ -24,7 +24,8 @@ let camera,
     lerp,
     ollie,
     cursors,
-    waterLevel
+    waterLevel,
+    afterJump
 
 class GameScene extends Phaser.Scene {
     constructor() { 
@@ -42,9 +43,10 @@ class GameScene extends Phaser.Scene {
 
         this.physics.world.setBounds(0, 0, game.config.width, game.config.height * 1.5)
         
-        background.fixedToCamera = true;
+        background.fixedToCamera = true
         
         ollie = this.physics.add.sprite(game.config.width / 3, game.config.height * .75, 'ollie')
+        .setScale(1.5)
         ollie.setCollideWorldBounds(true)
 
         camera = this.cameras.main
@@ -54,35 +56,48 @@ class GameScene extends Phaser.Scene {
         cursors = this.input.keyboard.createCursorKeys()
 
         //create variable to use for stopping ollie from moving up ocean level
-        waterLevel = background.y / 2.1
+        waterLevel = background.y / 2.1 //428.57
+        
     }
     update() {
         this.movement()
-        background._tilePosition.x += 1.69;
+        background._tilePosition.x += 1.69
     }
 
-    movement() { 
-        if(ollie.y >= waterLevel) { //while underwater
+    movement() { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS UP AND POSITIVE IS DOWN
+        ollie.body.acceleration.y = 0
+        if(ollie.y >= waterLevel + 300) { //underwater with some downward expanding margin -- disable up arrow to prevent upper bound stuttering
+            ollie.body.gravity.y = 0 //reset gravity so ollie isn't always going down
+            if(ollie.body.velocity.y > 0 && afterJump === true) { //brings Ollie down slower and slower until he stops descending
+                ollie.body.acceleration.y = -400
+                if(ollie.body.velocity.y < 4 ) {
+                    ollie.body.velocity.y = 0
+                    ollie.body.acceleration.y = 0
+                    afterJump = false
+                }
+            }
+            // ollie.setVelocity(0)
             if (cursors.up.isDown) {
+                afterJump = false
                 ollie.setVelocityY(-500)
             } if (cursors.down.isDown){
+                afterJump = false
                 ollie.setVelocityY(500)
             }
-        }
-        else {
-            ollie.setVelocityY(0); // stops ollie from moving up the water level 
-            if (cursors.up.isDown && ollie.y >= waterLevel) {
-                ollie.setVelocityY(-500)
-            } if (cursors.down.isDown){
+        } else if(ollie.y <= waterLevel + 150 && ollie.y >= waterLevel) { //below water but in range of waterLevel to charge jump - can move up, down, and jump
+            ollie.body.gravity.y = 700
+            if(cursors.space.isDown && ollie.body.velocity.y < 0) { //presses space - only works if Ollie is moving upwards to prevent space spam
+                afterJump = true
+                ollie.setVelocityY(ollie.body.velocity.y - 10) //increase upward velocity while space is pressed
+            } else if(cursors.down.isDown) { // down pressed
+                afterJump = false
                 ollie.setVelocityY(500)
+            } else {
+                afterJump = true
             }
-            
-            // if (ollie.y < waterLevel + 1 && cursors.space.isDown){ //jump
-            //     // ollie.setVelocityY(-1000) 
-            //     // ollie.setGravityY(1000)
-            // }
-        }
-        
+        }  else if(ollie.y < waterLevel) { //above water
+            ollie.body.gravity.y = 400
+        } 
     }
     
 
