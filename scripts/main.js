@@ -25,7 +25,7 @@ let camera,
     ollie,
     cursors,
     isDead,
-    sx = 0
+    sx = 0,
     waterLevel,
     afterJump
 
