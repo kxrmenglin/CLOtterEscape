@@ -27,7 +27,10 @@ let camera,
     isDead,
     sx = 0,
     waterLevel,
-    afterJump
+    afterJump,
+    timer,
+    score = 0,
+    scoreText
 
 class GameScene extends Phaser.Scene {
     constructor() { 
@@ -78,7 +81,9 @@ class GameScene extends Phaser.Scene {
 
         //create variable to use for stopping ollie from moving up ocean level
         waterLevel = background.y / 2.1 //428.57
-        
+     
+        //create text to display score
+        scoreText = this.add.text(64, 64, 'Score: 0', {fontSize: '128px', color: '#000'}).setScrollFactor(0);
     }
     update() {
         this.movement()
@@ -88,7 +93,8 @@ class GameScene extends Phaser.Scene {
             console.log('ur dead');
             //this.scene.stop();
         } else {
-            sx += 8; //change this to diff number divisible by 4 to slow down movement
+            sx += 1; //change this to diff number divisible by 4 to slow down movement
+            addScore(1);
             if (sx === 16){
                 this.groundObstacles.getChildren().forEach(obstacle => {
                     if (obstacle.getBounds().right < 0) {
@@ -187,3 +193,8 @@ function createGroundObstacles(groundObstacles) {
     //obstacle.body.setImmovable(true);
     //obstacle.body.moves = false;
 } //END CREATEGROUNDOBSTACLES
+
+function addScore(points){
+    score += points;
+    scoreText.setText('Score: ' + score);
+}
