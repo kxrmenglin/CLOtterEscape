@@ -29,8 +29,8 @@ let camera,
     waterLevel,
     afterJump,
     timer,
-    score = 0,
-    scoreText,
+    metersSwam = 0,
+    metersSwamText,
     shellCount = 0,
     shellCountText,
     hasPuffer = false,
@@ -83,43 +83,36 @@ class GameScene extends Phaser.Scene {
         camera.setBounds(0, 0, game.config.width, game.config.height * 1.5);
         camera.startFollow(ollie, false, 0.5, 0.03);
 
-        // const screenCenterX =  this.cameras.main.worldView.x + this.cameras.main.width /2 ;
-        // const screenCenterY =  this.cameras.main.worldView.y + this.cameras.main.height /2 ;
-        // this.shellCounter = this.add.image(screenCenterX, screenCenterY, 'shell_pink').setOrigin(0.5);
-        // shellCountText = this.add.text(screenCenterX, screenCenterY, 'Shell Count: 0', {fontSize: '32px', fill: '#000'}).setOrigin(0.5);
-
-        this.shellCounter = this.add.image(game.config.width * 0.02, game.config.height * 0.03, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2);
-        shellCountText = this.add.text(game.config.width * 0.13, game.config.height * 0.032, 'Shell Count: 0', {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0);
-        
-        // shellCountText = this.add.text(game.config.width  + 50, game.config.height * .75, 'Shell Count: 0', {fontSize: '32px', fill: '#000'})
-
-        //obstacles
+        //obstacles, currency, power ups
         this.groundObstacles = this.physics.add.group();
         this.currencies = this.physics.add.group();
         this.powerUps = this.physics.add.group();
-        // this.cosmeticPowerUp = this.physics.add.group();
 
         //generates obstacles at random times
         setInterval(() => createGroundObstacles(this.groundObstacles), 5000);
-
         setInterval(() => createCurrency(this.currencies), 2000);
-
         setInterval(() => createPowerUps(this.powerUps), 4000);
 
         //detects for collisions between ollie & currency + ground obstacles
-        this.physics.add.collider(ollie, this.groundObstacles, obstacleCollision) 
+        this.physics.add.collider(ollie, this.groundObstacles, obstacleCollision)
+        this.physics.add.collider(ollie, this.currencies, killCurrency)
+        this.physics.add.collider(ollie, this.powerUps, collectPuffer)
 
-        this.physics.add.collider(ollie, this.currencies, killCurrency);
-
-        this.physics.add.collider(ollie, this.powerUps, collectPuffer);
+        //create text to display score
+        metersSwamText = this.add.text(game.config.width * 0.02, game.config.height * 0.01, 'Meters Swam: 0', {fontSize: '85px', color: '#FFF'}).setScrollFactor(0);
+        //create text to display shell count
+        this.shellCounter = this.add.image(game.config.width * 0.79, game.config.height * 0.048, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2);
+        shellCountText = this.add.text(game.config.width * 0.90, game.config.height * 0.05, 'Shell Count: 0', {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0);
         
+        
+
+        //input
         cursors = this.input.keyboard.createCursorKeys();
 
         //create variable to use for stopping ollie from moving up ocean level
         waterLevel = background.y / 2.1 //428.57
      
-        //create text to display score
-        scoreText = this.add.text(64, 64, 'Score: 0', {fontSize: '128px', color: '#000'}).setScrollFactor(0);.
+       
     }
     update() {
         this.checkForPuffer()
@@ -130,8 +123,8 @@ class GameScene extends Phaser.Scene {
             console.log('ur dead');
             this.scene.stop();
         } else {
-            sx += 1; //change this to diff number divisible by 4 to slow down movement
-            addScore(1);
+            sx += 8; //change this to diff number divisible by 4 to slow down movement
+            addMetersSwam(1);
 
             //updates obstacle pos
 
@@ -250,9 +243,9 @@ function createGroundObstacles(groundObstacles) {
     obstacle.setScale(2);
 } //END CREATEGROUNDOBSTACLES
 
-function addScore(points){
-    score += points;
-    scoreText.setText('Score: ' + score);
+function addMetersSwam(points){
+    metersSwam += points;
+    metersSwamText.setText('Meters Swam: ' + metersSwam);
 }
 
 function createCurrency(currencies) {
