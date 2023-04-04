@@ -29,7 +29,11 @@ let camera,
     waterLevel,
     afterJump,
     shellCount = 0,
-    shellCountText
+    shellCountText,
+    hasPuffer = false,
+    loadedPuffer = false,
+    ollieAndPuffer
+
 
 class GameScene extends Phaser.Scene {
     constructor() { 
@@ -44,7 +48,7 @@ class GameScene extends Phaser.Scene {
         this.load.image('obstacle2', 'assets/underwaterplant_orange.png');
         this.load.image('obstacle3', 'assets/underwaterplant_green.png');
         this.load.image('powerUpPH1', 'assets/puffer.png');
-        this.load.image('powerUpPh2', 'assets/shell.png');
+        this.load.image('powerUpPH2', 'assets/shell.png');
         this.load.image('shell_pink', 'assets/shell_pink.png')
 
 
@@ -85,14 +89,13 @@ class GameScene extends Phaser.Scene {
         this.shellCounter = this.add.image(game.config.width * 0.02, game.config.height * 0.03, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2);
         shellCountText = this.add.text(game.config.width * 0.13, game.config.height * 0.032, 'Shell Count: 0', {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0);
         
-
-        
         // shellCountText = this.add.text(game.config.width  + 50, game.config.height * .75, 'Shell Count: 0', {fontSize: '32px', fill: '#000'})
 
         //obstacles
         this.groundObstacles = this.physics.add.group();
         this.currencies = this.physics.add.group();
         this.powerUps = this.physics.add.group();
+        // this.cosmeticPowerUp = this.physics.add.group();
 
         //generates obstacles at random times
         setInterval(() => createGroundObstacles(this.groundObstacles), 5000);
@@ -102,15 +105,11 @@ class GameScene extends Phaser.Scene {
         setInterval(() => createPowerUps(this.powerUps), 4000);
 
         //detects for collisions between ollie & currency + ground obstacles
-        this.physics.add.collider(ollie, this.groundObstacles, function (ollie, groundObstacles) {
-            isDead = true;
-        });
+        this.physics.add.collider(ollie, this.groundObstacles, obstacleCollision) 
 
         this.physics.add.collider(ollie, this.currencies, killCurrency);
 
-        this.physics.add.collider(ollie, this.powerUps, function (ollie, powerUps) {
-            console.log('touching powerup');
-        });
+        this.physics.add.collider(ollie, this.powerUps, collectPuffer);
         
         cursors = this.input.keyboard.createCursorKeys();
 
@@ -119,6 +118,7 @@ class GameScene extends Phaser.Scene {
         
     }
     update() {
+        this.checkForPuffer()
         this.movement()
         background._tilePosition.x += 1.69
         
@@ -165,6 +165,16 @@ class GameScene extends Phaser.Scene {
   
   
         //background._tilePosition.x += 1.69
+    }
+
+    checkForPuffer() {
+        if(hasPuffer && !loadedPuffer) {
+            ollieAndPuffer = this.add.image(ollie.x, ollie.y-50, 'powerUpPH1').setScale(0.06)
+            loadedPuffer = true;
+        } else if(hasPuffer && loadedPuffer) {
+            ollieAndPuffer.x = ollie.x;
+            ollieAndPuffer.y = ollie.y-50;
+        }
     }
 
     movement() { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS UP AND POSITIVE IS DOWN
@@ -250,25 +260,42 @@ function createCurrency(currencies) {
 } //END CREATEFLOATOBSTACLES
 
 function createPowerUps(powerUps) {
-    var powerUpList = ['powerUpPH1', 'powerUpPH2'];
-    let powerUpIndex = Phaser.Math.RND.between(0, 1);
-    var chosenPowerUp = powerUpList[powerUpIndex];
-
-    var powerUp = powerUps.create(game.config.width + 50, 1800, chosenPowerUp);
-    powerUp.setOrigin(0.5, 0);
-    powerUp.setSize(200, 200);
-    powerUp.setScale(0.5);
-
+    // var powerUpList = ['powerUpPH1'];
+    // // let powerUpIndex = Phaser.Math.RND.between(0, 1);
+    // var chosenPowerUp = powerUpList[0];
+    let powerUpHeight = Phaser.Math.RND.between(2000, 500)
+    var powerUp = powerUps.create(game.config.width * 0.97, powerUpHeight, 'powerUpPH1');
+    // console.log('spawning puffer')
+    powerUp
+    .setOrigin(0.5, 0.5)
+    .setScale(0.08)
     //example code had these setings but console error when i use it
     // obstacle.body.allowGravity = false;
-    powerUp.body.setImmovable(true);
+    powerUp.body.setImmovable(false);
     // obstacle.body.moves = false;
 } //END CREATEFLOATOBSTACLES
 
 function killCurrency(ollie, currency) {
-    currency.x = 5;
+    currency.x = -200;
     shellCount++;
     shellCountText.setText('Shell Count: ' + shellCount)
-    console.log(shellCount)
+    // console.log(shellCount)
+}
+
+function collectPuffer(ollie, puffer) {
+    console.log('puffer powerup')
+    puffer.x = -200;
+    hasPuffer = true;
+}
+
+function obstacleCollision(ollie, obstacle) {
+    if(hasPuffer) {
+        obstacle.x = -200;
+        hasPuffer = false;
+        loadedPuffer = false;
+        ollieAndPuffer.destroy();
+    } else {
+        isDead = true;
+    }
 }
 
