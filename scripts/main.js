@@ -1,8 +1,8 @@
-let config
-let game
+var config;
+let game;
 window.onload = function() {
     // object containing configuration options
-    let config = {
+    config = {
         type: Phaser.AUTO,
         width: 3000,
         height: 1452,
@@ -13,10 +13,10 @@ window.onload = function() {
             arcade: { debug:true }
         }
     }
-    game = new Phaser.Game(config)
-    window.focus()
-    resize()
-    window.addEventListener("resize", resize, false)
+    game = new Phaser.Game(config);
+    window.focus();
+    resize();
+    window.addEventListener("resize", resize, false);
 }//END load listener
 
 let camera,
@@ -30,7 +30,12 @@ let camera,
     afterJump,
     timer,
     score = 0,
-    scoreText
+    scoreText,
+    shellCount = 0,
+    shellCountText,
+    hasPuffer = false,
+    loadedPuffer = false,
+    ollieAndPuffer
 
 class GameScene extends Phaser.Scene {
     constructor() { 
@@ -44,11 +49,23 @@ class GameScene extends Phaser.Scene {
         this.load.image('obstacle1', 'assets/underwaterplant_pink.png');
         this.load.image('obstacle2', 'assets/underwaterplant_orange.png');
         this.load.image('obstacle3', 'assets/underwaterplant_green.png');
-        this.load.image('puffer', 'assets/puffer.png');
-        this.load.image('shell', 'assets/shell.png');
+        this.load.image('powerUpPH1', 'assets/puffer.png');
+        this.load.image('powerUpPH2', 'assets/shell.png');
+        this.load.image('shell_pink', 'assets/shell_pink.png')
+
+
+
+        //physics editor testing:
+        // Load body shapes from JSON file generated using PhysicsEditor
+        this.load.json('shapes', 'assets/underwaterplant_green.json');
+        
     }
 
+    
+
     create() {
+
+        var shapes = this.cache.json.get('shapes');
         //world stuff
         background = this.add.tileSprite(4000, 900, 0, 0, 'background')
         .setScale(8)
@@ -59,67 +76,111 @@ class GameScene extends Phaser.Scene {
         background.fixedToCamera = true;
         
         ollie = this.physics.add.sprite(game.config.width / 3, game.config.height * .75, 'ollie')
-        .setScale(2)
-        ollie.setCollideWorldBounds(true)
+        .setScale(2);
+        ollie.setCollideWorldBounds(true);
 
-        camera = this.cameras.main
-        camera.setBounds(0, 0, game.config.width, game.config.height * 1.5)
-        camera.startFollow(ollie, false, 0.5, 0.03)
+        camera = this.cameras.main;
+        camera.setBounds(0, 0, game.config.width, game.config.height * 1.5);
+        camera.startFollow(ollie, false, 0.5, 0.03);
+
+        // const screenCenterX =  this.cameras.main.worldView.x + this.cameras.main.width /2 ;
+        // const screenCenterY =  this.cameras.main.worldView.y + this.cameras.main.height /2 ;
+        // this.shellCounter = this.add.image(screenCenterX, screenCenterY, 'shell_pink').setOrigin(0.5);
+        // shellCountText = this.add.text(screenCenterX, screenCenterY, 'Shell Count: 0', {fontSize: '32px', fill: '#000'}).setOrigin(0.5);
+
+        this.shellCounter = this.add.image(game.config.width * 0.02, game.config.height * 0.03, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2);
+        shellCountText = this.add.text(game.config.width * 0.13, game.config.height * 0.032, 'Shell Count: 0', {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0);
+        
+        // shellCountText = this.add.text(game.config.width  + 50, game.config.height * .75, 'Shell Count: 0', {fontSize: '32px', fill: '#000'})
 
         //obstacles
         this.groundObstacles = this.physics.add.group();
-        this.floatObstacles = this.physics.add.group();
+        this.currencies = this.physics.add.group();
+        this.powerUps = this.physics.add.group();
+        // this.cosmeticPowerUp = this.physics.add.group();
 
-        setInterval(() => createGroundObstacles(this.groundObstacles), 3000);
-        //setInterval(() => createFloatObstacles(this.floatObstacles), 2000);
-          this.physics.add.collider(ollie, this.groundObstacles, function (ollie, groundObstacles) {
-            console.log("lol");
-            isDead = true;
-        });
+        //generates obstacles at random times
+        setInterval(() => createGroundObstacles(this.groundObstacles), 5000);
+
+        setInterval(() => createCurrency(this.currencies), 2000);
+
+        setInterval(() => createPowerUps(this.powerUps), 4000);
+
+        //detects for collisions between ollie & currency + ground obstacles
+        this.physics.add.collider(ollie, this.groundObstacles, obstacleCollision) 
+
+        this.physics.add.collider(ollie, this.currencies, killCurrency);
+
+        this.physics.add.collider(ollie, this.powerUps, collectPuffer);
         
-        cursors = this.input.keyboard.createCursorKeys()
+        cursors = this.input.keyboard.createCursorKeys();
 
         //create variable to use for stopping ollie from moving up ocean level
         waterLevel = background.y / 2.1 //428.57
      
         //create text to display score
-        scoreText = this.add.text(64, 64, 'Score: 0', {fontSize: '128px', color: '#000'}).setScrollFactor(0);
+        scoreText = this.add.text(64, 64, 'Score: 0', {fontSize: '128px', color: '#000'}).setScrollFactor(0);.
     }
     update() {
+        this.checkForPuffer()
         this.movement()
-        background._tilePosition.x += 1.69;
-
+        background._tilePosition.x += 1.69
+        
         if (isDead) {
             console.log('ur dead');
-            //this.scene.stop();
+            this.scene.stop();
         } else {
             sx += 1; //change this to diff number divisible by 4 to slow down movement
             addScore(1);
+
+            //updates obstacle pos
+
             if (sx === 16){
                 this.groundObstacles.getChildren().forEach(obstacle => {
                     if (obstacle.getBounds().right < 0) {
                         this.groundObstacles.killAndHide(obstacle);
                     } else {
-                        obstacle.x -= 3;
+                        obstacle.x -= 20;
                     }
                 })
+                sx = 0;
             }
 
-            //Code for power up item update
+            //updates currency pos
 
-            // this.floatObstacles.getChildren().forEach(floatObstacle => {
-            //   if (floatObstacle.getBounds().right < 0) {
-            //     this.floatObstacles.killAndHide(floatObstacle);
-            //   }
-            //   else {
-            //     floatObstacle.x -= 3;
-            //   }
-            // });
-            sx = 0;
+            this.currencies.getChildren().forEach(currencyChild => {
+              if (currencyChild.getBounds().right < 0) {
+                this.currencies.killAndHide(currencyChild);
+              }
+              else {
+                currencyChild.x -= 10;
+              }
+            });
+            
+            //updates power up pos
+            this.powerUps.getChildren().forEach(powerUpChild => {
+                if (powerUpChild.getBounds().right < 0) {
+                    this.powerUps.killAndHide(powerUpChild);
+                }
+                else {
+                    powerUpChild.x -= 10;
+                }
+            });
+
         }
   
   
-        background._tilePosition.x += 1.69
+        //background._tilePosition.x += 1.69
+    }
+
+    checkForPuffer() {
+        if(hasPuffer && !loadedPuffer) {
+            ollieAndPuffer = this.add.image(ollie.x, ollie.y-50, 'powerUpPH1').setScale(0.06)
+            loadedPuffer = true;
+        } else if(hasPuffer && loadedPuffer) {
+            ollieAndPuffer.x = ollie.x;
+            ollieAndPuffer.y = ollie.y-50;
+        }
     }
 
     movement() { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS UP AND POSITIVE IS DOWN
@@ -143,10 +204,10 @@ class GameScene extends Phaser.Scene {
                 ollie.setVelocityY(500)
             }
         } else if(ollie.y <= waterLevel + 150 && ollie.y >= waterLevel) { //below water but in range of waterLevel to charge jump - can move up, down, and jump
-            ollie.body.gravity.y = 700
+            ollie.body.gravity.y = 900
             if(cursors.space.isDown && ollie.body.velocity.y < 0) { //presses space - only works if Ollie is moving upwards to prevent space spam
                 afterJump = true
-                ollie.setVelocityY(ollie.body.velocity.y - 10) //increase upward velocity while space is pressed
+                ollie.setVelocityY(ollie.body.velocity.y - 15) //increase upward velocity while space is pressed
             } else if(cursors.down.isDown) { // down pressed
                 afterJump = false
                 ollie.setVelocityY(500)
@@ -183,18 +244,64 @@ function createGroundObstacles(groundObstacles) {
     let obstacleIndex = Phaser.Math.RND.between(0, 2);
     var chosenObstacle = obstacleList[obstacleIndex];
 
-    var obstacle = groundObstacles.create(game.config.width + 50, game.config.height, chosenObstacle);
-    obstacle.setOrigin(0.5, 1);
-    obstacle.setSize(200, 400);
-    console.log(obstacle);
-
-    //example code had these setings but console error when i use it
-    //obstacle.body.allowGravity = false;
-    //obstacle.body.setImmovable(true);
-    //obstacle.body.moves = false;
+    var obstacle = groundObstacles.create(game.config.width + 50, 1800, chosenObstacle);
+    obstacle.setOrigin(0.5, 0);
+    obstacle.setSize(200, 200);
+    obstacle.setScale(2);
 } //END CREATEGROUNDOBSTACLES
 
 function addScore(points){
     score += points;
     scoreText.setText('Score: ' + score);
 }
+
+function createCurrency(currencies) {
+    //choose random value between river height and bottom of the screen
+    let currencyHeight = Phaser.Math.RND.between(2000, 500)
+    var currency = currencies.create(game.config.width + 50, currencyHeight, 'shell_pink')
+    currency.setOrigin(0.5, 0)
+    currency.setScale(1.5)
+
+    currency.body.setImmovable(false);
+} //END CREATEFLOATOBSTACLES
+
+function createPowerUps(powerUps) {
+    // var powerUpList = ['powerUpPH1'];
+    // // let powerUpIndex = Phaser.Math.RND.between(0, 1);
+    // var chosenPowerUp = powerUpList[0];
+    let powerUpHeight = Phaser.Math.RND.between(2000, 500)
+    var powerUp = powerUps.create(game.config.width * 0.97, powerUpHeight, 'powerUpPH1');
+    // console.log('spawning puffer')
+    powerUp
+    .setOrigin(0.5, 0.5)
+    .setScale(0.08)
+    //example code had these setings but console error when i use it
+    // obstacle.body.allowGravity = false;
+    powerUp.body.setImmovable(false);
+    // obstacle.body.moves = false;
+} //END CREATEFLOATOBSTACLES
+
+function killCurrency(ollie, currency) {
+    currency.x = -200;
+    shellCount++;
+    shellCountText.setText('Shell Count: ' + shellCount)
+    // console.log(shellCount)
+}
+
+function collectPuffer(ollie, puffer) {
+    console.log('puffer powerup')
+    puffer.x = -200;
+    hasPuffer = true;
+}
+
+function obstacleCollision(ollie, obstacle) {
+    if(hasPuffer) {
+        obstacle.x = -200;
+        hasPuffer = false;
+        loadedPuffer = false;
+        ollieAndPuffer.destroy();
+    } else {
+        isDead = true;
+    }
+}
+
