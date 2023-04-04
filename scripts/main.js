@@ -104,7 +104,7 @@ class GameScene extends Phaser.Scene {
         this.shellCounter = this.add.image(game.config.width * 0.79, game.config.height * 0.048, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2);
         shellCountText = this.add.text(game.config.width * 0.90, game.config.height * 0.05, 'Shell Count: 0', {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0);
         //user is able to jump text
-        canJumpText = this.add.text(game.config.width * 0.32, game.config.height * 0.01, 'jump', {fontSize: '85px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0);
+        canJumpText = this.add.text(game.config.width * 0.5, game.config.height * 0.01, 'jump', {fontSize: '85px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0);
 
         //input
         cursors = this.input.keyboard.createCursorKeys();
