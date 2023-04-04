@@ -27,7 +27,9 @@ let camera,
     isDead,
     sx = 0,
     waterLevel,
-    afterJump
+    afterJump,
+    shellCount = 0,
+    shellCountText
 
 class GameScene extends Phaser.Scene {
     constructor() { 
@@ -75,6 +77,18 @@ class GameScene extends Phaser.Scene {
         camera.setBounds(0, 0, game.config.width, game.config.height * 1.5);
         camera.startFollow(ollie, false, 0.5, 0.03);
 
+        // const screenCenterX =  this.cameras.main.worldView.x + this.cameras.main.width /2 ;
+        // const screenCenterY =  this.cameras.main.worldView.y + this.cameras.main.height /2 ;
+        // this.shellCounter = this.add.image(screenCenterX, screenCenterY, 'shell_pink').setOrigin(0.5);
+        // shellCountText = this.add.text(screenCenterX, screenCenterY, 'Shell Count: 0', {fontSize: '32px', fill: '#000'}).setOrigin(0.5);
+
+        this.shellCounter = this.add.image(game.config.width * 0.02, game.config.height * 0.03, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2);
+        shellCountText = this.add.text(game.config.width * 0.13, game.config.height * 0.032, 'Shell Count: 0', {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0);
+        
+
+        
+        // shellCountText = this.add.text(game.config.width  + 50, game.config.height * .75, 'Shell Count: 0', {fontSize: '32px', fill: '#000'})
+
         //obstacles
         this.groundObstacles = this.physics.add.group();
         this.currencies = this.physics.add.group();
@@ -92,9 +106,7 @@ class GameScene extends Phaser.Scene {
             isDead = true;
         });
 
-        this.physics.add.collider(ollie, this.currencies, function (ollie, currencies) {
-            console.log('touching currency');
-        });
+        this.physics.add.collider(ollie, this.currencies, killCurrency);
 
         this.physics.add.collider(ollie, this.powerUps, function (ollie, powerUps) {
             console.log('touching powerup');
@@ -176,10 +188,10 @@ class GameScene extends Phaser.Scene {
                 ollie.setVelocityY(500)
             }
         } else if(ollie.y <= waterLevel + 150 && ollie.y >= waterLevel) { //below water but in range of waterLevel to charge jump - can move up, down, and jump
-            ollie.body.gravity.y = 700
+            ollie.body.gravity.y = 900
             if(cursors.space.isDown && ollie.body.velocity.y < 0) { //presses space - only works if Ollie is moving upwards to prevent space spam
                 afterJump = true
-                ollie.setVelocityY(ollie.body.velocity.y - 10) //increase upward velocity while space is pressed
+                ollie.setVelocityY(ollie.body.velocity.y - 15) //increase upward velocity while space is pressed
             } else if(cursors.down.isDown) { // down pressed
                 afterJump = false
                 ollie.setVelocityY(500)
@@ -234,7 +246,7 @@ function createCurrency(currencies) {
     currency.setOrigin(0.5, 0)
     currency.setScale(1.5)
 
-    currency.body.setImmovable(true);
+    currency.body.setImmovable(false);
 } //END CREATEFLOATOBSTACLES
 
 function createPowerUps(powerUps) {
@@ -252,4 +264,11 @@ function createPowerUps(powerUps) {
     powerUp.body.setImmovable(true);
     // obstacle.body.moves = false;
 } //END CREATEFLOATOBSTACLES
+
+function killCurrency(ollie, currency) {
+    currency.x = 5;
+    shellCount++;
+    shellCountText.setText('Shell Count: ' + shellCount)
+    console.log(shellCount)
+}
 
