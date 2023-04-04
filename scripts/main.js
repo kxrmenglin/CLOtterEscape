@@ -35,7 +35,8 @@ let camera,
     shellCountText,
     hasPuffer = false,
     loadedPuffer = false,
-    ollieAndPuffer
+    ollieAndPuffer,
+    canJumpText
 
 class GameScene extends Phaser.Scene {
     constructor() { 
@@ -64,7 +65,6 @@ class GameScene extends Phaser.Scene {
     
 
     create() {
-
         var shapes = this.cache.json.get('shapes');
         //world stuff
         background = this.add.tileSprite(4000, 900, 0, 0, 'background')
@@ -95,7 +95,7 @@ class GameScene extends Phaser.Scene {
 
         //detects for collisions between ollie & currency + ground obstacles
         this.physics.add.collider(ollie, this.groundObstacles, obstacleCollision)
-        this.physics.add.collider(ollie, this.currencies, killCurrency)
+        this.physics.add.collider(ollie, this.currencies, collectCurrency)
         this.physics.add.collider(ollie, this.powerUps, collectPuffer)
 
         //create text to display score
@@ -103,8 +103,8 @@ class GameScene extends Phaser.Scene {
         //create text to display shell count
         this.shellCounter = this.add.image(game.config.width * 0.79, game.config.height * 0.048, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2);
         shellCountText = this.add.text(game.config.width * 0.90, game.config.height * 0.05, 'Shell Count: 0', {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0);
-        
-        
+        //user is able to jump text
+        canJumpText = this.add.text(game.config.width * 0.5, game.config.height * 0.01, 'jump', {fontSize: '85px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0);
 
         //input
         cursors = this.input.keyboard.createCursorKeys();
@@ -117,17 +117,15 @@ class GameScene extends Phaser.Scene {
     update() {
         this.checkForPuffer()
         this.movement()
-        background._tilePosition.x += 1.69
-        
+        this.moveBackground()
+        this.canJump()
         if (isDead) {
             console.log('ur dead');
             this.scene.stop();
         } else {
-            sx += 8; //change this to diff number divisible by 4 to slow down movement
+            sx += 8; //movement of the obstacles
             addMetersSwam(1);
-
             //updates obstacle pos
-
             if (sx === 16){
                 this.groundObstacles.getChildren().forEach(obstacle => {
                     if (obstacle.getBounds().right < 0) {
@@ -159,11 +157,16 @@ class GameScene extends Phaser.Scene {
                     powerUpChild.x -= 10;
                 }
             });
-
         }
-  
-  
         //background._tilePosition.x += 1.69
+    }
+
+    canJump() {
+        if(ollie.y <= waterLevel + 150 && ollie.y >= waterLevel && ollie.body.velocity.y < 0) {
+            canJumpText.setStyle({color: 'rgb(256,256,256,1)'})
+        } else {
+            canJumpText.setStyle({color: 'rgb(256,256,256,0.5)'})
+        }
     }
 
     checkForPuffer() {
@@ -174,7 +177,7 @@ class GameScene extends Phaser.Scene {
             ollieAndPuffer.x = ollie.x;
             ollieAndPuffer.y = ollie.y-50;
         }
-    }
+    }//END CHECKFORPUFFER
 
     movement() { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS UP AND POSITIVE IS DOWN
         ollie.body.acceleration.y = 0
@@ -200,7 +203,7 @@ class GameScene extends Phaser.Scene {
             ollie.body.gravity.y = 900
             if(cursors.space.isDown && ollie.body.velocity.y < 0) { //presses space - only works if Ollie is moving upwards to prevent space spam
                 afterJump = true
-                ollie.setVelocityY(ollie.body.velocity.y - 15) //increase upward velocity while space is pressed
+                ollie.setVelocityY(ollie.body.velocity.y * 1.03) //increase upward velocity while space is pressed
             } else if(cursors.down.isDown) { // down pressed
                 afterJump = false
                 ollie.setVelocityY(500)
@@ -210,27 +213,12 @@ class GameScene extends Phaser.Scene {
         }  else if(ollie.y < waterLevel) { //above water
             ollie.body.gravity.y = 400
         } 
+    }//END MOVEMENT FUNCTION
+
+    moveBackground() {
+        background._tilePosition.x += 1.69
     }
-    
-
-
 } //END GameScene
-
-function resize() { 
-    let canvas = document.querySelector("canvas")
-    let windowWidth = window.innerWidth
-    let windowHeight = window.innerHeight
-    let windowRatio = windowWidth / windowHeight
-    let gameRatio = game.config.width / game.config.height
-    if(windowRatio < gameRatio){
-        canvas.style.width = windowWidth + "px"
-        canvas.style.height = (windowWidth / gameRatio) + "px"
-    }
-    else{
-        canvas.style.width = (windowHeight * gameRatio) + "px"
-        canvas.style.height = windowHeight + "px"
-    }
-} //END resize function
 
 function createGroundObstacles(groundObstacles) {
     var obstacleList = ['obstacle1', 'obstacle2', 'obstacle3'];
@@ -242,11 +230,6 @@ function createGroundObstacles(groundObstacles) {
     obstacle.setSize(200, 200);
     obstacle.setScale(2);
 } //END CREATEGROUNDOBSTACLES
-
-function addMetersSwam(points){
-    metersSwam += points;
-    metersSwamText.setText('Meters Swam: ' + metersSwam);
-}
 
 function createCurrency(currencies) {
     //choose random value between river height and bottom of the screen
@@ -274,7 +257,7 @@ function createPowerUps(powerUps) {
     // obstacle.body.moves = false;
 } //END CREATEFLOATOBSTACLES
 
-function killCurrency(ollie, currency) {
+function collectCurrency(ollie, currency) {
     currency.x = -200;
     shellCount++;
     shellCountText.setText('Shell Count: ' + shellCount)
@@ -297,4 +280,25 @@ function obstacleCollision(ollie, obstacle) {
         isDead = true;
     }
 }
+
+function addMetersSwam(points){
+    metersSwam += points;
+    metersSwamText.setText('Meters Swam: ' + metersSwam);
+}
+
+function resize() { 
+    let canvas = document.querySelector("canvas")
+    let windowWidth = window.innerWidth
+    let windowHeight = window.innerHeight
+    let windowRatio = windowWidth / windowHeight
+    let gameRatio = game.config.width / game.config.height
+    if(windowRatio < gameRatio){
+        canvas.style.width = windowWidth + "px"
+        canvas.style.height = (windowWidth / gameRatio) + "px"
+    }
+    else{
+        canvas.style.width = (windowHeight * gameRatio) + "px"
+        canvas.style.height = windowHeight + "px"
+    }
+} //END resize function
 
