@@ -28,12 +28,14 @@ let camera,
     sx = 0,
     waterLevel,
     afterJump,
+    timer,
+    score = 0,
+    scoreText,
     shellCount = 0,
     shellCountText,
     hasPuffer = false,
     loadedPuffer = false,
     ollieAndPuffer
-
 
 class GameScene extends Phaser.Scene {
     constructor() { 
@@ -114,8 +116,10 @@ class GameScene extends Phaser.Scene {
         cursors = this.input.keyboard.createCursorKeys();
 
         //create variable to use for stopping ollie from moving up ocean level
-        waterLevel = background.y / 2.1; //428.57
-        
+        waterLevel = background.y / 2.1 //428.57
+     
+        //create text to display score
+        scoreText = this.add.text(64, 64, 'Score: 0', {fontSize: '128px', color: '#000'}).setScrollFactor(0);.
     }
     update() {
         this.checkForPuffer()
@@ -123,12 +127,14 @@ class GameScene extends Phaser.Scene {
         background._tilePosition.x += 1.69
         
         if (isDead) {
+            console.log('ur dead');
             this.scene.stop();
-        } 
-        else {
-            sx += 8; //change this to diff number divisible by 4 to slow down movement
+        } else {
+            sx += 1; //change this to diff number divisible by 4 to slow down movement
+            addScore(1);
 
             //updates obstacle pos
+
             if (sx === 16){
                 this.groundObstacles.getChildren().forEach(obstacle => {
                     if (obstacle.getBounds().right < 0) {
@@ -242,12 +248,12 @@ function createGroundObstacles(groundObstacles) {
     obstacle.setOrigin(0.5, 0);
     obstacle.setSize(200, 200);
     obstacle.setScale(2);
-
-    //example code had these setings but console error when i use it
-    // obstacle.body.allowGravity = false;
-    obstacle.body.setImmovable(true);
-    // obstacle.body.moves = false;
 } //END CREATEGROUNDOBSTACLES
+
+function addScore(points){
+    score += points;
+    scoreText.setText('Score: ' + score);
+}
 
 function createCurrency(currencies) {
     //choose random value between river height and bottom of the screen
