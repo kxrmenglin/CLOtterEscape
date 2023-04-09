@@ -1,13 +1,23 @@
+// import TitleScene from './scenes/TitleScene';
+
+// let titleScene = new TitleScene();
+
 var config;
 var game;
 window.onload = function() {
+
+    let titleScene = new TitleScene();
+    let gameScene = new GameScene();
+    let pauseScene = new PauseScene();
+    let deathScene = new DeathScene();
+
     // object containing configuration options
     config = {
         type: Phaser.AUTO,
         width: 3000,
         height: 1452,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        scene: GameScene,
+        scene: [TitleScene, GameScene, PauseScene, DeathScene], //made it a scene array to switch between scenes
         physics: {
             default: "arcade",
             arcade: { debug:true }
@@ -17,42 +27,214 @@ window.onload = function() {
     window.focus();
     resize();
     window.addEventListener("resize", resize, false);
+
+    game.scene.add('TitleScene', titleScene);
+    // game.scene.start('TitleScene');
+
+    game.scene.add('GameScene', gameScene);
+    // game.scene.start('GameScene');
+
+    game.scene.add('PauseScene', pauseScene);
+    // game.scene.start('PauseScene');
+
+    game.scene.add('DeathScene', deathScene);
+
 }//END load listener
-//DECLARATIONS
-let 
-    //GAME ELEMNTS 
-        //CONSTANTS
-        background,
-        ollie,
-        camera,
-        cursors,
-        waterLevel,
-        //GAME STATE
-        isDead,
-    //MOVEMENT
-        afterJump,
-    //NAVBAR
-        //METERS SWAM TEXT
-        metersSwam = 0,
-        metersSwamText,
-        //JUMP TEXT
-        canJumpText,
-        //CURRENCY TEXT
-        shellCount = 0,
-        shellCountText,
-        //ON DECK POWERUP IMAGE
-        onDeck,
-    //OBSTACLES
-        sx = 0,
-    //POWERUPS --- 0 = nothing, 1 = puffer, 2 = bubble
-        currentPowerUp,
-        loadedPowerUp = 0,
-        powerUpsQueue = []
-//END DECLARATIONS
-class GameScene extends Phaser.Scene {
-    constructor() { 
-        super("GameScene")
+
+class DeathScene extends Phaser.Scene {
+    constructor() {
+        super({key: 'DeathScene'});
     }//END CONSTRUCTOR
+    preload() {
+        this.load.image('background', 'assets/background_V1.png');
+        this.load.image('deathTitle', 'assets/otterescape_pausescreen_pause.png'); //temp
+    }//END PRELOAD
+    create() {
+        let background = this.add.sprite(2040, 950, 'background') //temporary background for pause scene
+        .setScale(8)
+
+        let deathTitle = this.add.sprite(game.config.width/2, game.config.height/3, 'deathTitle')
+        .setOrigin(0.5)
+        .setScale(2.5)
+
+        let playAgainTitle = this.add.text(game.config.width/2, game.config.height/1.5, 'Play Again?')
+        .setOrigin(0.5)
+        .setScale(6)
+
+        var yes = this.add.text(game.config.width/2.4, game.config.height/1.3, 'yes')
+        .setScale(4.5)
+        .setInteractive({ useHandCursor: true })
+
+        var no = this.add.text(game.config.width/1.9, game.config.height/1.3, 'no')
+        .setScale(4.5)
+        .setInteractive({ useHandCursor: true })
+
+
+        //color the button when cursor is hovered over
+        yes.on('pointerover', function(event) {
+            yes.setTint(808080);
+        });
+        yes.on('pointerout', function (pointer) {
+            yes.clearTint();
+        });
+        yes.on('pointerdown', function(pointer) { 
+            // game.scene.stop('GameScene');
+            game.scene.start('GameScene');
+            game.scene.stop('DeathScene');
+        });
+
+
+        //color the button when cursor is hovered over
+        no.on('pointerover', function(event) {
+            no.setTint(808080);
+        });
+        no.on('pointerout', function (pointer) {
+            no.clearTint();
+        });
+        no.on('pointerdown', function(pointer) { 
+            game.scene.start('TitleScene');
+            game.scene.stop('DeathScene');
+            game.scene.stop('GameScene');
+        });
+    }//END CREATE
+}//END DEATHSCENE
+
+class PauseScene extends Phaser.Scene {
+    constructor() {
+        super({key: 'PauseScene'});
+    }//END CONSTRUCTOR
+
+    preload() {
+        this.load.image('background', 'assets/background_V1.png');
+        this.load.image('pauseTitle', 'assets/otterescape_pausescreen_pause.png');
+        this.load.image('endButton', 'assets/otterescape_pausescreen_end.png');
+        this.load.image('resumeButton', 'assets/otterescape_pausescreen_resume.png');
+    }//END PRELOAD
+
+    create() {
+        let background = this.add.sprite(2040, 950, 'background') //temporary background for pause scene
+        .setScale(8)
+
+        let pauseTitle = this.add.sprite(game.config.width/2, game.config.height/3, 'pauseTitle')
+        .setOrigin(0.5)
+        .setScale(2.5)
+
+        var end = this.add.sprite(game.config.width/2, game.config.height/1.2, 'endButton')
+        .setOrigin(0.5)
+        .setScale(2)
+        .setInteractive({ useHandCursor: true })
+
+        var resume = this.add.sprite(game.config.width/2, game.config.height/1.5, 'resumeButton')
+        .setOrigin(0.5)
+        .setScale(2)
+        .setInteractive({ useHandCursor: true })
+
+        //color the button when cursor is hovered over
+        resume.on('pointerover', function(event) {
+            resume.setTint(808080);
+        });
+        resume.on('pointerout', function (pointer) {
+            resume.clearTint();
+        });
+        resume.on('pointerdown', function(pointer) { //
+            game.scene.start('GameScene');
+            game.scene.stop('PauseScene');
+        });
+
+
+        //color the button when cursor is hovered over
+        end.on('pointerover', function(event) {
+            end.setTint(808080);
+        });
+        end.on('pointerout', function (pointer) {
+            end.clearTint();
+        });
+        end.on('pointerdown', function(pointer) { //
+            game.scene.start('TitleScene');
+            game.scene.stop('PauseScene');
+            game.scene.stop('GameScene');
+        });//END CREATE
+    }//END PAUSE SCENE
+}
+//title scene
+class TitleScene extends Phaser.Scene {
+    constructor() {
+        super({key: 'TitleScene'});
+    }//END CONSTRUCTOR
+
+    preload() {
+        this.load.image('background', 'assets/background_V1.png');
+        this.load.image('title', 'assets/logov2.png');
+        this.load.image('playButton', 'assets/otterescape_pausescreen_resume.png')
+    }//END PRELOAD
+
+    create() {
+        let background = this.add.sprite(2040, 950, 'background') //temporary background for title scene
+        .setScale(8)
+
+        let title = this.add.sprite(game.config.width/2, game.config.height/2.5, 'title')
+        .setOrigin(0.5)
+        .setScale(6.5)
+
+        var playButton = this.add.sprite(game.config.width/2, game.config.height/1.3, 'playButton')
+        .setInteractive({ useHandCursor: true })
+        .setOrigin(0.5)
+        .setScale(2)
+
+        //color the button when cursor is hovered over
+        playButton.on('pointerover', function(event) {
+            playButton.setTint(808080);
+        });
+        playButton.on('pointerout', function (pointer) {
+            playButton.clearTint();
+        });
+
+        //starts the game scene
+        playButton.on('pointerdown', function(pointer) { 
+            game.scene.start('GameScene');
+            game.scene.stop('TitleScene');
+            game.scene.stop('DeathScene');
+        });
+    }//END CREATE
+}//END TITLESCENE
+
+class GameScene extends Phaser.Scene {
+    //DECLARATIONS
+    let 
+        //GAME ELEMNTS 
+            //CONSTANTS
+            background,
+            ollie,
+            camera,
+            cursors,
+            waterLevel,
+            //GAME STATE
+            isDead,
+        //MOVEMENT
+            afterJump,
+        //NAVBAR
+            //METERS SWAM TEXT
+            metersSwam = 0,
+            metersSwamText,
+            //JUMP TEXT
+            canJumpText,
+            //CURRENCY TEXT
+            shellCount = 0,
+            shellCountText,
+            //ON DECK POWERUP IMAGE
+            onDeck,
+        //OBSTACLES
+            sx = 0,
+        //POWERUPS --- 0 = nothing, 1 = puffer, 2 = bubble
+            currentPowerUp,
+            loadedPowerUp = 0,
+            powerUpsQueue = []
+    //END DECLARATIONS
+  
+    constructor() { 
+      super({key: 'GameScene'}) //added key
+    }//END CONSTRUCTOR
+
     preload() {
         //GAME ELEMENTS
         this.load.image('background', 'assets/background_V1.png')
@@ -103,12 +285,21 @@ class GameScene extends Phaser.Scene {
         this.physics.add.collider(ollie, this.currencies, this.collectCurrency)
         //INPUT
         cursors = this.input.keyboard.createCursorKeys();
+        //pauses the game and starts pause scene when 'P' is pressed
+        //* need to make sure ollie resumes from the same spot, not the starting point, and shell count stays the same
+        this.input.keyboard.on('keydown-P', function(pointer) {
+            game.scene.start('PauseScene');
+            game.scene.pause('GameScene');
+        })
         //WATER LEVEL
         waterLevel = background.y / 2.1 //428.57
     }//END CREATE
     update() {
         if (isDead) {
             this.scene.stop();
+            game.scene.start('DeathScene');
+            isDead = false; //resets the play?
+            metersSwam = 0;
         } else {
             //GAME ELEMENTS
             this.moveBackground()
