@@ -1,13 +1,22 @@
+// import TitleScene from './scenes/TitleScene';
+
+// let titleScene = new TitleScene();
+
 var config;
 let game;
 window.onload = function() {
+
+    let titleScene = new TitleScene();
+    let gameScene = new GameScene();
+    let pauseScene = new PauseScene();
+
     // object containing configuration options
     config = {
         type: Phaser.AUTO,
         width: 3000,
         height: 1452,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        scene: GameScene,
+        scene: [TitleScene, GameScene, PauseScene], //made it a scene array to switch between scenes
         physics: {
             default: "arcade",
             arcade: { debug:true }
@@ -17,7 +26,109 @@ window.onload = function() {
     window.focus();
     resize();
     window.addEventListener("resize", resize, false);
+
+    game.scene.add('TitleScene', titleScene);
+    // game.scene.start('TitleScene');
+
+    game.scene.add('GameScene', gameScene);
+    // game.scene.start('GameScene');
+
+    game.scene.add('PauseScene', pauseScene);
+    // game.scene.start('PauseScene');
+
 }//END load listener
+
+
+//pause scene
+class PauseScene extends Phaser.Scene {
+    constructor() {
+        super({key: 'PauseScene'});
+    }
+
+    preload() {
+        this.load.image('background', 'assets/background_V1.png');
+        this.load.image('pauseTitle', 'assets/otterescape_pausescreen_pause.png');
+        this.load.image('endButton', 'assets/otterescape_pausescreen_end.png');
+        this.load.image('resumeButton', 'assets/otterescape_pausescreen_resume.png');
+    }
+
+    create() {
+        let background = this.add.sprite(2040, 950, 'background') //temporary background for pause scene
+        .setScale(8)
+
+        let pauseTitle = this.add.sprite(game.config.width/2, game.config.height/3, 'pauseTitle')
+        .setOrigin(0.5)
+        .setScale(2.5)
+
+        var end = this.add.sprite(game.config.width/2, game.config.height/1.2, 'endButton')
+        .setOrigin(0.5)
+        .setScale(2)
+        .setInteractive()
+
+        var resume = this.add.sprite(game.config.width/2, game.config.height/1.5, 'resumeButton')
+        .setOrigin(0.5)
+        .setScale(2)
+        .setInteractive()
+
+
+        resume.on('pointerdown', function(pointer) { //
+            game.scene.start('GameScene');
+            game.scene.stop('PauseScene');
+        });
+
+        end.on('pointerdown', function(pointer) { //
+            game.scene.start('TitleScene');
+            game.scene.stop('PauseScene');
+            game.scene.stop('GameScene');
+        });
+    }
+
+}
+
+
+//title scene
+class TitleScene extends Phaser.Scene {
+    constructor() {
+        super({key: 'TitleScene'});
+    }
+
+    preload() {
+        this.load.image('background', 'assets/background_V1.png');
+        this.load.image('title', 'assets/logov2.png');
+    }
+
+    create() {
+        let background = this.add.sprite(2040, 950, 'background') //temporary background for title scene
+        .setScale(8)
+
+        let title = this.add.sprite(game.config.width/2, game.config.height/2.5, 'title')
+        .setOrigin(0.5)
+        .setScale(6.5)
+
+        let playNow = this.add.text(game.config.width/2, game.config.height/1.3, 'PRESS SPACE TO START')
+        .setOrigin(0.5)
+        .setScale(6)
+
+        //this creates blinking text effect
+        this.tweens.add({
+            targets: playNow,
+            alpha: 0,
+            ease: 'Cubic.easeOut',  
+            duration: 900,
+            repeat: -1,
+            yoyo: true
+          })
+
+        
+        //starts the game scene
+        this.input.keyboard.on('keydown-SPACE', function(event) {
+            game.scene.start('GameScene');
+            game.scene.stop('TitleScene');
+        })
+    }
+
+}
+
 
 let camera,
     background,
@@ -40,7 +151,7 @@ let camera,
 
 class GameScene extends Phaser.Scene {
     constructor() { 
-        super("GameScene")
+        super({key: 'GameScene'}) //added key
     }
 
     preload() {
@@ -111,6 +222,14 @@ class GameScene extends Phaser.Scene {
 
         //create variable to use for stopping ollie from moving up ocean level
         waterLevel = background.y / 2.1 //428.57
+
+
+        //pauses the game and starts pause scene when 'P' is pressed
+        //* need to make sure ollie resumes from the same spot, not the starting point
+        this.input.keyboard.on('keydown-P', function(event) {
+            game.scene.start('PauseScene');
+            game.scene.pause('GameScene');
+        })
      
        
     }
