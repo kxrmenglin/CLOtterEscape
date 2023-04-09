@@ -1,16 +1,10 @@
-// import TitleScene from './scenes/TitleScene';
-
-// let titleScene = new TitleScene();
-
 var config;
 var game;
 window.onload = function() {
-
     let titleScene = new TitleScene();
     let gameScene = new GameScene();
     let pauseScene = new PauseScene();
     let deathScene = new DeathScene();
-
     // object containing configuration options
     config = {
         type: Phaser.AUTO,
@@ -198,39 +192,38 @@ class TitleScene extends Phaser.Scene {
     }//END CREATE
 }//END TITLESCENE
 
+//DECLARATIONS
+let 
+    //GAME ELEMNTS 
+        //CONSTANTS
+        background,
+        ollie,
+        camera,
+        cursors,
+        waterLevel,
+        //GAME STATE
+        isDead,
+    //MOVEMENT
+        afterJump,
+    //NAVBAR
+        //METERS SWAM TEXT
+        metersSwam = 0,
+        metersSwamText,
+        //JUMP TEXT
+        canJumpText,
+        //CURRENCY TEXT
+        shellCount = 0,
+        shellCountText,
+        //ON DECK POWERUP IMAGE
+        onDeck,
+    //OBSTACLES
+        sx = 0,
+    //POWERUPS --- 0 = nothing, 1 = puffer, 2 = bubble
+        currentPowerUp,
+        loadedPowerUp = 0,
+        powerUpsQueue = []
+//END DECLARATIONS
 class GameScene extends Phaser.Scene {
-    //DECLARATIONS
-    let 
-        //GAME ELEMNTS 
-            //CONSTANTS
-            background,
-            ollie,
-            camera,
-            cursors,
-            waterLevel,
-            //GAME STATE
-            isDead,
-        //MOVEMENT
-            afterJump,
-        //NAVBAR
-            //METERS SWAM TEXT
-            metersSwam = 0,
-            metersSwamText,
-            //JUMP TEXT
-            canJumpText,
-            //CURRENCY TEXT
-            shellCount = 0,
-            shellCountText,
-            //ON DECK POWERUP IMAGE
-            onDeck,
-        //OBSTACLES
-            sx = 0,
-        //POWERUPS --- 0 = nothing, 1 = puffer, 2 = bubble
-            currentPowerUp,
-            loadedPowerUp = 0,
-            powerUpsQueue = []
-    //END DECLARATIONS
-  
     constructor() { 
       super({key: 'GameScene'}) //added key
     }//END CONSTRUCTOR
