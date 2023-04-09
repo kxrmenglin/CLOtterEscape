@@ -37,6 +37,8 @@ window.onload = function() {
     game.scene.add('PauseScene', pauseScene);
     // game.scene.start('PauseScene');
 
+    game.scene.add('DeathScene', deathScene);
+
 }//END load listener
 
 
@@ -79,8 +81,8 @@ class DeathScene extends Phaser.Scene {
         yes.on('pointerout', function (pointer) {
             yes.clearTint();
         });
-        yes.on('pointerdown', function(pointer) { //
-            game.scene.stop('GameScene');
+        yes.on('pointerdown', function(pointer) { 
+            // game.scene.stop('GameScene');
             game.scene.start('GameScene');
             game.scene.stop('DeathScene');
         });
@@ -93,7 +95,7 @@ class DeathScene extends Phaser.Scene {
         no.on('pointerout', function (pointer) {
             no.clearTint();
         });
-        no.on('pointerdown', function(pointer) { //
+        no.on('pointerdown', function(pointer) { 
             game.scene.start('TitleScene');
             game.scene.stop('DeathScene');
             game.scene.stop('GameScene');
@@ -201,6 +203,7 @@ class TitleScene extends Phaser.Scene {
         playButton.on('pointerdown', function(pointer) { 
             game.scene.start('GameScene');
             game.scene.stop('TitleScene');
+            game.scene.stop('DeathScene');
         });
 
 
@@ -305,7 +308,7 @@ class GameScene extends Phaser.Scene {
 
         //pauses the game and starts pause scene when 'P' is pressed
         //* need to make sure ollie resumes from the same spot, not the starting point, and shell count stays the same
-        this.input.keyboard.on('keydown-P', function(event) {
+        this.input.keyboard.on('keydown-P', function(pointer) {
             game.scene.start('PauseScene');
             game.scene.pause('GameScene');
         })
@@ -321,6 +324,8 @@ class GameScene extends Phaser.Scene {
             console.log('ur dead');
             this.scene.stop();
             game.scene.start('DeathScene');
+            isDead = false; //resets the play?
+            metersSwam = 0;
         } else {
             sx += 8; //movement of the obstacles
             addMetersSwam(1);
