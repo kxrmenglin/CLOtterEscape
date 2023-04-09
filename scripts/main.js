@@ -3,7 +3,7 @@
 // let titleScene = new TitleScene();
 
 var config;
-let game;
+var game;
 window.onload = function() {
 
     let titleScene = new TitleScene();
@@ -41,18 +41,14 @@ window.onload = function() {
 
 }//END load listener
 
-
-//death scene
 class DeathScene extends Phaser.Scene {
     constructor() {
         super({key: 'DeathScene'});
-    }
-
+    }//END CONSTRUCTOR
     preload() {
         this.load.image('background', 'assets/background_V1.png');
         this.load.image('deathTitle', 'assets/otterescape_pausescreen_pause.png'); //temp
-    }
-
+    }//END PRELOAD
     create() {
         let background = this.add.sprite(2040, 950, 'background') //temporary background for pause scene
         .setScale(8)
@@ -100,23 +96,20 @@ class DeathScene extends Phaser.Scene {
             game.scene.stop('DeathScene');
             game.scene.stop('GameScene');
         });
+    }//END CREATE
+}//END DEATHSCENE
 
-        
-    }
-}
-
-//pause scene
 class PauseScene extends Phaser.Scene {
     constructor() {
         super({key: 'PauseScene'});
-    }
+    }//END CONSTRUCTOR
 
     preload() {
         this.load.image('background', 'assets/background_V1.png');
         this.load.image('pauseTitle', 'assets/otterescape_pausescreen_pause.png');
         this.load.image('endButton', 'assets/otterescape_pausescreen_end.png');
         this.load.image('resumeButton', 'assets/otterescape_pausescreen_resume.png');
-    }
+    }//END PRELOAD
 
     create() {
         let background = this.add.sprite(2040, 950, 'background') //temporary background for pause scene
@@ -160,23 +153,20 @@ class PauseScene extends Phaser.Scene {
             game.scene.start('TitleScene');
             game.scene.stop('PauseScene');
             game.scene.stop('GameScene');
-        });
-    }
-
+        });//END CREATE
+    }//END PAUSE SCENE
 }
-
-
 //title scene
 class TitleScene extends Phaser.Scene {
     constructor() {
         super({key: 'TitleScene'});
-    }
+    }//END CONSTRUCTOR
 
     preload() {
         this.load.image('background', 'assets/background_V1.png');
         this.load.image('title', 'assets/logov2.png');
         this.load.image('playButton', 'assets/otterescape_pausescreen_resume.png')
-    }
+    }//END PRELOAD
 
     create() {
         let background = this.add.sprite(2040, 950, 'background') //temporary background for title scene
@@ -205,184 +195,139 @@ class TitleScene extends Phaser.Scene {
             game.scene.stop('TitleScene');
             game.scene.stop('DeathScene');
         });
-
-
-    }
-
-}
-
-
-let camera,
-    background,
-    lerp,
-    ollie,
-    cursors,
-    isDead,
-    sx = 0,
-    waterLevel,
-    afterJump,
-    timer,
-    metersSwam = 0,
-    metersSwamText,
-    shellCount = 0,
-    shellCountText,
-    hasPuffer = false,
-    loadedPuffer = false,
-    ollieAndPuffer,
-    canJumpText
+    }//END CREATE
+}//END TITLESCENE
 
 class GameScene extends Phaser.Scene {
+    //DECLARATIONS
+    let 
+        //GAME ELEMNTS 
+            //CONSTANTS
+            background,
+            ollie,
+            camera,
+            cursors,
+            waterLevel,
+            //GAME STATE
+            isDead,
+        //MOVEMENT
+            afterJump,
+        //NAVBAR
+            //METERS SWAM TEXT
+            metersSwam = 0,
+            metersSwamText,
+            //JUMP TEXT
+            canJumpText,
+            //CURRENCY TEXT
+            shellCount = 0,
+            shellCountText,
+            //ON DECK POWERUP IMAGE
+            onDeck,
+        //OBSTACLES
+            sx = 0,
+        //POWERUPS --- 0 = nothing, 1 = puffer, 2 = bubble
+            currentPowerUp,
+            loadedPowerUp = 0,
+            powerUpsQueue = []
+    //END DECLARATIONS
+  
     constructor() { 
-        super({key: 'GameScene'}) //added key
-    }
+      super({key: 'GameScene'}) //added key
+    }//END CONSTRUCTOR
 
     preload() {
+        //GAME ELEMENTS
         this.load.image('background', 'assets/background_V1.png')
         this.load.spritesheet('ollie', 'assets/ollie.png', { frameWidth: 180, frameHeight: 60 })
-
-        this.load.image('obstacle1', 'assets/underwaterplant_pink.png');
-        this.load.image('obstacle2', 'assets/underwaterplant_orange.png');
-        this.load.image('obstacle3', 'assets/underwaterplant_green.png');
-        this.load.image('powerUpPH1', 'assets/puffer.png');
-        this.load.image('powerUpPH2', 'assets/shell.png');
+        //OBSTACLES
+        this.load.image('obstacle1', 'assets/underwaterplant_pink.png')
+        this.load.image('obstacle2', 'assets/underwaterplant_orange.png')
+        this.load.image('obstacle3', 'assets/underwaterplant_green.png')
+        //POWERUPS
+        this.load.image('powerUpPH1', 'assets/puffer.png')
+        this.load.image('bubble', 'assets/bubble.png')
+        //CURRENCY
         this.load.image('shell_pink', 'assets/shell_pink.png')
-
-
-
-        //physics editor testing:
-        // Load body shapes from JSON file generated using PhysicsEditor
-        this.load.json('shapes', 'assets/underwaterplant_green.json');
-        
-    }
-
-    
-
+    }//END PRELOAD
     create() {
-        var shapes = this.cache.json.get('shapes');
-        //world stuff
+        //WORLD
+        this.physics.world.setBounds(0, 0, game.config.width, game.config.height * 1.5)
+        //BACKGROUND
         background = this.add.tileSprite(4000, 900, 0, 0, 'background')
         .setScale(8)
-
-        this.physics.world.setBounds(0, 0, game.config.width, game.config.height * 1.5)
-        
-        //ollie and camera
-        background.fixedToCamera = true;
-        
+        //OLLIE
         ollie = this.physics.add.sprite(game.config.width / 3, game.config.height * .75, 'ollie')
         .setScale(2);
         ollie.setCollideWorldBounds(true);
-
+        //CAMERA
+        background.fixedToCamera = true;
         camera = this.cameras.main;
         camera.setBounds(0, 0, game.config.width, game.config.height * 1.5);
         camera.startFollow(ollie, false, 0.5, 0.03);
-
-        //obstacles, currency, power ups
-        this.groundObstacles = this.physics.add.group();
-        this.currencies = this.physics.add.group();
-        this.powerUps = this.physics.add.group();
-
-        //generates obstacles at random times
-        setInterval(() => createGroundObstacles(this.groundObstacles), 5000);
-        setInterval(() => createCurrency(this.currencies), 2000);
-        setInterval(() => createPowerUps(this.powerUps), 4000);
-
-        //detects for collisions between ollie & currency + ground obstacles
-        this.physics.add.collider(ollie, this.groundObstacles, obstacleCollision)
-        this.physics.add.collider(ollie, this.currencies, collectCurrency)
-        this.physics.add.collider(ollie, this.powerUps, collectPuffer)
-
-        //create text to display score
+        //METERS SWAM TEXT
         metersSwamText = this.add.text(game.config.width * 0.02, game.config.height * 0.01, 'Meters Swam: 0', {fontSize: '85px', color: '#FFF'}).setScrollFactor(0);
-        //create text to display shell count
+        //JUMP TEXT
+        canJumpText = this.add.text(game.config.width * 0.5, game.config.height * 0.01, 'jump', {fontSize: '85px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0);
+        //SHELL COUNT
         this.shellCounter = this.add.image(game.config.width * 0.79, game.config.height * 0.048, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2);
         shellCountText = this.add.text(game.config.width * 0.90, game.config.height * 0.05, 'Shell Count: 0', {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0);
-        //user is able to jump text
-        canJumpText = this.add.text(game.config.width * 0.5, game.config.height * 0.01, 'jump', {fontSize: '85px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0);
-
-        //input
+        //OBSTACLES
+        this.groundObstacles = this.physics.add.group();
+        setInterval(() => this.createGroundObstacles(this.groundObstacles), 5000);
+        this.physics.add.collider(ollie, this.groundObstacles, this.obstacleCollision.bind(this))
+        //POWERUPS
+        this.powerUps = this.physics.add.group();
+        setInterval(() => this.createPowerUps(this.powerUps), 4000);
+        this.physics.add.collider(ollie, this.powerUps, this.collectPowerUp.bind(this))
+        //CURRENCY
+        this.currencies = this.physics.add.group();
+        setInterval(() => this.createCurrency(this.currencies), 2000);
+        this.physics.add.collider(ollie, this.currencies, this.collectCurrency)
+        //INPUT
         cursors = this.input.keyboard.createCursorKeys();
-
-        //create variable to use for stopping ollie from moving up ocean level
-        waterLevel = background.y / 2.1 //428.57
-
-
         //pauses the game and starts pause scene when 'P' is pressed
         //* need to make sure ollie resumes from the same spot, not the starting point, and shell count stays the same
         this.input.keyboard.on('keydown-P', function(pointer) {
             game.scene.start('PauseScene');
             game.scene.pause('GameScene');
         })
-     
-       
-    }
+        //WATER LEVEL
+        waterLevel = background.y / 2.1 //428.57
+    }//END CREATE
     update() {
-        this.checkForPuffer()
-        this.movement()
-        this.moveBackground()
-        this.canJump()
         if (isDead) {
-            console.log('ur dead');
             this.scene.stop();
             game.scene.start('DeathScene');
             isDead = false; //resets the play?
             metersSwam = 0;
         } else {
-            sx += 8; //movement of the obstacles
-            addMetersSwam(1);
-            //updates obstacle pos
-            if (sx === 16){
-                this.groundObstacles.getChildren().forEach(obstacle => {
-                    if (obstacle.getBounds().right < 0) {
-                        this.groundObstacles.killAndHide(obstacle);
-                    } else {
-                        obstacle.x -= 20;
-                    }
-                })
-                sx = 0;
-            }
-
-            //updates currency pos
-
-            this.currencies.getChildren().forEach(currencyChild => {
-              if (currencyChild.getBounds().right < 0) {
-                this.currencies.killAndHide(currencyChild);
-              }
-              else {
-                currencyChild.x -= 10;
-              }
-            });
-            
-            //updates power up pos
-            this.powerUps.getChildren().forEach(powerUpChild => {
-                if (powerUpChild.getBounds().right < 0) {
-                    this.powerUps.killAndHide(powerUpChild);
-                }
-                else {
-                    powerUpChild.x -= 10;
-                }
-            });
+            //GAME ELEMENTS
+            this.moveBackground()
+            this.addMetersSwam(1)
+            //MOVEMENT
+            this.movement()
+            this.canJump()
+            //POWERUPS
+            this.movePowerUp()
+            this.movePowerUps(this.powerUps)
+            //OBSTACLES
+            this.moveObstacles(this.groundObstacles)
+            //CURRENCY
+            this.moveCurrencies(this.currencies)
         }
-        //background._tilePosition.x += 1.69
-    }
+    }//END UPDATE
 
-    canJump() {
-        if(ollie.y <= waterLevel + 150 && ollie.y >= waterLevel && ollie.body.velocity.y < 0) {
-            canJumpText.setStyle({color: 'rgb(256,256,256,1)'})
-        } else {
-            canJumpText.setStyle({color: 'rgb(256,256,256,0.5)'})
-        }
-    }
+    //---GAME ELEMENTS---//
+    moveBackground() {
+        background._tilePosition.x += 1.69
+    }//END MOVEBACKGROUND
+    addMetersSwam(points){
+        metersSwam += points;
+        metersSwamText.setText('Meters Swam: ' + metersSwam);
+    }//END ADDMETERSSWAM
+//---END GAME ELEMENTS---//
 
-    checkForPuffer() {
-        if(hasPuffer && !loadedPuffer) {
-            ollieAndPuffer = this.add.image(ollie.x, ollie.y-50, 'powerUpPH1').setScale(0.06)
-            loadedPuffer = true;
-        } else if(hasPuffer && loadedPuffer) {
-            ollieAndPuffer.x = ollie.x;
-            ollieAndPuffer.y = ollie.y-50;
-        }
-    }//END CHECKFORPUFFER
-
+//---MOVEMENT---//
     movement() { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS UP AND POSITIVE IS DOWN
         ollie.body.acceleration.y = 0
         if(ollie.y >= waterLevel + 300) { //underwater with some downward expanding margin -- disable up arrow to prevent upper bound stuttering
@@ -417,79 +362,166 @@ class GameScene extends Phaser.Scene {
         }  else if(ollie.y < waterLevel) { //above water
             ollie.body.gravity.y = 400
         } 
-    }//END MOVEMENT FUNCTION
+    }//END MOVEMENT
+    canJump() {
+        if(ollie.y <= waterLevel + 150 && ollie.y >= waterLevel && ollie.body.velocity.y < 0) {
+            canJumpText.setStyle({color: 'rgb(256,256,256,1)'})
+        } else {
+            canJumpText.setStyle({color: 'rgb(256,256,256,0.5)'})
+        }
+    } //END CANJUMP
+//---END MOVEMENT---//
 
-    moveBackground() {
-        background._tilePosition.x += 1.69
-    }
-} //END GameScene
+//---OBSTACLES---//
+    moveObstacles(groundObstacles) {
+        sx += 8; //movement of the obstacles
+        if (sx === 16){
+            groundObstacles.getChildren().forEach(obstacle => {
+                if (obstacle.getBounds().right < 0) {
+                    groundObstacles.killAndHide(obstacle);
+                } else {
+                    obstacle.x -= 20;
+                }
+            })
+            sx = 0;
+        }
+    }//END MOVEOBSTACLES
 
-function createGroundObstacles(groundObstacles) {
-    var obstacleList = ['obstacle1', 'obstacle2', 'obstacle3'];
-    let obstacleIndex = Phaser.Math.RND.between(0, 2);
-    var chosenObstacle = obstacleList[obstacleIndex];
+    createGroundObstacles(groundObstacles) {
+        var obstacleList = ['obstacle1', 'obstacle2', 'obstacle3'];
+        let obstacleIndex = Phaser.Math.RND.between(0, 2);
+        var chosenObstacle = obstacleList[obstacleIndex];
 
-    var obstacle = groundObstacles.create(game.config.width + 50, 1800, chosenObstacle);
-    obstacle.setOrigin(0.5, 0);
-    obstacle.setSize(200, 200);
-    obstacle.setScale(2);
-} //END CREATEGROUNDOBSTACLES
+        var obstacle = groundObstacles.create(game.config.width + 50, 1800, chosenObstacle);
+        obstacle.setOrigin(0.5, 0);
+        obstacle.setSize(200, 200);
+        obstacle.setScale(2);
+    } //END CREATEGROUNDOBSTACLES
+//---END OBSTACLES---//
 
-function createCurrency(currencies) {
-    //choose random value between river height and bottom of the screen
-    let currencyHeight = Phaser.Math.RND.between(2000, 500)
-    var currency = currencies.create(game.config.width + 50, currencyHeight, 'shell_pink')
-    currency.setOrigin(0.5, 0)
-    currency.setScale(1.5)
+//---POWERUPS---//
+    movePowerUps(powerUps) {
+        //updates power up pos
+        powerUps.getChildren().forEach(powerUpChild => {
+            if (powerUpChild.getBounds().right < 0) {
+                powerUps.killAndHide(powerUpChild);
+            }
+            else {
+                powerUpChild.x -= 10;
+            }
+        });
+    } //END MOVE OBSTACLES
+    movePowerUp() {
+        if(currentPowerUp) {
+            currentPowerUp.x = ollie.x;
+            switch(powerUpsQueue[0]) {
+                case 1:
+                    currentPowerUp.y = ollie.y-50;
+                    break;
+                case 2: 
+                    currentPowerUp.y = ollie.y;
+            }
+            
+        }
+    }//END CHECK FOR POWERUPS
+    createPowerUps(powerUps) {
+        var powerUpList = ['powerUpPH1', 'bubble']
+        let powerUpIndex = Phaser.Math.RND.between(0, 1);
+        var chosenPowerUp = powerUpList[powerUpIndex];
+        
+        let powerUpHeight = Phaser.Math.RND.between(2000, 500)
+        var powerUp = powerUps.create(game.config.width * 0.97, powerUpHeight, chosenPowerUp);
 
-    currency.body.setImmovable(false);
-} //END CREATEFLOATOBSTACLES
+        switch(chosenPowerUp) {
+            case 'bubble':
+                powerUp.name = 'bubble'
+                powerUp
+                .setOrigin(0.5, 0.5)
+                .setScale(0.3)
+                break;
+            case 'powerUpPH1':
+                powerUp.name = 'puffer'
+                powerUp
+                .setOrigin(0.5, 0.5)
+                .setScale(0.08)
+                break;
+        }
+        powerUp.body.setImmovable(false);
+    } //END CREATEPOWERUPS
+    collectPowerUp(ollie, powerUp) {
+        powerUp.destroy();
+        if(powerUpsQueue.length < 2) {
+            switch(powerUp.name) {
+                case 'puffer':
+                    powerUpsQueue.push(1)
+                    break;
+                case 'bubble':
+                    powerUpsQueue.push(2)
+                    break;
+            }
+        }
+        this.loadNextPowerUp()
+    }//END COLLECTPOWERUPS
+    obstacleCollision(ollie, obstacle) {
+        if(powerUpsQueue.length > 0) {
+            obstacle.destroy()
+            currentPowerUp.destroy()
+            powerUpsQueue.shift()
+            if(powerUpsQueue.length === 1) {
+                onDeck.destroy() 
+                onDeck = null
+            } 
+            this.loadNextPowerUp()
+        } else {
+            isDead = true;
+        }
+    } //END OBSTACLECOLLISION
+    loadNextPowerUp() { 
+        if(powerUpsQueue.length === 1) {
+            switch(powerUpsQueue[0]) {
+                case 1:
+                    currentPowerUp = this.add.image(ollie.x, ollie.y-50, 'powerUpPH1').setScale(0.06)
+                    break;
+                case 2:
+                    currentPowerUp = this.add.image(ollie.x, ollie.y, 'bubble').setScale(1)
+                    break;
+            }
+        } else if (powerUpsQueue.length === 2 && !onDeck) {
+            var onDeckPowerUp = (powerUpsQueue[1] === 1) ? 'powerUpPH1' : 'bubble'
+            onDeck = this.add.image(game.config.width * 0.03, game.config.height * 0.08, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale((onDeckPowerUp === 'powerUpPH1' ? 0.06 : 0.1));
+        }
+    }//END GETNEXTPOWERUP
+//---END POWERUPS---//
 
-function createPowerUps(powerUps) {
-    // var powerUpList = ['powerUpPH1'];
-    // // let powerUpIndex = Phaser.Math.RND.between(0, 1);
-    // var chosenPowerUp = powerUpList[0];
-    let powerUpHeight = Phaser.Math.RND.between(2000, 500)
-    var powerUp = powerUps.create(game.config.width * 0.97, powerUpHeight, 'powerUpPH1');
-    // console.log('spawning puffer')
-    powerUp
-    .setOrigin(0.5, 0.5)
-    .setScale(0.08)
-    //example code had these setings but console error when i use it
-    // obstacle.body.allowGravity = false;
-    powerUp.body.setImmovable(false);
-    // obstacle.body.moves = false;
-} //END CREATEFLOATOBSTACLES
+//---CURRENCY---//
+    moveCurrencies(currencies) {
+        currencies.getChildren().forEach(currencyChild => {
+            if (currencyChild.getBounds().right < 0) {
+            currencies.killAndHide(currencyChild);
+            }
+            else {
+            currencyChild.x -= 10;
+            }
+        });
+    }//END MOVE CURRENCIES
+    createCurrency(currencies) {
+        //choose random value between river height and bottom of the screen
+        let currencyHeight = Phaser.Math.RND.between(2000, 500)
+        var currency = currencies.create(game.config.width + 50, currencyHeight, 'shell_pink')
+        currency.setOrigin(0.5, 0)
+        currency.setScale(1.5)
 
-function collectCurrency(ollie, currency) {
-    currency.x = -200;
-    shellCount++;
-    shellCountText.setText('Shell Count: ' + shellCount)
-    // console.log(shellCount)
-}
+        currency.body.setImmovable(false);
+    }//END CREATECURRENCY
+    collectCurrency(ollie, currency) {
+        currency.destroy();
+        shellCount++;
+        shellCountText.setText('Shell Count: ' + shellCount)
+        // console.log(shellCount)
+    }//END COLLECTCURRENCY
+//---END CURRENCY---//
 
-function collectPuffer(ollie, puffer) {
-    console.log('puffer powerup')
-    puffer.x = -200;
-    hasPuffer = true;
-}
-
-function obstacleCollision(ollie, obstacle) {
-    if(hasPuffer) {
-        obstacle.x = -200;
-        hasPuffer = false;
-        loadedPuffer = false;
-        ollieAndPuffer.destroy();
-    } else {
-        isDead = true;
-    }
-}
-
-function addMetersSwam(points){
-    metersSwam += points;
-    metersSwamText.setText('Meters Swam: ' + metersSwam);
-}
-
+} //END GAMESCENE
 function resize() { 
     let canvas = document.querySelector("canvas")
     let windowWidth = window.innerWidth
@@ -504,5 +536,4 @@ function resize() {
         canvas.style.width = (windowHeight * gameRatio) + "px"
         canvas.style.height = windowHeight + "px"
     }
-} //END resize function
-
+}//END RESIZE 
