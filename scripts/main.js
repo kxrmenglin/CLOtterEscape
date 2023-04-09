@@ -45,8 +45,8 @@ class GameScene extends Phaser.Scene {
 
     preload() {
         this.load.image('background', 'assets/background_V1.png')
-        this.load.spritesheet('ollie', 'assets/ollie.png', { frameWidth: 180, frameHeight: 60 })
-
+        // this.load.spritesheet('ollie', 'assets/ollie.png', { frameWidth: 180, frameHeight: 60 })
+        this.load.spritesheet ('ollie', 'assets/ollieSwim.png', {frameWidth: 160, frameHeight: 125});
         this.load.image('obstacle1', 'assets/underwaterplant_pink.png');
         this.load.image('obstacle2', 'assets/underwaterplant_orange.png');
         this.load.image('obstacle3', 'assets/underwaterplant_green.png');
@@ -75,9 +75,22 @@ class GameScene extends Phaser.Scene {
         //ollie and camera
         background.fixedToCamera = true;
         
-        ollie = this.physics.add.sprite(game.config.width / 3, game.config.height * .75, 'ollie')
-        .setScale(2);
+        // ollie = this.physics.add.sprite(game.config.width / 3, game.config.height * .75, 'ollie')
+        // .setScale(2);
+        // ollie.setCollideWorldBounds(true);
+
+        //animations
+        ollie = this.physics.add.sprite (game.config / 3, game.config.height * .75, 'ollie').setScale(2);
         ollie.setCollideWorldBounds(true);
+        // var swim = ollie.animations.add('swim');
+        // ollie.animation.play('swim', 30, true);
+        const swim =this.anims.create({
+            key: 'swim',
+            frames: this.generateFrameNumbers('ollie'),
+            frameRate: 10,
+        });
+
+
 
         camera = this.cameras.main;
         camera.setBounds(0, 0, game.config.width, game.config.height * 1.5);
