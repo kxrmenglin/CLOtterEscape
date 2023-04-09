@@ -9,6 +9,7 @@ window.onload = function() {
     let titleScene = new TitleScene();
     let gameScene = new GameScene();
     let pauseScene = new PauseScene();
+    let deathScene = new DeathScene();
 
     // object containing configuration options
     config = {
@@ -16,7 +17,7 @@ window.onload = function() {
         width: 3000,
         height: 1452,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        scene: [TitleScene, GameScene, PauseScene], //made it a scene array to switch between scenes
+        scene: [TitleScene, GameScene, PauseScene, DeathScene], //made it a scene array to switch between scenes
         physics: {
             default: "arcade",
             arcade: { debug:true }
@@ -38,6 +39,69 @@ window.onload = function() {
 
 }//END load listener
 
+
+//death scene
+class DeathScene extends Phaser.Scene {
+    constructor() {
+        super({key: 'DeathScene'});
+    }
+
+    preload() {
+        this.load.image('background', 'assets/background_V1.png');
+        this.load.image('deathTitle', 'assets/otterescape_pausescreen_pause.png'); //temp
+    }
+
+    create() {
+        let background = this.add.sprite(2040, 950, 'background') //temporary background for pause scene
+        .setScale(8)
+
+        let deathTitle = this.add.sprite(game.config.width/2, game.config.height/3, 'deathTitle')
+        .setOrigin(0.5)
+        .setScale(2.5)
+
+        let playAgainTitle = this.add.text(game.config.width/2, game.config.height/1.5, 'Play Again?')
+        .setOrigin(0.5)
+        .setScale(6)
+
+        var yes = this.add.text(game.config.width/2.4, game.config.height/1.3, 'yes')
+        .setScale(4.5)
+        .setInteractive({ useHandCursor: true })
+
+        var no = this.add.text(game.config.width/1.9, game.config.height/1.3, 'no')
+        .setScale(4.5)
+        .setInteractive({ useHandCursor: true })
+
+
+        //color the button when cursor is hovered over
+        yes.on('pointerover', function(event) {
+            yes.setTint(808080);
+        });
+        yes.on('pointerout', function (pointer) {
+            yes.clearTint();
+        });
+        yes.on('pointerdown', function(pointer) { //
+            game.scene.stop('GameScene');
+            game.scene.start('GameScene');
+            game.scene.stop('DeathScene');
+        });
+
+
+        //color the button when cursor is hovered over
+        no.on('pointerover', function(event) {
+            no.setTint(808080);
+        });
+        no.on('pointerout', function (pointer) {
+            no.clearTint();
+        });
+        no.on('pointerdown', function(pointer) { //
+            game.scene.start('TitleScene');
+            game.scene.stop('DeathScene');
+            game.scene.stop('GameScene');
+        });
+
+        
+    }
+}
 
 //pause scene
 class PauseScene extends Phaser.Scene {
@@ -63,19 +127,33 @@ class PauseScene extends Phaser.Scene {
         var end = this.add.sprite(game.config.width/2, game.config.height/1.2, 'endButton')
         .setOrigin(0.5)
         .setScale(2)
-        .setInteractive()
+        .setInteractive({ useHandCursor: true })
 
         var resume = this.add.sprite(game.config.width/2, game.config.height/1.5, 'resumeButton')
         .setOrigin(0.5)
         .setScale(2)
-        .setInteractive()
+        .setInteractive({ useHandCursor: true })
 
-
+        //color the button when cursor is hovered over
+        resume.on('pointerover', function(event) {
+            resume.setTint(808080);
+        });
+        resume.on('pointerout', function (pointer) {
+            resume.clearTint();
+        });
         resume.on('pointerdown', function(pointer) { //
             game.scene.start('GameScene');
             game.scene.stop('PauseScene');
         });
 
+
+        //color the button when cursor is hovered over
+        end.on('pointerover', function(event) {
+            end.setTint(808080);
+        });
+        end.on('pointerout', function (pointer) {
+            end.clearTint();
+        });
         end.on('pointerdown', function(pointer) { //
             game.scene.start('TitleScene');
             game.scene.stop('PauseScene');
@@ -95,6 +173,7 @@ class TitleScene extends Phaser.Scene {
     preload() {
         this.load.image('background', 'assets/background_V1.png');
         this.load.image('title', 'assets/logov2.png');
+        this.load.image('playButton', 'assets/otterescape_pausescreen_resume.png')
     }
 
     create() {
@@ -105,26 +184,26 @@ class TitleScene extends Phaser.Scene {
         .setOrigin(0.5)
         .setScale(6.5)
 
-        let playNow = this.add.text(game.config.width/2, game.config.height/1.3, 'PRESS SPACE TO START')
+        var playButton = this.add.sprite(game.config.width/2, game.config.height/1.3, 'playButton')
+        .setInteractive({ useHandCursor: true })
         .setOrigin(0.5)
-        .setScale(6)
+        .setScale(2)
 
-        //this creates blinking text effect
-        this.tweens.add({
-            targets: playNow,
-            alpha: 0,
-            ease: 'Cubic.easeOut',  
-            duration: 900,
-            repeat: -1,
-            yoyo: true
-          })
+        //color the button when cursor is hovered over
+        playButton.on('pointerover', function(event) {
+            playButton.setTint(808080);
+        });
+        playButton.on('pointerout', function (pointer) {
+            playButton.clearTint();
+        });
 
-        
         //starts the game scene
-        this.input.keyboard.on('keydown-SPACE', function(event) {
+        playButton.on('pointerdown', function(pointer) { 
             game.scene.start('GameScene');
             game.scene.stop('TitleScene');
-        })
+        });
+
+
     }
 
 }
@@ -225,7 +304,7 @@ class GameScene extends Phaser.Scene {
 
 
         //pauses the game and starts pause scene when 'P' is pressed
-        //* need to make sure ollie resumes from the same spot, not the starting point
+        //* need to make sure ollie resumes from the same spot, not the starting point, and shell count stays the same
         this.input.keyboard.on('keydown-P', function(event) {
             game.scene.start('PauseScene');
             game.scene.pause('GameScene');
@@ -241,6 +320,7 @@ class GameScene extends Phaser.Scene {
         if (isDead) {
             console.log('ur dead');
             this.scene.stop();
+            game.scene.start('DeathScene');
         } else {
             sx += 8; //movement of the obstacles
             addMetersSwam(1);
