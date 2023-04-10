@@ -80,17 +80,15 @@ class GameScene extends Phaser.Scene {
         // ollie.setCollideWorldBounds(true);
 
         //animations
-        ollie = this.physics.add.sprite (game.config / 3, game.config.height * .75, 'ollie').setScale(2);
+        ollie = this.physics.add.sprite(game.config.width / 3, game.config.height * .75, 'ollie').setScale(2);
         ollie.setCollideWorldBounds(true);
-        // var swim = ollie.animations.add('swim');
-        // ollie.animation.play('swim', 30, true);
-        const swim =this.anims.create({
+        this.anims.create({
             key: 'swim',
-            frames: this.generateFrameNumbers('ollie'),
-            frameRate: 10,
+            frames: this.anims.generateFrameNumbers('ollie'),
+            frameRate: 8,
+            repeat: -1
         });
-
-
+        ollie.anims.play('swim');
 
         camera = this.cameras.main;
         camera.setBounds(0, 0, game.config.width, game.config.height * 1.5);
