@@ -216,6 +216,8 @@ let
         shellCountText,
         //ON DECK POWERUP IMAGE
         onDeck,  
+    //OBSTACLES
+        sx = 0,
     //POWERUPS --- 0 = nothing, 1 = puffer, 2 = bubble
         currentPowerUp,
         loadedPowerUp = 0,
@@ -389,7 +391,7 @@ class GameScene extends Phaser.Scene {
                     obstacle.x -= 20;
                 }
             })
-            //sx = 0;
+            // sx = 0;
         }
     }//END MOVEOBSTACLES
     moveFloatObstacles(floatObstacles) {
@@ -407,7 +409,7 @@ class GameScene extends Phaser.Scene {
     createGroundObstacles(groundObstacles) {
         var obstacleList = ['obstacle1', 'obstacle2', 'obstacle3', 'rock1', 'rock2', 'rock3', 'rock4', 'rock5', 'rock6'];
         let obstacleIndex = Phaser.Math.RND.between(0, 8);
-        console.log('Obstacle Index: ' + obstacleIndex);
+        // console.log('Obstacle Index: ' + obstacleIndex);
         var chosenObstacle = obstacleList[obstacleIndex];
         //CORAL REEF SPAWN
         if (obstacleIndex <= 2){
@@ -455,7 +457,7 @@ class GameScene extends Phaser.Scene {
             var floatObstacle = floatObstacles.create(game.config.width + 50, floatObstacleHeight, chosenFloatObstacle)
             floatObstacle.setOrigin(0.5, 0)
             floatObstacle.setSize(100, 100)
-            setScale(1.5)
+            .setScale(1.5)
         }
 
     }//END CREATEFLOATOBSTACLES 
@@ -500,7 +502,7 @@ class GameScene extends Phaser.Scene {
                 powerUp
                 .setOrigin(0.5, 0.5)
                 .setScale(0.3)
-                .setImmovable(true)
+                .setImmovable(false)
                 .setCollideWorldBounds(false)
                 break;
             case 'powerUpPH1':
@@ -508,7 +510,7 @@ class GameScene extends Phaser.Scene {
                 powerUp
                 .setOrigin(0.5, 0.5)
                 .setScale(0.08)
-                .setImmovable(true)
+                .setImmovable(false)
                 .setCollideWorldBounds(false)
                 break;
         }
@@ -577,7 +579,7 @@ class GameScene extends Phaser.Scene {
         currency
         .setOrigin(0.5, 0)
         .setScale(1.5)
-        .setImmovable(true)
+        .setImmovable(false)
         .setCollideWorldBounds(false)
     }//END CREATECURRENCY
     collectCurrency(ollie, currency) {
