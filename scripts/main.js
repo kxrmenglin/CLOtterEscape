@@ -243,7 +243,7 @@ class GameScene extends Phaser.Scene {
         //GAME ELEMENTS
         this.load.image('border', 'assets/border.png')
         this.load.image('background', 'assets/background_V1.png')
-        this.load.spritesheet('ollie', 'assets/ollie.png', { frameWidth: 180, frameHeight: 60 })
+        this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
         //OBSTACLES
         this.load.image('obstacle1', 'assets/underwaterplant_pink.png')
         this.load.image('obstacle2', 'assets/underwaterplant_orange.png')
@@ -277,9 +277,7 @@ class GameScene extends Phaser.Scene {
         ollie = this.physics.add.sprite(game.config.width / 3, game.config.height * .75, 'ollie')
         .setScale(2);
         ollie.setCollideWorldBounds(true);
-        //ANIMATIONS
-        ollie = this.physics.add.sprite(game.config.width / 3, game.config.height * .75, 'ollie').setScale(2);
-        ollie.setCollideWorldBounds(true);
+        //ANIMATIONS        
         this.anims.create({
             key: 'swim',
             frames: this.anims.generateFrameNumbers('ollie'),
@@ -294,7 +292,7 @@ class GameScene extends Phaser.Scene {
         camera.startFollow(ollie, false, 0.5, 0.03);
         //METERS SWAM TEXT
         metersSwam = 0
-        metersSwamText = this.add.text(game.config.width * 0.02, game.config.height * 0.01, 'Meters Swam: ' + placeholder.substring(10 - metersSwam.toString().length) + Math.trunc(metersSwam) , {fontSize: '85px', color: '#FFF'}).setScrollFactor(0).setDepth(1);
+        metersSwamText = this.add.text(game.config.width * 0.02, game.config.height * 0.01, 'Meters Swam: 0000000000' , {fontSize: '85px', color: '#FFF'}).setScrollFactor(0).setDepth(1);
         //JUMP TEXT
         canJumpText = this.add.text(game.config.width * 0.5, game.config.height * 0.01, 'jump', {fontSize: '85px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0).setDepth(1);
         //SHELL COUNT
