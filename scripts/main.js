@@ -196,6 +196,7 @@ class TitleScene extends Phaser.Scene {
 let 
     //GAME ELEMNTS 
         //CONSTANTS
+        border,
         background,
         ollie,
         camera,
@@ -207,6 +208,7 @@ let
         afterJump,
     //NAVBAR
         //METERS SWAM TEXT
+        placeholder = "0000000000",
         metersSwam,
         metersSwamText,
         //JUMP TEXT
@@ -230,6 +232,7 @@ class GameScene extends Phaser.Scene {
 
     preload() {
         //GAME ELEMENTS
+        this.load.image('border', 'assets/border.png')
         this.load.image('background', 'assets/background_V1.png')
         this.load.spritesheet('ollie', 'assets/ollie.png', { frameWidth: 180, frameHeight: 60 })
         //OBSTACLES
@@ -257,6 +260,10 @@ class GameScene extends Phaser.Scene {
         //BACKGROUND
         background = this.add.tileSprite(4000, 900, 0, 0, 'background')
         .setScale(8)
+        border = this.add.image(game.config.width / 2, game.config.height / 2,'border')
+        .setDepth(1)
+        .setScrollFactor(0)
+        // .setOrigin(0.5,0.5)
         //OLLIE
         ollie = this.physics.add.sprite(game.config.width / 3, game.config.height * .75, 'ollie')
         .setScale(2);
@@ -268,13 +275,13 @@ class GameScene extends Phaser.Scene {
         camera.startFollow(ollie, false, 0.5, 0.03);
         //METERS SWAM TEXT
         metersSwam = 0
-        metersSwamText = this.add.text(game.config.width * 0.02, game.config.height * 0.01, 'Meters Swam: ' + metersSwam, {fontSize: '85px', color: '#FFF'}).setScrollFactor(0);
+        metersSwamText = this.add.text(game.config.width * 0.02, game.config.height * 0.01, 'Meters Swam: ' + placeholder.substring(10 - metersSwam.toString().length) + Math.trunc(metersSwam) , {fontSize: '85px', color: '#FFF'}).setScrollFactor(0).setDepth(1);
         //JUMP TEXT
-        canJumpText = this.add.text(game.config.width * 0.5, game.config.height * 0.01, 'jump', {fontSize: '85px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0);
+        canJumpText = this.add.text(game.config.width * 0.5, game.config.height * 0.01, 'jump', {fontSize: '85px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0).setDepth(1);
         //SHELL COUNT
         shellCount = 0
-        this.shellCounter = this.add.image(game.config.width * 0.79, game.config.height * 0.048, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2);
-        shellCountText = this.add.text(game.config.width * 0.90, game.config.height * 0.05, 'Shell Count: ' + shellCount, {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0);
+        this.shellCounter = this.add.image(game.config.width * 0.79, game.config.height * 0.048, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2).setDepth(1);
+        shellCountText = this.add.text(game.config.width * 0.90, game.config.height * 0.05, 'Shell Count: ' + shellCount, {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0).setDepth(2);
         //OBSTACLES
         this.groundObstacles = this.physics.add.group();
         setInterval(() => this.createGroundObstacles(this.groundObstacles), Phaser.Math.RND.between(3000, 5000));
@@ -310,7 +317,7 @@ class GameScene extends Phaser.Scene {
         } else {
             //GAME ELEMENTS
             this.moveBackground()
-            this.addMetersSwam(1)
+            this.addMetersSwam(0.052)
             //MOVEMENT
             this.movement()
             this.canJump()
@@ -330,8 +337,9 @@ class GameScene extends Phaser.Scene {
         background._tilePosition.x += 1.69
     }//END MOVEBACKGROUND
     addMetersSwam(points){
+
         metersSwam += points;
-        metersSwamText.setText('Meters Swam: ' + metersSwam);
+        metersSwamText.setText('Meters Swam: ' + placeholder.substring(10 - metersSwam.toString().length) + Math.trunc(metersSwam));
     }//END ADDMETERSSWAM
 //---END GAME ELEMENTS---//
 
@@ -556,10 +564,10 @@ class GameScene extends Phaser.Scene {
             }
         } else if (powerUpsQueue.length === 2 && !onDeck) {
             var onDeckPowerUp = (powerUpsQueue[1] === 1) ? 'powerUpPH1' : 'bubble'
-            onDeck = this.add.image(game.config.width * 0.03, game.config.height * 0.08, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale((onDeckPowerUp === 'powerUpPH1' ? 0.06 : 0.1));
+            onDeck = this.add.image(game.config.width * 0.03, game.config.height * 0.08, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale((onDeckPowerUp === 'powerUpPH1' ? 0.06 : 0.1)).setDepth(1);
         }
     }//END GETNEXTPOWERUP
-//---END POWERUPS---//
+//---END POWERUPS---//f
 
 //---CURRENCY---//
     moveCurrencies(currencies) {
