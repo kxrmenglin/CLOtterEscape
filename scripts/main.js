@@ -241,7 +241,7 @@ class GameScene extends Phaser.Scene {
 
     preload() {
         //GAME ELEMENTS
-        this.load.image('border', 'assets/border.png')
+        this.load.image('border', 'assets/borderv2.png')
         this.load.image('background', 'assets/background_V1.png')
         this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
         //OBSTACLES
