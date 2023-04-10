@@ -86,9 +86,9 @@ class DeathScene extends Phaser.Scene {
             no.clearTint();
         });
         no.on('pointerdown', function(pointer) { 
-            game.scene.start('TitleScene');
-            game.scene.stop('DeathScene');
             game.scene.stop('GameScene');
+            game.scene.stop('DeathScene');
+            game.scene.start('TitleScene');
         });
     }//END CREATE
 }//END DEATHSCENE
@@ -131,8 +131,8 @@ class PauseScene extends Phaser.Scene {
             resume.clearTint();
         });
         resume.on('pointerdown', function(pointer) { //
-            game.scene.start('GameScene');
             game.scene.stop('PauseScene');
+            game.scene.resume('GameScene');
         });
 
 
@@ -144,9 +144,9 @@ class PauseScene extends Phaser.Scene {
             end.clearTint();
         });
         end.on('pointerdown', function(pointer) { //
+            game.scene.stop('GameScene');
             game.scene.start('TitleScene');
             game.scene.stop('PauseScene');
-            game.scene.stop('GameScene');
         });//END CREATE
     }//END PAUSE SCENE
 }
@@ -207,17 +207,15 @@ let
         afterJump,
     //NAVBAR
         //METERS SWAM TEXT
-        metersSwam = 0,
+        metersSwam,
         metersSwamText,
         //JUMP TEXT
         canJumpText,
         //CURRENCY TEXT
-        shellCount = 0,
+        shellCount,
         shellCountText,
         //ON DECK POWERUP IMAGE
-        onDeck,
-    //OBSTACLES
-        sx = 0,
+        onDeck,  
     //POWERUPS --- 0 = nothing, 1 = puffer, 2 = bubble
         currentPowerUp,
         loadedPowerUp = 0,
@@ -258,12 +256,14 @@ class GameScene extends Phaser.Scene {
         camera.setBounds(0, 0, game.config.width, game.config.height * 1.5);
         camera.startFollow(ollie, false, 0.5, 0.03);
         //METERS SWAM TEXT
-        metersSwamText = this.add.text(game.config.width * 0.02, game.config.height * 0.01, 'Meters Swam: 0', {fontSize: '85px', color: '#FFF'}).setScrollFactor(0);
+        metersSwam = 0
+        metersSwamText = this.add.text(game.config.width * 0.02, game.config.height * 0.01, 'Meters Swam: ' + metersSwam, {fontSize: '85px', color: '#FFF'}).setScrollFactor(0);
         //JUMP TEXT
         canJumpText = this.add.text(game.config.width * 0.5, game.config.height * 0.01, 'jump', {fontSize: '85px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0);
         //SHELL COUNT
+        shellCount = 0
         this.shellCounter = this.add.image(game.config.width * 0.79, game.config.height * 0.048, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2);
-        shellCountText = this.add.text(game.config.width * 0.90, game.config.height * 0.05, 'Shell Count: 0', {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0);
+        shellCountText = this.add.text(game.config.width * 0.90, game.config.height * 0.05, 'Shell Count: ' + shellCount, {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0);
         //OBSTACLES
         this.groundObstacles = this.physics.add.group();
         setInterval(() => this.createGroundObstacles(this.groundObstacles), 5000);
@@ -281,8 +281,8 @@ class GameScene extends Phaser.Scene {
         //pauses the game and starts pause scene when 'P' is pressed
         //* need to make sure ollie resumes from the same spot, not the starting point, and shell count stays the same
         this.input.keyboard.on('keydown-P', function(pointer) {
-            game.scene.start('PauseScene');
             game.scene.pause('GameScene');
+            game.scene.start('PauseScene');
         })
         //WATER LEVEL
         waterLevel = background.y / 2.1 //428.57
@@ -367,28 +367,25 @@ class GameScene extends Phaser.Scene {
 
 //---OBSTACLES---//
     moveObstacles(groundObstacles) {
-        sx += 8; //movement of the obstacles
-        if (sx === 16){
-            groundObstacles.getChildren().forEach(obstacle => {
-                if (obstacle.getBounds().right < 0) {
-                    groundObstacles.killAndHide(obstacle);
-                } else {
-                    obstacle.x -= 20;
-                }
-            })
-            sx = 0;
-        }
-    }//END MOVEOBSTACLES
-
+        groundObstacles.getChildren().forEach(obstacle => {
+            if (obstacle.getBounds().right < 0) {
+                groundObstacles.kill(obstacle);
+            } else {
+                obstacle.x -= 10;
+            }
+        })
+    }
     createGroundObstacles(groundObstacles) {
         var obstacleList = ['obstacle1', 'obstacle2', 'obstacle3'];
         let obstacleIndex = Phaser.Math.RND.between(0, 2);
         var chosenObstacle = obstacleList[obstacleIndex];
 
-        var obstacle = groundObstacles.create(game.config.width + 50, 1800, chosenObstacle);
-        obstacle.setOrigin(0.5, 0);
-        obstacle.setSize(200, 200);
-        obstacle.setScale(2);
+        var obstacle = groundObstacles.create(game.config.width + 50, 1800, chosenObstacle)
+        .setOrigin(0.5, 0)
+        .setSize(200, 200)
+        .setScale(2)
+        .setImmovable(true)
+        .setCollideWorldBounds(false)
     } //END CREATEGROUNDOBSTACLES
 //---END OBSTACLES---//
 
@@ -397,7 +394,7 @@ class GameScene extends Phaser.Scene {
         //updates power up pos
         powerUps.getChildren().forEach(powerUpChild => {
             if (powerUpChild.getBounds().right < 0) {
-                powerUps.killAndHide(powerUpChild);
+                powerUps.kill(powerUpChild);
             }
             else {
                 powerUpChild.x -= 10;
@@ -431,12 +428,16 @@ class GameScene extends Phaser.Scene {
                 powerUp
                 .setOrigin(0.5, 0.5)
                 .setScale(0.3)
+                .setImmovable(true)
+                .setCollideWorldBounds(false)
                 break;
             case 'powerUpPH1':
                 powerUp.name = 'puffer'
                 powerUp
                 .setOrigin(0.5, 0.5)
                 .setScale(0.08)
+                .setImmovable(true)
+                .setCollideWorldBounds(false)
                 break;
         }
         powerUp.body.setImmovable(false);
@@ -490,10 +491,10 @@ class GameScene extends Phaser.Scene {
     moveCurrencies(currencies) {
         currencies.getChildren().forEach(currencyChild => {
             if (currencyChild.getBounds().right < 0) {
-            currencies.killAndHide(currencyChild);
+                currencies.kill(currencyChild);
             }
             else {
-            currencyChild.x -= 10;
+                currencyChild.x -= 10;
             }
         });
     }//END MOVE CURRENCIES
@@ -501,10 +502,11 @@ class GameScene extends Phaser.Scene {
         //choose random value between river height and bottom of the screen
         let currencyHeight = Phaser.Math.RND.between(2000, 500)
         var currency = currencies.create(game.config.width + 50, currencyHeight, 'shell_pink')
-        currency.setOrigin(0.5, 0)
-        currency.setScale(1.5)
-
-        currency.body.setImmovable(false);
+        currency
+        .setOrigin(0.5, 0)
+        .setScale(1.5)
+        .setImmovable(true)
+        .setCollideWorldBounds(false)
     }//END CREATECURRENCY
     collectCurrency(ollie, currency) {
         currency.destroy();
