@@ -272,10 +272,13 @@ class GameScene extends Phaser.Scene {
         border = this.add.image(game.config.width / 2, game.config.height / 2,'border')
         .setDepth(1)
         .setScrollFactor(0)
-        // .setOrigin(0.5,0.5)
         //OLLIE
         ollie = this.physics.add.sprite(game.config.width / 3, game.config.height * .75, 'ollie')
-        .setScale(2);
+        .setScale(2)
+        //OLLIES HITBOX
+        ollie.body
+        .setSize(120,30,true)//width,height, center -- boolean
+        .setOffset(20,35) //x and y offset
         ollie.setCollideWorldBounds(true);
         //ANIMATIONS        
         this.anims.create({
