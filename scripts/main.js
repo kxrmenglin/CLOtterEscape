@@ -241,7 +241,7 @@ class GameScene extends Phaser.Scene {
 
     preload() {
         //GAME ELEMENTS
-        this.load.image('border', 'assets/border.png')
+        this.load.image('border', 'assets/borderv2.png')
         this.load.image('background', 'assets/background_V1.png')
         this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
         //OBSTACLES
@@ -265,7 +265,7 @@ class GameScene extends Phaser.Scene {
     }//END PRELOAD
     create() {
         //WORLD
-        this.physics.world.setBounds(0, 0, game.config.width, game.config.height * 1.5)
+        this.physics.world.setBounds(0, 0, game.config.width, game.config.height * 1.52)
         //BACKGROUND
         background = this.add.tileSprite(4000, 900, 0, 0, 'background')
         .setScale(8)
@@ -434,32 +434,31 @@ class GameScene extends Phaser.Scene {
     createGroundObstacles(groundObstacles) {
         var obstacleList = ['obstacle1', 'obstacle2', 'obstacle3', 'rock1', 'rock2', 'rock3', 'rock4', 'rock5', 'rock6'];
         let obstacleIndex = Phaser.Math.RND.between(0, 8);
-        // console.log('Obstacle Index: ' + obstacleIndex);
         var chosenObstacle = obstacleList[obstacleIndex];
-        //CORAL REEF SPAWN
+        //CORAL REEF SPAWN (obstacle 1, 2 ,3)
         if (obstacleIndex <= 2){
-            var obstacle = groundObstacles.create(game.config.width + 50, 1800, chosenObstacle);
+            var obstacle = groundObstacles.create(game.config.width + 50, 1750, chosenObstacle);
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(200, 200);
             obstacle.setScale(2);
         }
-        //TALL ROCK SPAWN
+        //TALL ROCK SPAWN (rock 2)
         else if (obstacleIndex === 4) {
-            var obstacle = groundObstacles.create(game.config.width + 50, 1950, chosenObstacle);
+            var obstacle = groundObstacles.create(game.config.width + 50, 1990, chosenObstacle);
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(200, 150);
             obstacle.setScale(3);
         }
-        //TINYROCKSPAWN
+        //TINYROCKSPAWN (rock 6)
         else if (obstacleIndex === 8) {
-            var obstacle = groundObstacles.create(game.config.width + 50, 2150, chosenObstacle);
+            var obstacle = groundObstacles.create(game.config.width + 50, 2095, chosenObstacle);
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(50, 50);
             obstacle.setScale(2);
         }
-        //REG ROCK SPAWN
+        //REG ROCK SPAWN (rock 1, 3, 4, 5)
         else {
-            var obstacle = groundObstacles.create(game.config.width + 50, 2100, chosenObstacle);
+            var obstacle = groundObstacles.create(game.config.width + 50, 2065, chosenObstacle);
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(200, 100);
             obstacle.setScale(2);
@@ -566,6 +565,7 @@ class GameScene extends Phaser.Scene {
             } 
             this.loadNextPowerUp()
         } else {
+            console.log('Hit ' + JSON.stringify(obstacle) + '!')
             isDead = true;
         }
     } //END OBSTACLECOLLISION
