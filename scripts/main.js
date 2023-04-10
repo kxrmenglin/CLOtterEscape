@@ -40,6 +40,15 @@ class DeathScene extends Phaser.Scene {
         super({key: 'DeathScene'});
     }//END CONSTRUCTOR
     preload() {
+        //this.load.image('background', 'assets/background_V1.png')
+        // this.load.spritesheet('ollie', 'assets/ollie.png', { frameWidth: 180, frameHeight: 60 })
+        //this.load.spritesheet ('ollie', 'assets/ollieSwim.png', {frameWidth: 160, frameHeight: 125});
+        //this.load.image('obstacle1', 'assets/underwaterplant_pink.png');
+        //this.load.image('obstacle2', 'assets/underwaterplant_orange.png');
+        //this.load.image('obstacle3', 'assets/underwaterplant_green.png');
+        //this.load.image('powerUpPH1', 'assets/puffer.png');
+        //this.load.image('powerUpPH2', 'assets/shell.png');
+        //this.load.image('shell_pink', 'assets/shell_pink.png')
         this.load.image('background', 'assets/background_V1.png');
         this.load.image('deathTitle', 'assets/otterescape_pausescreen_pause.png'); //temp
     }//END PRELOAD
@@ -196,6 +205,7 @@ class TitleScene extends Phaser.Scene {
 let 
     //GAME ELEMNTS 
         //CONSTANTS
+        border,
         background,
         ollie,
         camera,
@@ -207,6 +217,7 @@ let
         afterJump,
     //NAVBAR
         //METERS SWAM TEXT
+        placeholder = "0000000000",
         metersSwam,
         metersSwamText,
         //JUMP TEXT
@@ -230,8 +241,9 @@ class GameScene extends Phaser.Scene {
 
     preload() {
         //GAME ELEMENTS
+        this.load.image('border', 'assets/borderv2.png')
         this.load.image('background', 'assets/background_V1.png')
-        this.load.spritesheet('ollie', 'assets/ollie.png', { frameWidth: 180, frameHeight: 60 })
+        this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
         //OBSTACLES
         this.load.image('obstacle1', 'assets/underwaterplant_pink.png')
         this.load.image('obstacle2', 'assets/underwaterplant_orange.png')
@@ -253,14 +265,29 @@ class GameScene extends Phaser.Scene {
     }//END PRELOAD
     create() {
         //WORLD
-        this.physics.world.setBounds(0, 0, game.config.width, game.config.height * 1.5)
+        this.physics.world.setBounds(0, 0, game.config.width, game.config.height * 1.52)
         //BACKGROUND
         background = this.add.tileSprite(4000, 900, 0, 0, 'background')
         .setScale(8)
+        border = this.add.image(game.config.width / 2, game.config.height / 2,'border')
+        .setDepth(1)
+        .setScrollFactor(0)
         //OLLIE
         ollie = this.physics.add.sprite(game.config.width / 3, game.config.height * .75, 'ollie')
-        .setScale(2);
+        .setScale(2)
+        //OLLIES HITBOX
+        ollie.body
+        .setSize(120,30,true)//width,height, center -- boolean
+        .setOffset(20,35) //x and y offset
         ollie.setCollideWorldBounds(true);
+        //ANIMATIONS        
+        this.anims.create({
+            key: 'swim',
+            frames: this.anims.generateFrameNumbers('ollie'),
+            frameRate: 8,
+            repeat: -1
+        });
+        ollie.anims.play('swim');
         //CAMERA
         background.fixedToCamera = true;
         camera = this.cameras.main;
@@ -268,13 +295,13 @@ class GameScene extends Phaser.Scene {
         camera.startFollow(ollie, false, 0.5, 0.03);
         //METERS SWAM TEXT
         metersSwam = 0
-        metersSwamText = this.add.text(game.config.width * 0.02, game.config.height * 0.01, 'Meters Swam: ' + metersSwam, {fontSize: '85px', color: '#FFF'}).setScrollFactor(0);
+        metersSwamText = this.add.text(game.config.width * 0.02, game.config.height * 0.01, 'Meters Swam: 0000000000' , {fontSize: '85px', color: '#FFF'}).setScrollFactor(0).setDepth(1);
         //JUMP TEXT
-        canJumpText = this.add.text(game.config.width * 0.5, game.config.height * 0.01, 'jump', {fontSize: '85px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0);
+        canJumpText = this.add.text(game.config.width * 0.5, game.config.height * 0.01, 'jump', {fontSize: '85px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0).setDepth(1);
         //SHELL COUNT
         shellCount = 0
-        this.shellCounter = this.add.image(game.config.width * 0.79, game.config.height * 0.048, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2);
-        shellCountText = this.add.text(game.config.width * 0.90, game.config.height * 0.05, 'Shell Count: ' + shellCount, {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0);
+        this.shellCounter = this.add.image(game.config.width * 0.79, game.config.height * 0.048, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2).setDepth(1);
+        shellCountText = this.add.text(game.config.width * 0.90, game.config.height * 0.05, 'Shell Count: ' + shellCount, {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0).setDepth(2);
         //OBSTACLES
         this.groundObstacles = this.physics.add.group();
         setInterval(() => this.createGroundObstacles(this.groundObstacles), Phaser.Math.RND.between(3000, 5000));
@@ -310,7 +337,7 @@ class GameScene extends Phaser.Scene {
         } else {
             //GAME ELEMENTS
             this.moveBackground()
-            this.addMetersSwam(1)
+            this.addMetersSwam(0.052)
             //MOVEMENT
             this.movement()
             this.canJump()
@@ -330,8 +357,9 @@ class GameScene extends Phaser.Scene {
         background._tilePosition.x += 1.69
     }//END MOVEBACKGROUND
     addMetersSwam(points){
+
         metersSwam += points;
-        metersSwamText.setText('Meters Swam: ' + metersSwam);
+        metersSwamText.setText('Meters Swam: ' + placeholder.substring(10 - metersSwam.toString().length) + Math.trunc(metersSwam));
     }//END ADDMETERSSWAM
 //---END GAME ELEMENTS---//
 
@@ -409,32 +437,31 @@ class GameScene extends Phaser.Scene {
     createGroundObstacles(groundObstacles) {
         var obstacleList = ['obstacle1', 'obstacle2', 'obstacle3', 'rock1', 'rock2', 'rock3', 'rock4', 'rock5', 'rock6'];
         let obstacleIndex = Phaser.Math.RND.between(0, 8);
-        // console.log('Obstacle Index: ' + obstacleIndex);
         var chosenObstacle = obstacleList[obstacleIndex];
-        //CORAL REEF SPAWN
+        //CORAL REEF SPAWN (obstacle 1, 2 ,3)
         if (obstacleIndex <= 2){
-            var obstacle = groundObstacles.create(game.config.width + 50, 1800, chosenObstacle);
+            var obstacle = groundObstacles.create(game.config.width + 50, 1750, chosenObstacle);
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(200, 200);
             obstacle.setScale(2);
         }
-        //TALL ROCK SPAWN
+        //TALL ROCK SPAWN (rock 2)
         else if (obstacleIndex === 4) {
-            var obstacle = groundObstacles.create(game.config.width + 50, 1950, chosenObstacle);
+            var obstacle = groundObstacles.create(game.config.width + 50, 1990, chosenObstacle);
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(200, 150);
             obstacle.setScale(3);
         }
-        //TINYROCKSPAWN
+        //TINYROCKSPAWN (rock 6)
         else if (obstacleIndex === 8) {
-            var obstacle = groundObstacles.create(game.config.width + 50, 2150, chosenObstacle);
+            var obstacle = groundObstacles.create(game.config.width + 50, 2095, chosenObstacle);
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(50, 50);
             obstacle.setScale(2);
         }
-        //REG ROCK SPAWN
+        //REG ROCK SPAWN (rock 1, 3, 4, 5)
         else {
-            var obstacle = groundObstacles.create(game.config.width + 50, 2100, chosenObstacle);
+            var obstacle = groundObstacles.create(game.config.width + 50, 2065, chosenObstacle);
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(200, 100);
             obstacle.setScale(2);
@@ -541,6 +568,7 @@ class GameScene extends Phaser.Scene {
             } 
             this.loadNextPowerUp()
         } else {
+            console.log('Hit ' + JSON.stringify(obstacle) + '!')
             isDead = true;
         }
     } //END OBSTACLECOLLISION
@@ -556,10 +584,10 @@ class GameScene extends Phaser.Scene {
             }
         } else if (powerUpsQueue.length === 2 && !onDeck) {
             var onDeckPowerUp = (powerUpsQueue[1] === 1) ? 'powerUpPH1' : 'bubble'
-            onDeck = this.add.image(game.config.width * 0.03, game.config.height * 0.08, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale((onDeckPowerUp === 'powerUpPH1' ? 0.06 : 0.1));
+            onDeck = this.add.image(game.config.width * 0.03, game.config.height * 0.08, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale((onDeckPowerUp === 'powerUpPH1' ? 0.06 : 0.1)).setDepth(1);
         }
     }//END GETNEXTPOWERUP
-//---END POWERUPS---//
+//---END POWERUPS---//f
 
 //---CURRENCY---//
     moveCurrencies(currencies) {
