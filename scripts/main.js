@@ -40,6 +40,15 @@ class DeathScene extends Phaser.Scene {
         super({key: 'DeathScene'});
     }//END CONSTRUCTOR
     preload() {
+        //this.load.image('background', 'assets/background_V1.png')
+        // this.load.spritesheet('ollie', 'assets/ollie.png', { frameWidth: 180, frameHeight: 60 })
+        //this.load.spritesheet ('ollie', 'assets/ollieSwim.png', {frameWidth: 160, frameHeight: 125});
+        //this.load.image('obstacle1', 'assets/underwaterplant_pink.png');
+        //this.load.image('obstacle2', 'assets/underwaterplant_orange.png');
+        //this.load.image('obstacle3', 'assets/underwaterplant_green.png');
+        //this.load.image('powerUpPH1', 'assets/puffer.png');
+        //this.load.image('powerUpPH2', 'assets/shell.png');
+        //this.load.image('shell_pink', 'assets/shell_pink.png')
         this.load.image('background', 'assets/background_V1.png');
         this.load.image('deathTitle', 'assets/otterescape_pausescreen_pause.png'); //temp
     }//END PRELOAD
@@ -268,6 +277,16 @@ class GameScene extends Phaser.Scene {
         ollie = this.physics.add.sprite(game.config.width / 3, game.config.height * .75, 'ollie')
         .setScale(2);
         ollie.setCollideWorldBounds(true);
+        //ANIMATIONS
+        ollie = this.physics.add.sprite(game.config.width / 3, game.config.height * .75, 'ollie').setScale(2);
+        ollie.setCollideWorldBounds(true);
+        this.anims.create({
+            key: 'swim',
+            frames: this.anims.generateFrameNumbers('ollie'),
+            frameRate: 8,
+            repeat: -1
+        });
+        ollie.anims.play('swim');
         //CAMERA
         background.fixedToCamera = true;
         camera = this.cameras.main;
