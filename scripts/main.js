@@ -295,13 +295,13 @@ class GameScene extends Phaser.Scene {
         camera.startFollow(ollie, false, 0.5, 0.03);
         //METERS SWAM TEXT
         metersSwam = 0
-        metersSwamText = this.add.text(game.config.width * 0.02, game.config.height * 0.01, 'Meters Swam: 0000000000' , {fontSize: '85px', color: '#FFF'}).setScrollFactor(0).setDepth(1);
+        metersSwamText = this.add.text(game.config.width * 0.024, game.config.height * 0.00001, '0000000000' , {fontFamily: 'Retro Gaming', fontSize: '70px', color: '#FFF'}).setScrollFactor(0).setDepth(1);
         //JUMP TEXT
-        canJumpText = this.add.text(game.config.width * 0.5, game.config.height * 0.01, 'jump', {fontSize: '85px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0).setDepth(1);
+        canJumpText = this.add.text(game.config.width * 0.43, game.config.height * 0.00001, 'jump', {fontFamily: 'Retro Gaming', fontSize: '70px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0).setDepth(1);
         //SHELL COUNT
         shellCount = 0
-        this.shellCounter = this.add.image(game.config.width * 0.79, game.config.height * 0.048, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2).setDepth(1);
-        shellCountText = this.add.text(game.config.width * 0.90, game.config.height * 0.05, 'Shell Count: ' + shellCount, {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0).setDepth(2);
+        this.shellCounter = this.add.image(game.config.width * 0.875, game.config.height * 0.03, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2).setDepth(1);
+        shellCountText = this.add.text(game.config.width * 0.93, game.config.height * 0.03, "00000", {fontFamily: 'Retro Gaming', fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0).setDepth(2);
         //OBSTACLES
         this.groundObstacles = this.physics.add.group();
         setInterval(() => this.createGroundObstacles(this.groundObstacles), Phaser.Math.RND.between(3000, 5000));
@@ -359,7 +359,7 @@ class GameScene extends Phaser.Scene {
     addMetersSwam(points){
 
         metersSwam += points;
-        metersSwamText.setText('Meters Swam: ' + placeholder.substring(10 - metersSwam.toString().length) + Math.trunc(metersSwam));
+        metersSwamText.setText(placeholder.substring(10 - metersSwam.toString().length) + Math.trunc(metersSwam));
     }//END ADDMETERSSWAM
 //---END GAME ELEMENTS---//
 
@@ -584,7 +584,12 @@ class GameScene extends Phaser.Scene {
             }
         } else if (powerUpsQueue.length === 2 && !onDeck) {
             var onDeckPowerUp = (powerUpsQueue[1] === 1) ? 'powerUpPH1' : 'bubble'
-            onDeck = this.add.image(game.config.width * 0.03, game.config.height * 0.08, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale((onDeckPowerUp === 'powerUpPH1' ? 0.06 : 0.1)).setDepth(1);
+            if(onDeckPowerUp === 'powerUpPH1') {
+                onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.055, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(0.06).setDepth(1);
+            } else {
+                onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(0.13).setDepth(1.2);
+            }
+            
         }
     }//END GETNEXTPOWERUP
 //---END POWERUPS---//f
@@ -611,9 +616,11 @@ class GameScene extends Phaser.Scene {
         .setCollideWorldBounds(false)
     }//END CREATECURRENCY
     collectCurrency(ollie, currency) {
+        var maxShells = '00000'
         currency.destroy();
         shellCount++;
-        shellCountText.setText('Shell Count: ' + shellCount)
+        // shellCountText.setText(maxShells.substring(5 - shellCount.toString().length + shellCount))
+        shellCountText.setText(maxShells.substring(shellCount.toString().length) + shellCount)
         // console.log(shellCount)
     }//END COLLECTCURRENCY
 //---END CURRENCY---//
