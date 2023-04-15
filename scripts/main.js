@@ -672,7 +672,7 @@ class GameScene extends Phaser.Scene {
                 powerUp.name = 'bubble'
                 powerUp
                 .setOrigin(0.5, 0.5)
-                .setScale(0.3)
+                .setScale(1)
                 .setImmovable(false)
                 .setCollideWorldBounds(false)
                 break;
@@ -723,7 +723,7 @@ class GameScene extends Phaser.Scene {
                     currentPowerUp = this.add.image(ollie.x+500, ollie.y+200, 'rockpowerup').setScale(1.5)
                     break;
                 case 2:
-                    currentPowerUp = this.add.image(ollie.x, ollie.y, 'bubble').setScale(1)
+                    currentPowerUp = this.add.image(ollie.x, ollie.y, 'bubble').setScale(3)
                     break;
             }
         } else if (powerUpsQueue.length === 2 && !onDeck) {
@@ -731,7 +731,7 @@ class GameScene extends Phaser.Scene {
             if(onDeckPowerUp === 'rockpowerup') {
                 onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(2).setDepth(1);
             } else {
-                onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(0.13).setDepth(1.2);
+                onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(0.4).setDepth(1.2);
             }
             
         }
