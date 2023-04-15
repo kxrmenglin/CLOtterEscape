@@ -49,12 +49,12 @@ class DeathScene extends Phaser.Scene {
         //this.load.image('rockpowerup', 'assets/rockpowerup.png');
         //this.load.image('powerUpPH2', 'assets/shell.png');
         //this.load.image('shell_pink', 'assets/shell_pink.png')
-        this.load.image('background', 'assets/background_V1.png');
+        // this.load.image('background', 'assets/background_V1.png');
         this.load.image('deathTitle', 'assets/otterescape_pausescreen_pause.png'); //temp
     }//END PRELOAD
     create() {
-        let background = this.add.sprite(2040, 950, 'background') //temporary background for pause scene
-        .setScale(8)
+        // let background = this.add.sprite(2040, 950, 'background') //temporary background for pause scene
+        // .setScale(8)
 
         let deathTitle = this.add.sprite(game.config.width/2, game.config.height/3, 'deathTitle')
         .setOrigin(0.5)
@@ -108,16 +108,12 @@ class PauseScene extends Phaser.Scene {
     }//END CONSTRUCTOR
 
     preload() {
-        this.load.image('background', 'assets/background_V1.png');
         this.load.image('pauseTitle', 'assets/otterescape_pausescreen_pause.png');
         this.load.image('endButton', 'assets/otterescape_pausescreen_end.png');
         this.load.image('resumeButton', 'assets/otterescape_pausescreen_resume.png');
     }//END PRELOAD
 
     create() {
-        let background = this.add.sprite(2040, 950, 'background') //temporary background for pause scene
-        .setScale(8)
-
         let pauseTitle = this.add.sprite(game.config.width/2, game.config.height/3, 'pauseTitle')
         .setOrigin(0.5)
         .setScale(2.5)
@@ -168,7 +164,7 @@ class TitleScene extends Phaser.Scene {
     preload() {
         this.load.image('background', 'assets/background_V1.png');
         this.load.image('title', 'assets/logov2.png');
-        this.load.image('playButton', 'assets/otterescape_pausescreen_resume.png')
+        this.load.image('playButton', 'assets/playButton.png');
     }//END PRELOAD
 
     create() {
@@ -296,7 +292,7 @@ class GameScene extends Phaser.Scene {
         metersSwam = 0
         metersSwamText = this.add.text(game.config.width * 0.024, game.config.height * 0.00001, '000000' , {fontFamily: 'Retro Gaming', fontSize: '70px', color: '#FFF'}).setScrollFactor(0).setDepth(1);
         //JUMP TEXT
-        canJumpText = this.add.text(game.config.width * 0.43, game.config.height * 0.00001, 'jump', {fontFamily: 'Retro Gaming', fontSize: '70px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0).setDepth(1);
+        canJumpText = this.add.text(game.config.width * 0.44, game.config.height * 0.00001, 'jump', {fontFamily: 'Retro Gaming', fontSize: '70px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0).setDepth(1);
         //SHELL COUNT
         shellCount = 0
         this.shellCounter = this.add.image(game.config.width * 0.875, game.config.height * 0.03, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2).setDepth(1);
@@ -320,7 +316,7 @@ class GameScene extends Phaser.Scene {
         cursors = this.input.keyboard.createCursorKeys();
         //pauses the game and starts pause scene when 'P' is pressed
         //* need to make sure ollie resumes from the same spot, not the starting point, and shell count stays the same
-        this.input.keyboard.on('keydown-P', function(pointer) {
+        this.input.keyboard.on('keydown-ESC', function(pointer) {
             game.scene.pause('GameScene');
             game.scene.start('PauseScene');
         })
@@ -329,7 +325,10 @@ class GameScene extends Phaser.Scene {
     }//END CREATE
     update() {
         if (isDead) {
-            this.scene.stop();
+            //freezes game scene background
+            //hide all obstacles/ stop them
+            //put in ollie hitting obstacle animation
+            this.scene.pause();
             game.scene.start('DeathScene');
             isDead = false; //resets the play?
             metersSwam = 0;
