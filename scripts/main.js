@@ -46,15 +46,15 @@ class DeathScene extends Phaser.Scene {
         //this.load.image('obstacle1', 'assets/underwaterplant_pink.png');
         //this.load.image('obstacle2', 'assets/underwaterplant_orange.png');
         //this.load.image('obstacle3', 'assets/underwaterplant_green.png');
-        //this.load.image('powerUpPH1', 'assets/puffer.png');
+        //this.load.image('rockpowerup', 'assets/rockpowerup.png');
         //this.load.image('powerUpPH2', 'assets/shell.png');
         //this.load.image('shell_pink', 'assets/shell_pink.png')
-        this.load.image('background', 'assets/background_V1.png');
+        // this.load.image('background', 'assets/background_V1.png');
         this.load.image('deathTitle', 'assets/otterescape_pausescreen_pause.png'); //temp
     }//END PRELOAD
     create() {
-        let background = this.add.sprite(2040, 950, 'background') //temporary background for pause scene
-        .setScale(8)
+        // let background = this.add.sprite(2040, 950, 'background') //temporary background for pause scene
+        // .setScale(8)
 
         let deathTitle = this.add.sprite(game.config.width/2, game.config.height/3, 'deathTitle')
         .setOrigin(0.5)
@@ -108,16 +108,12 @@ class PauseScene extends Phaser.Scene {
     }//END CONSTRUCTOR
 
     preload() {
-        this.load.image('background', 'assets/background_V1.png');
         this.load.image('pauseTitle', 'assets/otterescape_pausescreen_pause.png');
         this.load.image('endButton', 'assets/otterescape_pausescreen_end.png');
         this.load.image('resumeButton', 'assets/otterescape_pausescreen_resume.png');
     }//END PRELOAD
 
     create() {
-        let background = this.add.sprite(2040, 950, 'background') //temporary background for pause scene
-        .setScale(8)
-
         let pauseTitle = this.add.sprite(game.config.width/2, game.config.height/3, 'pauseTitle')
         .setOrigin(0.5)
         .setScale(2.5)
@@ -168,7 +164,7 @@ class TitleScene extends Phaser.Scene {
     preload() {
         this.load.image('background', 'assets/background_V1.png');
         this.load.image('title', 'assets/logov2.png');
-        this.load.image('playButton', 'assets/otterescape_pausescreen_resume.png')
+        this.load.image('playButton', 'assets/playButton.png');
     }//END PRELOAD
 
     create() {
@@ -217,7 +213,6 @@ let
         afterJump,
     //NAVBAR
         //METERS SWAM TEXT
-        placeholder = "0000000000",
         metersSwam,
         metersSwamText,
         //JUMP TEXT
@@ -258,7 +253,7 @@ class GameScene extends Phaser.Scene {
         this.load.image('rock5', 'assets/rock5.png')
         this.load.image('rock6', 'assets/rock6.png')
         //POWERUPS
-        this.load.image('powerUpPH1', 'assets/puffer.png')
+        this.load.image('rockpowerup', 'assets/rockpowerup.png')
         this.load.image('bubble', 'assets/bubble.png')
         //CURRENCY
         this.load.image('shell_pink', 'assets/shell_pink.png')
@@ -295,13 +290,13 @@ class GameScene extends Phaser.Scene {
         camera.startFollow(ollie, false, 0.5, 0.03);
         //METERS SWAM TEXT
         metersSwam = 0
-        metersSwamText = this.add.text(game.config.width * 0.02, game.config.height * 0.01, 'Meters Swam: 0000000000' , {fontSize: '85px', color: '#FFF'}).setScrollFactor(0).setDepth(1);
+        metersSwamText = this.add.text(game.config.width * 0.024, game.config.height * 0.00001, '000000' , {fontFamily: 'Retro Gaming', fontSize: '70px', color: '#FFF'}).setScrollFactor(0).setDepth(1);
         //JUMP TEXT
-        canJumpText = this.add.text(game.config.width * 0.5, game.config.height * 0.01, 'jump', {fontSize: '85px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0).setDepth(1);
+        canJumpText = this.add.text(game.config.width * 0.44, game.config.height * 0.00001, 'jump', {fontFamily: 'Retro Gaming', fontSize: '70px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0).setDepth(1);
         //SHELL COUNT
         shellCount = 0
-        this.shellCounter = this.add.image(game.config.width * 0.79, game.config.height * 0.048, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2).setDepth(1);
-        shellCountText = this.add.text(game.config.width * 0.90, game.config.height * 0.05, 'Shell Count: ' + shellCount, {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0).setDepth(2);
+        this.shellCounter = this.add.image(game.config.width * 0.875, game.config.height * 0.03, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2).setDepth(1);
+        shellCountText = this.add.text(game.config.width * 0.93, game.config.height * 0.03,'00000', {fontFamily: 'Retro Gaming', fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0).setDepth(2);
         //OBSTACLES
         this.groundObstacles = this.physics.add.group();
         setInterval(() => this.createGroundObstacles(this.groundObstacles), Phaser.Math.RND.between(3000, 5000));
@@ -321,7 +316,7 @@ class GameScene extends Phaser.Scene {
         cursors = this.input.keyboard.createCursorKeys();
         //pauses the game and starts pause scene when 'P' is pressed
         //* need to make sure ollie resumes from the same spot, not the starting point, and shell count stays the same
-        this.input.keyboard.on('keydown-P', function(pointer) {
+        this.input.keyboard.on('keydown-ESC', function(pointer) {
             game.scene.pause('GameScene');
             game.scene.start('PauseScene');
         })
@@ -330,7 +325,10 @@ class GameScene extends Phaser.Scene {
     }//END CREATE
     update() {
         if (isDead) {
-            this.scene.stop();
+            //freezes game scene background
+            //hide all obstacles/ stop them
+            //put in ollie hitting obstacle animation
+            this.scene.pause();
             game.scene.start('DeathScene');
             isDead = false; //resets the play?
             metersSwam = 0;
@@ -357,9 +355,9 @@ class GameScene extends Phaser.Scene {
         background._tilePosition.x += 1.69
     }//END MOVEBACKGROUND
     addMetersSwam(points){
-
+        var placeholder = '000000'
         metersSwam += points;
-        metersSwamText.setText('Meters Swam: ' + placeholder.substring(10 - metersSwam.toString().length) + Math.trunc(metersSwam));
+        metersSwamText.setText(placeholder.substring(Math.trunc(metersSwam).toString().length) + Math.trunc(metersSwam));
     }//END ADDMETERSSWAM
 //---END GAME ELEMENTS---//
 
@@ -504,19 +502,20 @@ class GameScene extends Phaser.Scene {
     } //END MOVE OBSTACLES
     movePowerUp() {
         if(currentPowerUp) {
-            currentPowerUp.x = ollie.x;
             switch(powerUpsQueue[0]) {
                 case 1:
-                    currentPowerUp.y = ollie.y-50;
+                    currentPowerUp.x = ollie.x+60
+                    currentPowerUp.y = ollie.y+20;
                     break;
                 case 2: 
+                    currentPowerUp.x = ollie.x;
                     currentPowerUp.y = ollie.y;
             }
             
         }
     }//END CHECK FOR POWERUPS
     createPowerUps(powerUps) {
-        var powerUpList = ['powerUpPH1', 'bubble']
+        var powerUpList = ['rockpowerup', 'bubble']
         let powerUpIndex = Phaser.Math.RND.between(0, 1);
         var chosenPowerUp = powerUpList[powerUpIndex];
         
@@ -532,11 +531,11 @@ class GameScene extends Phaser.Scene {
                 .setImmovable(false)
                 .setCollideWorldBounds(false)
                 break;
-            case 'powerUpPH1':
-                powerUp.name = 'puffer'
+            case 'rockpowerup':
+                powerUp.name = 'rockpowerup'
                 powerUp
                 .setOrigin(0.5, 0.5)
-                .setScale(0.08)
+                .setScale(3)
                 .setImmovable(false)
                 .setCollideWorldBounds(false)
                 break;
@@ -547,7 +546,7 @@ class GameScene extends Phaser.Scene {
         powerUp.destroy();
         if(powerUpsQueue.length < 2) {
             switch(powerUp.name) {
-                case 'puffer':
+                case 'rockpowerup':
                     powerUpsQueue.push(1)
                     break;
                 case 'bubble':
@@ -576,15 +575,20 @@ class GameScene extends Phaser.Scene {
         if(powerUpsQueue.length === 1) {
             switch(powerUpsQueue[0]) {
                 case 1:
-                    currentPowerUp = this.add.image(ollie.x, ollie.y-50, 'powerUpPH1').setScale(0.06)
+                    currentPowerUp = this.add.image(ollie.x+500, ollie.y+200, 'rockpowerup').setScale(1.5)
                     break;
                 case 2:
                     currentPowerUp = this.add.image(ollie.x, ollie.y, 'bubble').setScale(1)
                     break;
             }
         } else if (powerUpsQueue.length === 2 && !onDeck) {
-            var onDeckPowerUp = (powerUpsQueue[1] === 1) ? 'powerUpPH1' : 'bubble'
-            onDeck = this.add.image(game.config.width * 0.03, game.config.height * 0.08, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale((onDeckPowerUp === 'powerUpPH1' ? 0.06 : 0.1)).setDepth(1);
+            var onDeckPowerUp = (powerUpsQueue[1] === 1) ? 'rockpowerup' : 'bubble'
+            if(onDeckPowerUp === 'rockpowerup') {
+                onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(2).setDepth(1);
+            } else {
+                onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(0.13).setDepth(1.2);
+            }
+            
         }
     }//END GETNEXTPOWERUP
 //---END POWERUPS---//f
@@ -611,9 +615,11 @@ class GameScene extends Phaser.Scene {
         .setCollideWorldBounds(false)
     }//END CREATECURRENCY
     collectCurrency(ollie, currency) {
+        var maxShells = '00000'
         currency.destroy();
         shellCount++;
-        shellCountText.setText('Shell Count: ' + shellCount)
+        // shellCountText.setText(maxShells.substring(5 - shellCount.toString().length + shellCount))
+        shellCountText.setText(maxShells.substring(shellCount.toString().length) + shellCount)
         // console.log(shellCount)
     }//END COLLECTCURRENCY
 //---END CURRENCY---//
