@@ -778,7 +778,19 @@ class GameScene extends Phaser.Scene {
     collectCurrency(ollie, currency) {
         var maxShells = '00000'
         currency.destroy();
-        shellCount++;
+        console.log(currency.texture.key)
+        switch(currency.texture.key) {
+            case 'shell_pink':
+                shellCount++;
+                break;
+            case 'shell_orange':
+                shellCount+=5;
+                break;
+            case 'shell_gold':
+                shellCount+=10;
+                break;
+        }
+        
         // shellCountText.setText(maxShells.substring(5 - shellCount.toString().length + shellCount))
         shellCountText.setText(maxShells.substring(shellCount.toString().length) + shellCount)
         // console.log(shellCount)
