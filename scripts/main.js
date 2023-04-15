@@ -317,7 +317,7 @@ class GameScene extends Phaser.Scene {
         shellCountText = this.add.text(game.config.width * 0.90, game.config.height * 0.05, 'Shell Count: ' + shellCount, {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0).setDepth(2);
         //OBSTACLES
         this.groundObstacles = this.physics.add.group();
-        setInterval(() => this.createGroundObstacles(this.groundObstacles), Phaser.Math.RND.between(3000, 5000));
+        setInterval(() => this.createGroundObstacles(this.groundObstacles), Phaser.Math.RND.between(1000, 3000));
         this.physics.add.collider(ollie, this.groundObstacles, this.obstacleCollision.bind(this))
         this.floatObstacles = this.physics.add.group();
         setInterval(() =>this.createFloatObstacles(this.floatObstacles), Phaser.Math.RND.between(5000, 8000))
@@ -451,34 +451,51 @@ class GameScene extends Phaser.Scene {
         var obstacleList = ['obstacle1', 'obstacle2', 'obstacle3', 'rock1', 'rock2', 'rock3', 'rock4', 'rock5', 'rock6'];
         let obstacleIndex = Phaser.Math.RND.between(0, 8);
         var chosenObstacle = obstacleList[obstacleIndex];
+        let scaleValue = Phaser.Math.RND.between(1, 4);
+        console.log('width: ' + game.config.width);
+        console.log('height: ' + game.config.height);
+        
         //CORAL REEF SPAWN (obstacle 1, 2 ,3)
         if (obstacleIndex <= 2){
-            var obstacle = groundObstacles.create(game.config.width + 50, 1750, chosenObstacle);
-            obstacle.setOrigin(0.5, 0);
-            obstacle.setSize(200, 200);
-            obstacle.setScale(2);
+            //Smaller scaleValue for coral reefs because grow too big
+            let scaleValue = Phaser.Math.RND.between(1, 3);
+            let yPos = 2050 - (100*(scaleValue-1));
+            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+            obstacle.setOrigin(0.5, 0.5);
+            obstacle.setSize(200, 160);
+            obstacle.setScale(scaleValue);
+
         }
         //TALL ROCK SPAWN (rock 2)
+        //DONE
         else if (obstacleIndex === 4) {
-            var obstacle = groundObstacles.create(game.config.width + 50, 1990, chosenObstacle);
-            obstacle.setOrigin(0.5, 0);
-            obstacle.setSize(200, 150);
-            obstacle.setScale(3);
+            //Every obstacle needs different eqn for positioning based on how much it was scaled:
+            let yPos = 2150 - (50*(scaleValue-1));
+
+            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+            obstacle.setOrigin(0.5, 0.5);
+            obstacle.setSize(120, 100);
+            obstacle.setScale(scaleValue);
         }
         //TINYROCKSPAWN (rock 6)
+        //DONE
         else if (obstacleIndex === 8) {
-            var obstacle = groundObstacles.create(game.config.width + 50, 2095, chosenObstacle);
-            obstacle.setOrigin(0.5, 0);
+            let yPos = 2150 - (10*(scaleValue-1));
+            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+            obstacle.setOrigin(0.5, 0.5);
             obstacle.setSize(50, 50);
-            obstacle.setScale(2);
+            obstacle.setScale(scaleValue);
         }
+
         //REG ROCK SPAWN (rock 1, 3, 4, 5)
         else {
-            var obstacle = groundObstacles.create(game.config.width + 50, 2065, chosenObstacle);
-            obstacle.setOrigin(0.5, 0);
+            let yPos = 2200 - (50*(scaleValue-1));
+            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+            obstacle.setOrigin(0.5, 0.5);
             obstacle.setSize(200, 100);
-            obstacle.setScale(2);
+            obstacle.setScale(scaleValue);
         }
+        console.log(scaleValue)
     } //END CREATEGROUNDOBSTACLES
 
     createFloatObstacles(floatObstacles) {
