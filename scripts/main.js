@@ -1,20 +1,22 @@
 var config;
 var game;
+const delay = ms => new Promise(res => setTimeout(res, ms));
 window.onload = function() {
     let titleScene = new TitleScene();
     let gameScene = new GameScene();
     let pauseScene = new PauseScene();
     let deathScene = new DeathScene();
+    let preGameScene = new PreGameScene();
     // object containing configuration options
     config = {
         type: Phaser.AUTO,
         width: 3000,
         height: 1452,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        scene: [TitleScene, GameScene, PauseScene, DeathScene], //made it a scene array to switch between scenes
+        scene: [TitleScene, GameScene, PauseScene, DeathScene, PreGameScene], //made it a scene array to switch between scenes
         physics: {
             default: "arcade",
-            arcade: { debug:true }
+            arcade: { debug:false }
         }
     }
     game = new Phaser.Game(config);
@@ -32,6 +34,8 @@ window.onload = function() {
     // game.scene.start('PauseScene');
 
     game.scene.add('DeathScene', deathScene);
+
+    game.scene.add('preGameScene', preGameScene);
 
 }//END load listener
 
@@ -159,34 +163,39 @@ class PauseScene extends Phaser.Scene {
         });//END CREATE
     }//END PAUSE SCENE
 }
+let bubbles,
+playButton
 //title scene
 class TitleScene extends Phaser.Scene {
     constructor() {
         super({key: 'TitleScene'});
     }//END CONSTRUCTOR
-
     preload() {
         this.load.image('titlebackground', 'assets/titlebg.png')
         this.load.image('title', 'assets/logov2.png')
         this.load.image('playButton', 'assets/play.png')
         this.load.image('bubble', 'assets/bubble2.png')
+        this.load.image('border', 'assets/borderv2.png')
     }//END PRELOAD
-
     create() {
-        var background = this.add.image(1500,490, 'titlebackground').setScale(2)
+        // var background = this.add.image(1500,490, 'titlebackground').setScale(2)
+        this.background = this.add.tileSprite(1500, 490, 0, 0, 'titlebackground').setScale(2)
+        // border = this.add.image(game.config.width / 2, game.config.height / 2,'border')
+        // .setDepth(1)
+        // .setScrollFactor(0)
 
-        var title = this.add.sprite(game.config.width/2, game.config.height/3.5, 'title')
+        this.title = this.add.sprite(game.config.width/2, game.config.height/3.5, 'title')
         .setOrigin(0.5)
         .setScale(6.5)
         .setDepth(1)
         
-        this.bubbles = this.physics.add.group()
-        this.bubbles.maxSize = 10
+        bubbles = this.physics.add.group()
+        bubbles.maxSize = 10
         
         // this.bubble = this.physics.add.sprite(game.config.width / 2, game.config.height / 2, 'bubble')
         // this.bubble.body.setGravity(0,-150)
 
-        var playButton = this.add.sprite(game.config.width/2, game.config.height/1.4, 'playButton')
+        playButton = this.add.sprite(game.config.width/2, game.config.height/1.4, 'playButton')
         .setInteractive({ useHandCursor: true })
         .setOrigin(0.5)
         .setScale(2)
@@ -199,32 +208,33 @@ class TitleScene extends Phaser.Scene {
         playButton.on('pointerout', function (pointer) {
             playButton.clearTint();
         });
-
         //starts the game scene
         playButton.on('pointerdown', function(pointer) { 
-            game.scene.start('GameScene');
-            game.scene.stop('TitleScene');
-            game.scene.stop('DeathScene');
-        });
+            this.swtichScenes()
+        },this);        
     }//END CREATE
-
     update() {
+        this.moveBackground()
         this.createNewBubble()
-
+        this.moveBubbles()
+    }
+    moveBackground() {
+        this.background._tilePosition.x += 1
     }
     createNewBubble() {
-        if(this.bubbles.countActive(true) < 10) {
+        if(bubbles.countActive(true) < 10) {
             var spawn = Phaser.Math.RND.between(0,100)
             if(spawn < 2) {
                 var x = Phaser.Math.RND.between(0, game.config.width)
-                var newBubble = this.bubbles.create(x, game.config.height, 'bubble')
+                var newBubble = bubbles.create(x, game.config.height, 'bubble')
                 newBubble.setVelocityX(30)
             }
         }
-
-        this.bubbles.getChildren().forEach(bubble => {
+    }//END CREATENEWBUBBLE
+    moveBubbles() {
+        bubbles.getChildren().forEach(bubble => {
             if (bubble.getBounds().top < 0) {
-                this.bubbles.remove(bubble, true, true);
+                bubbles.remove(bubble, true, true);
                 // console.log('killing')
             } else {
                 var direction = Phaser.Math.RND.between(0,1000);
@@ -234,10 +244,90 @@ class TitleScene extends Phaser.Scene {
                 } 
                 bubble.y -= 3;
             }
-        })
-
+        })        
+    }//END MOVEBUBBLES
+    swtichScenes = async() => {
+        this.title.visible = false;
+        playButton.visible = false;
+        bubbles.getChildren().forEach(bubble => {
+            bubble.visible = false;
+        })              
+        await delay(10)
+        game.scene.pause('TitleScene')
+        game.scene.start('PreGameScene')
     }
 }//END TITLESCENE
+
+class PreGameScene extends Phaser.Scene {
+    constructor() {
+        super({key: 'PreGameScene'});
+    }//END CONSTRUCTOR
+
+    preload() {
+        this.load.image('bubble', 'assets/bubble2.png')
+        this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
+    }//END PRELOAD
+
+    create() {
+        // bubbles = this.physics.add.group()
+       this.fakeollie = this.physics.add.sprite(-150, game.config.height * .75, 'ollie')
+        .setScale(2)
+        //OLLIES HITBOX
+        this.fakeollie.body
+        .setSize(120,30,true)//width,height, center -- boolean
+        .setOffset(20,35) //x and y offset
+        this.fakeollie.setCollideWorldBounds(false);
+        //ANIMATIONS        
+        this.anims.create({
+            key: 'fake swim',
+            frames: this.anims.generateFrameNumbers('ollie'),
+            frameRate: 18,
+            repeat: -1
+        });
+        this.fakeollie.anims.play('fake swim');
+
+        this.bubbleRush = this.physics.add.group()
+        this.playBubbleRushAnnimation(this.bubbleRush)
+        this.playOllieSwimmingAnimation()
+    }
+    update() {
+        this.moveBubbles()
+    }
+    moveBubbles() {
+        this.bubbleRush.getChildren().forEach(bubble => {
+            var direction = Phaser.Math.RND.between(0,1000);
+            var randomSpeedUp = Phaser.Math.RND.between(0,50);
+            if(direction < 100) {
+                // console.log(bubble.body.velocity.x)
+                bubble.setVelocityX(bubble.body.velocity.x * -1)
+                bubble.setVelocityY(bubble.body.velocity.y - randomSpeedUp)
+            } 
+            // bubble.y -= 3; 
+        })        
+    }//END MOVEBUBBLES
+    playBubbleRushAnnimation = async(bubbleRush) => {
+        while(this.bubbleRush.countActive(true) <100) {
+            var x = Phaser.Math.RND.between(0, game.config.width)
+            var y = Phaser.Math.RND.between(game.config.height, game.config.height+2000)
+            var newBubble = this.bubbleRush.create(x, y, 'bubble')
+            newBubble.setVelocityY(-800)
+            newBubble.setVelocityX(50)
+        }   
+        await delay(5000);
+    }
+    playOllieSwimmingAnimation = async() => {
+        await delay(1200);
+        this.fakeollie.setVelocityX(1200)
+        await delay(2800);
+        this.switchGames()
+    }
+    switchGames = async () => {
+        game.scene.stop('TitleScene');
+        game.scene.stop('preGameScene')
+        game.scene.start('GameScene');
+        game.scene.stop('DeathScene');
+    }
+}
 
 //DECLARATIONS
 let 
