@@ -166,23 +166,31 @@ class TitleScene extends Phaser.Scene {
     }//END CONSTRUCTOR
 
     preload() {
-        this.load.image('background', 'assets/background_V1.png');
-        this.load.image('title', 'assets/logov2.png');
-        this.load.image('playButton', 'assets/otterescape_pausescreen_resume.png')
+        this.load.image('titlebackground', 'assets/titlebg.png')
+        this.load.image('title', 'assets/logov2.png')
+        this.load.image('playButton', 'assets/play.png')
+        this.load.image('bubble', 'assets/bubble2.png')
     }//END PRELOAD
 
     create() {
-        let background = this.add.sprite(2040, 950, 'background') //temporary background for title scene
-        .setScale(8)
+        var background = this.add.image(1500,490, 'titlebackground').setScale(2)
 
-        let title = this.add.sprite(game.config.width/2, game.config.height/2.5, 'title')
+        var title = this.add.sprite(game.config.width/2, game.config.height/3.5, 'title')
         .setOrigin(0.5)
         .setScale(6.5)
+        .setDepth(1)
+        
+        this.bubbles = this.physics.add.group()
+        this.bubbles.maxSize = 10
+        
+        // this.bubble = this.physics.add.sprite(game.config.width / 2, game.config.height / 2, 'bubble')
+        // this.bubble.body.setGravity(0,-150)
 
-        var playButton = this.add.sprite(game.config.width/2, game.config.height/1.3, 'playButton')
+        var playButton = this.add.sprite(game.config.width/2, game.config.height/1.4, 'playButton')
         .setInteractive({ useHandCursor: true })
         .setOrigin(0.5)
         .setScale(2)
+        .setDepth(1)
 
         //color the button when cursor is hovered over
         playButton.on('pointerover', function(event) {
@@ -199,6 +207,36 @@ class TitleScene extends Phaser.Scene {
             game.scene.stop('DeathScene');
         });
     }//END CREATE
+
+    update() {
+        this.createNewBubble()
+
+    }
+    createNewBubble() {
+        if(this.bubbles.countActive(true) < 10) {
+            var spawn = Phaser.Math.RND.between(0,100)
+            if(spawn < 2) {
+                var x = Phaser.Math.RND.between(0, game.config.width)
+                var newBubble = this.bubbles.create(x, game.config.height, 'bubble')
+                newBubble.setVelocityX(30)
+            }
+        }
+
+        this.bubbles.getChildren().forEach(bubble => {
+            if (bubble.getBounds().top < 0) {
+                this.bubbles.remove(bubble, true, true);
+                // console.log('killing')
+            } else {
+                var direction = Phaser.Math.RND.between(0,1000);
+                if(direction < 10) {
+                    // console.log(bubble.body.velocity.x)
+                    bubble.setVelocityX(bubble.body.velocity.x * -1)
+                } 
+                bubble.y -= 3;
+            }
+        })
+
+    }
 }//END TITLESCENE
 
 //DECLARATIONS
