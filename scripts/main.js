@@ -1,3 +1,14 @@
+function handleVisibilityChange() {
+    if (document.hidden) {
+      game.scene.pause('default');
+    } else {
+      game.scene.resume('default');
+    }
+  }
+  
+  // Add a listener for the visibility change event
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+
 var config;
 var game;
 window.onload = function() {
@@ -262,6 +273,8 @@ class GameScene extends Phaser.Scene {
         this.load.image('bubble', 'assets/bubble.png')
         //CURRENCY
         this.load.image('shell_pink', 'assets/shell_pink.png')
+        this.load.image('shell_orange', 'assets/shell_orange.png')
+        this.load.image('shell_gold', 'assets/shell_gold.png')
     }//END PRELOAD
     create() {
         //WORLD
@@ -603,7 +616,23 @@ class GameScene extends Phaser.Scene {
     createCurrency(currencies) {
         //choose random value between river height and bottom of the screen
         let currencyHeight = Phaser.Math.RND.between(2000, 500)
-        var currency = currencies.create(game.config.width + 50, currencyHeight, 'shell_pink')
+        let randomValue = Phaser.Math.RND.between(1, 10)
+        console.log(randomValue)
+        var chosenCurrency;
+        //60% highest probability -- pink shell
+        if (randomValue > 1 && randomValue <= 6) {
+            chosenCurrency = 'shell_pink'
+        }
+        //30% medium probability -- orange shell
+        else if (randomValue > 6 && randomValue <= 9) {
+            chosenCurrency = 'shell_orange'
+        }
+        //10% low probability -- gold shell
+        else {
+            chosenCurrency = 'shell_gold'
+        }
+        console.log(chosenCurrency)
+        var currency = currencies.create(game.config.width + 50, currencyHeight, chosenCurrency)
         currency
         .setOrigin(0.5, 0)
         .setScale(1.5)
