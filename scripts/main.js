@@ -324,7 +324,7 @@ class GameScene extends Phaser.Scene {
         this.physics.add.collider(ollie, this.floatObstacles, this.obstacleCollision.bind(this))
         //POWERUPS
         this.powerUps = this.physics.add.group();
-        setInterval(() => this.createPowerUps(this.powerUps), 4000);
+        setInterval(() => this.createPowerUps(this.powerUps), 10000);
         this.physics.add.collider(ollie, this.powerUps, this.collectPowerUp.bind(this))
         //CURRENCY
         this.currencies = this.physics.add.group();
