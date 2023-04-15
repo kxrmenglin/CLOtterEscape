@@ -405,7 +405,7 @@ class GameScene extends Phaser.Scene {
     }//END PRELOAD
     create() {
         //WORLD
-        this.physics.world.setBounds(0, 0, game.config.width, game.config.height * 1.52)
+        this.physics.world.setBounds(0, 0, game.config.width, game.config.height * 1.47)
         //BACKGROUND
         background = this.add.tileSprite(4000, 900, 0, 0, 'background')
         .setScale(8)
