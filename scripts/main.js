@@ -515,7 +515,7 @@ class GameScene extends Phaser.Scene {
         var currentPosition = ollie.body.y
         var canJump = this.canJump()
 
-        if((afterJump || inputDisabled) && currentPosition >= waterLevel + 500) {
+        if((afterJump || inputDisabled) && currentPosition >= waterLevel + 400) {
             afterJump = false;
             inputDisabled = false;
         }
@@ -524,6 +524,9 @@ class GameScene extends Phaser.Scene {
             ollie.body.setGravity(0,500)
         } else { //Ollie is under watter
             ollie.body.setGravity(0, 10)
+            if(afterJump === true && currentVelocity > 0 && (currentPosition >= waterLevel-6 || currentPosition <= waterLevel-3)) {
+                ollie.setVelocityY(150)
+            } 
             if(canJump) { //if in the zone to jump, he can either jump or swim down
                 ollie.body.setGravity(0,200)
                 inputDisabled = true
@@ -536,11 +539,11 @@ class GameScene extends Phaser.Scene {
                     }
         
                     if(currentVelocity < 100) {
-                        ollie.setVelocityY(currentVelocity+15)
+                        ollie.setVelocityY(currentVelocity+20)
                     } else if(currentVelocity < 200) {
+                        ollie.setVelocityY(currentVelocity+15)
+                    } else if(currentVelocity < 350) {
                         ollie.setVelocityY(currentVelocity+10)
-                    } else if(currentVelocity < 300) {
-                        ollie.setVelocityY(currentVelocity+5)
                     }
                 } 
             } else { //not in the zone to jump, just under water
@@ -550,25 +553,25 @@ class GameScene extends Phaser.Scene {
                             currentVelocity = -5
                         }
                         if(currentVelocity > -100) {
-                            ollie.setVelocityY(currentVelocity-15)
+                            ollie.setVelocityY(currentVelocity-20)
                         } else if(currentVelocity > -200) {
+                            ollie.setVelocityY(currentVelocity-15)
+                        } else if(currentVelocity > -350) {
                             ollie.setVelocityY(currentVelocity-10)
-                        } else if(currentVelocity > -300) {
-                            ollie.setVelocityY(currentVelocity-5)
                         }
                     }
-                    if(cursors.down.isDown) {
-                        if(currentVelocity < 0){//switching directions
-                            currentVelocity = 5
-                        }
-            
-                        if(currentVelocity < 100) {
-                            ollie.setVelocityY(currentVelocity+15)
-                        } else if(currentVelocity < 200) {
-                            ollie.setVelocityY(currentVelocity+10)
-                        } else if(currentVelocity < 300) {
-                            ollie.setVelocityY(currentVelocity+5)
-                        }
+                } 
+                if(cursors.down.isDown) {
+                    if(currentVelocity < 0){//switching directions
+                        currentVelocity = 5
+                    }
+        
+                    if(currentVelocity < 100) {
+                        ollie.setVelocityY(currentVelocity+20)
+                    } else if(currentVelocity < 200) {
+                        ollie.setVelocityY(currentVelocity+15)
+                    } else if(currentVelocity < 350) {
+                        ollie.setVelocityY(currentVelocity+10)
                     }
                 }
             }
