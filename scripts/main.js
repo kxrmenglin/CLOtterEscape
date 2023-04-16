@@ -356,6 +356,7 @@ let
         isDead,
     //MOVEMENT
         afterJump,
+        inputDisabled = false,
     //NAVBAR
         //METERS SWAM TEXT
         metersSwam,
@@ -407,7 +408,7 @@ class GameScene extends Phaser.Scene {
     }//END PRELOAD
     create() {
         //WORLD
-        this.physics.world.setBounds(0, 0, game.config.width, game.config.height * 1.47)
+        this.physics.world.setBounds(0, 160, game.config.width, game.config.height * 1.35)
         //BACKGROUND
         background = this.add.tileSprite(4000, 900, 0, 0, 'background')
         .setScale(8)
@@ -421,12 +422,13 @@ class GameScene extends Phaser.Scene {
         ollie.body
         .setSize(120,30,true)//width,height, center -- boolean
         .setOffset(20,35) //x and y offset
+        ollie.body.setGravity(0,10)
         ollie.setCollideWorldBounds(true);
         //ANIMATIONS        
         this.anims.create({
             key: 'swim',
             frames: this.anims.generateFrameNumbers('ollie'),
-            frameRate: 8,
+            frameRate: 11,
             repeat: -1
         });
         ollie.anims.play('swim');
@@ -485,7 +487,6 @@ class GameScene extends Phaser.Scene {
             this.addMetersSwam(0.052)
             //MOVEMENT
             this.movement()
-            this.canJump()
             //POWERUPS
             this.movePowerUp()
             this.movePowerUps(this.powerUps)
@@ -510,45 +511,77 @@ class GameScene extends Phaser.Scene {
 
 //---MOVEMENT---//
     movement() { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS UP AND POSITIVE IS DOWN
-        ollie.body.acceleration.y = 0
-        if(ollie.y >= waterLevel + 300) { //underwater with some downward expanding margin -- disable up arrow to prevent upper bound stuttering
-            ollie.body.gravity.y = 0 //reset gravity so ollie isn't always going down
-            if(ollie.body.velocity.y > 0 && afterJump === true) { //brings Ollie down slower and slower until he stops descending
-                ollie.body.acceleration.y = -400
-                if(ollie.body.velocity.y < 4 ) {
-                    ollie.body.velocity.y = 0
-                    ollie.body.acceleration.y = 0
-                    afterJump = false
+        var currentVelocity = ollie.body.velocity.y
+        var currentPosition = ollie.body.y
+        var canJump = this.canJump()
+
+        if((afterJump || inputDisabled) && currentPosition >= waterLevel + 500) {
+            afterJump = false;
+            inputDisabled = false;
+        }
+
+        if(currentPosition <= waterLevel) { //Ollie is above water(already jumped), disable all movement
+            ollie.body.setGravity(0,500)
+        } else { //Ollie is under watter
+            ollie.body.setGravity(0, 10)
+            if(canJump) { //if in the zone to jump, he can either jump or swim down
+                ollie.body.setGravity(0,200)
+                inputDisabled = true
+                if(cursors.space.isDown) {
+                    afterJump = true
+                    ollie.setVelocityY(-500)
+                } else if(cursors.down.isDown){
+                    if(currentVelocity < 0){//switching directions
+                        currentVelocity = 5
+                    }
+        
+                    if(currentVelocity < 100) {
+                        ollie.setVelocityY(currentVelocity+15)
+                    } else if(currentVelocity < 200) {
+                        ollie.setVelocityY(currentVelocity+10)
+                    } else if(currentVelocity < 300) {
+                        ollie.setVelocityY(currentVelocity+5)
+                    }
+                } 
+            } else { //not in the zone to jump, just under water
+                if(!inputDisabled){
+                    if(cursors.up.isDown) {
+                        if(currentVelocity > 0){ //switching directions
+                            currentVelocity = -5
+                        }
+                        if(currentVelocity > -100) {
+                            ollie.setVelocityY(currentVelocity-15)
+                        } else if(currentVelocity > -200) {
+                            ollie.setVelocityY(currentVelocity-10)
+                        } else if(currentVelocity > -300) {
+                            ollie.setVelocityY(currentVelocity-5)
+                        }
+                    }
+                    if(cursors.down.isDown) {
+                        if(currentVelocity < 0){//switching directions
+                            currentVelocity = 5
+                        }
+            
+                        if(currentVelocity < 100) {
+                            ollie.setVelocityY(currentVelocity+15)
+                        } else if(currentVelocity < 200) {
+                            ollie.setVelocityY(currentVelocity+10)
+                        } else if(currentVelocity < 300) {
+                            ollie.setVelocityY(currentVelocity+5)
+                        }
+                    }
                 }
             }
-            // ollie.setVelocity(0)
-            if (cursors.up.isDown) {
-                afterJump = false
-                ollie.setVelocityY(-500)
-            } if (cursors.down.isDown){
-                afterJump = false
-                ollie.setVelocityY(500)
-            }
-        } else if(ollie.y <= waterLevel + 150 && ollie.y >= waterLevel) { //below water but in range of waterLevel to charge jump - can move up, down, and jump
-            ollie.body.gravity.y = 900
-            if(cursors.space.isDown && ollie.body.velocity.y < 0) { //presses space - only works if Ollie is moving upwards to prevent space spam
-                afterJump = true
-                ollie.setVelocityY(ollie.body.velocity.y * 1.03) //increase upward velocity while space is pressed
-            } else if(cursors.down.isDown) { // down pressed
-                afterJump = false
-                ollie.setVelocityY(500)
-            } else {
-                afterJump = true
-            }
-        }  else if(ollie.y < waterLevel) { //above water
-            ollie.body.gravity.y = 400
-        } 
+        }
     }//END MOVEMENT
     canJump() {
-        if(ollie.y <= waterLevel + 150 && ollie.y >= waterLevel && ollie.body.velocity.y < 0) {
-            canJumpText.setStyle({color: 'rgb(256,256,256,1)'})
+        var currentPosition = ollie.body.y
+        if(currentPosition <= waterLevel + 200 && currentPosition >= waterLevel && !afterJump) {
+            canJumpText.setStyle({color: 'rgb(256,256,256,1)'}) //can jump
+            return true;
         } else {
-            canJumpText.setStyle({color: 'rgb(256,256,256,0.5)'})
+            canJumpText.setStyle({color: 'rgb(256,256,256,0.5)'}) //can not jump
+            return false;
         }
     } //END CANJUMP
 //---END MOVEMENT---//
