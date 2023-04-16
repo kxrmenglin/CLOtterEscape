@@ -18,13 +18,14 @@ window.onload = function() {
     let pauseScene = new PauseScene();
     let deathScene = new DeathScene();
     let preGameScene = new PreGameScene();
+    let howToPlayScene = new HowToPlayScene();
     // object containing configuration options
     config = {
         type: Phaser.AUTO,
         width: 3000,
         height: 1452,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        scene: [TitleScene, GameScene, PauseScene, DeathScene, PreGameScene], //made it a scene array to switch between scenes
+        scene: [TitleScene, GameScene, PauseScene, DeathScene, PreGameScene, HowToPlayScene], //made it a scene array to switch between scenes
         physics: {
             default: "arcade",
             arcade: { debug:false }
@@ -48,53 +49,228 @@ window.onload = function() {
 
     game.scene.add('preGameScene', preGameScene);
 
+    game.scene.add('HowToPlayScene', howToPlayScene);
+
 }//END load listener
+
+let play,
+home
+class HowToPlayScene extends Phaser.Scene {
+    constructor() {
+        super({key: 'HowToPlayScene'});
+    }//END CONSTRUCTOR
+
+    preload() {
+        // this.load.image('pauseTitle', 'assets/otterescape_pausescreen_pause.png');
+        // this.load.image('endButton', 'assets/otterescape_pausescreen_end.png');
+        // this.load.image('resumeButton', 'assets/otterescape_pausescreen_resume.png');
+
+        // this.load.image('background', 'assets/background_V1.png'); //placeholder
+        this.load.image('bubble', 'assets/bubble2.png')
+        this.load.image('titlebackground', 'assets/titlebg.png')
+        this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
+    }//END PRELOAD
+
+    create() {
+
+        // this.background = this.add.sprite(1500, 100, 'background')
+        // .setScale(8)
+        this.background = this.add.tileSprite(1500, 490, 0, 0, 'titlebackground').setScale(2)
+
+        bubbles = this.physics.add.group()
+        bubbles.maxSize = 10
+
+        this.fakeollie = this.physics.add.sprite(900, game.config.height * .65, 'ollie')
+        .setScale(7)
+        .setDepth(1)
+        //OLLIES HITBOX
+        this.fakeollie.body
+        .setSize(120,30,true)//width,height, center -- boolean
+        .setOffset(20,35) //x and y offset
+        this.fakeollie.setCollideWorldBounds(false);
+        //ANIMATIONS        
+        this.anims.create({
+            key: 'fake swim',
+            frames: this.anims.generateFrameNumbers('ollie'),
+            frameRate: 9,
+            repeat: -1
+        });
+        this.fakeollie.anims.play('fake swim');
+
+
+        this.title = this.add.text(game.config.width/3.3, game.config.height/7.5, 'HOW TO PLAY', {fontFamily: 'Retro Gaming', fontSize: '200px', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setDepth(1)
+
+        this.controlDes = this.add.text(game.config.width/1.27, game.config.height/3, 'use the up & down\n' + 'arrow keys to move', {fontFamily: 'Retro Gaming', fontSize: '80px', align: 'right', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setDepth(1)
+
+        this.jumpDes = this.add.text(game.config.width/1.18, game.config.height/1.7, 'push SPACE\n' + 'to jump!', {fontFamily: 'Retro Gaming', fontSize: '80px', align: 'right', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setDepth(1)
+
+
+        play = this.add.text(game.config.width/1.15, game.config.height/1.1, 'Let\'s Play! →', {fontFamily: 'Retro Gaming', fontSize: '55px', align: 'right', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setInteractive({ useHandCursor: true })
+        .setDepth(1)
+        //color the button when cursor is hovered over
+        play.on('pointerover', function(event) {
+            play.setColor('#F5C12D');
+        });
+        play.on('pointerout', function (pointer) {
+            play.setColor('#FFFFFF');
+        });
+        play.on('pointerdown', function(pointer) { //FIX: need to show the fakeollie swimming animation but doesn't
+            this.swtichScenes()
+        },this);
+
+        home = this.add.text(game.config.width/9, game.config.height/1.1, '← Back to Home', {fontFamily: 'Retro Gaming', fontSize: '55px', align: 'left', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setInteractive({ useHandCursor: true })
+        .setDepth(1)
+        //color the button when cursor is hovered over
+        home.on('pointerover', function(event) {
+            home.setColor('#F5C12D');
+        });
+        home.on('pointerout', function (pointer) {
+            home.setColor('#FFFFFF');
+        });
+        home.on('pointerdown', function(pointer) { 
+            // game.scene.stop('GameScene');
+            game.scene.start('TitleScene');
+            game.scene.stop('HowToPlayScene');
+        });
+        }//END CREATE
+        update() {
+            this.moveBackground()
+            this.createNewBubble()
+            this.moveBubbles()
+        }//END UPDATE
+        moveBackground() {
+            this.background._tilePosition.x += 1
+        }
+        createNewBubble() {
+            if(bubbles.countActive(true) < 10) {
+                var spawn = Phaser.Math.RND.between(0,100)
+                if(spawn < 2) {
+                    var x = Phaser.Math.RND.between(0, game.config.width)
+                    var newBubble = bubbles.create(x, game.config.height, 'bubble')
+                    newBubble.setVelocityX(30)
+                }
+            }
+        }//END CREATENEWBUBBLE
+        moveBubbles() {
+            bubbles.getChildren().forEach(bubble => {
+                if (bubble.getBounds().top < 0) {
+                    bubbles.remove(bubble, true, true);
+                    // console.log('killing')
+                } else {
+                    var direction = Phaser.Math.RND.between(0,1000);
+                    if(direction < 10) {
+                        // console.log(bubble.body.velocity.x)
+                        bubble.setVelocityX(bubble.body.velocity.x * -1)
+                    } 
+                    bubble.y -= 3;
+                }
+            })        
+        }//END MOVEBUBBLES
+        swtichScenes = async() => {
+            home.visible = false;
+            play.visible = false;
+            this.title.visible = false;
+            this.controlDes.visible = false;
+            this.jumpDes.visible = false;
+            this.fakeollie.visible = false;
+            bubbles.getChildren().forEach(bubble => {
+                bubble.visible = false;
+            })              
+            await delay(10)
+            game.scene.pause('HowToPlayScene')
+            game.scene.start('PreGameScene')
+        }
+}//END HOW TO PLAY SCENE
+
+
 
 class DeathScene extends Phaser.Scene {
     constructor() {
         super({key: 'DeathScene'});
     }//END CONSTRUCTOR
     preload() {
-        //this.load.image('background', 'assets/background_V1.png')
-        // this.load.spritesheet('ollie', 'assets/ollie.png', { frameWidth: 180, frameHeight: 60 })
-        //this.load.spritesheet ('ollie', 'assets/ollieSwim.png', {frameWidth: 160, frameHeight: 125});
-        //this.load.image('obstacle1', 'assets/underwaterplant_pink.png');
-        //this.load.image('obstacle2', 'assets/underwaterplant_orange.png');
-        //this.load.image('obstacle3', 'assets/underwaterplant_green.png');
-        //this.load.image('rockpowerup', 'assets/rockpowerup.png');
-        //this.load.image('powerUpPH2', 'assets/shell.png');
-        //this.load.image('shell_pink', 'assets/shell_pink.png')
-        // this.load.image('background', 'assets/background_V1.png');
-        // this.load.image('background', 'assets/background_V1.png');
-        this.load.image('deathTitle', 'assets/otterescape_pausescreen_pause.png'); //temp
+        this.load.image('deathBoard', 'assets/otterescape_gameover_board.png'); //temp
     }//END PRELOAD
     create() {
-        // // let background = this.add.sprite(2040, 950, 'background') //temporary background for pause scene
-        // // .setScale(8)
 
-        let deathTitle = this.add.sprite(game.config.width/2, game.config.height/3, 'deathTitle')
+        //creating array of encouraging quotes for player :D
+        let quotes = ["Keep trying, you'll get there.",
+        "Don't give up, try again.",
+        "Failure is a lesson.",
+        "Try again, fresh start.",
+        "Persevere, you got this.",
+        "Get up, try again.",
+        "You'll win next time.",
+        "One more try, victory awaits.",
+        "Believe in yourself, try again.",
+        "Come back stronger, try again.",
+        "Try again, improve strategy.",
+        "Try again, closer than ever.",
+        "Failure leads to success.",
+        "Try again, persistence pays off.",
+        "Don't stop now, try again.",
+        "You can do it, try again.",
+        "Failure is not the end.",
+        "Rise from defeat.",
+        "Come back stronger.",
+        "Next game, new opportunity.",
+        "Get back in the game.",
+        "Stay determined, keep going.",
+        "Don't stop now, keep pushing.",
+        "Learn from your mistakes.",
+        "Reset, start fresh.",
+        "Try again, never give up.",
+        "Success is one try away."]
+
+
+        let deathBoard = this.add.sprite(game.config.width/2, game.config.height/2, 'deathBoard')
         .setOrigin(0.5)
-        .setScale(2.5)
+        .setScale(2.8)
 
-        let playAgainTitle = this.add.text(game.config.width/2, game.config.height/1.5, 'Play Again?')
+        let playTitle = this.add.text(game.config.width/1.68, game.config.height/2, 'Play', {fontFamily: 'Retro Gaming', fontSize: '80px', color: '00000'})
         .setOrigin(0.5)
-        .setScale(6)
 
-        var yes = this.add.text(game.config.width/2.4, game.config.height/1.3, 'yes')
-        .setScale(4.5)
+        let againTitle = this.add.text(game.config.width/1.68, game.config.height/1.72, 'Again?', {fontFamily: 'Retro Gaming', fontSize: '80px', color: '00000'})
+        .setOrigin(0.5)
+
+
+        var yes = this.add.text(game.config.width/1.88, game.config.height/1.5, 'yes', {fontFamily: 'Retro Gaming', fontSize: '60px', color: '00000'})
         .setInteractive({ useHandCursor: true })
 
-        var no = this.add.text(game.config.width/1.9, game.config.height/1.3, 'no')
-        .setScale(4.5)
+        var no = this.add.text(game.config.width/1.62, game.config.height/1.5, 'no', {fontFamily: 'Retro Gaming', fontSize: '60px', color: '00000'})
         .setInteractive({ useHandCursor: true })
 
+
+        let gameOver = this.add.text(game.config.width/2.12, game.config.height/3.5, 'GAME OVER', {fontFamily: 'Retro Gaming', fontSize: '100px', color: '#D81414'})
+        .setOrigin(0.5)
+
+        let quote = this.getRandomItem(quotes)
+        
+        let randomQuote = this.add.text(game.config.width/2.12, game.config.height/2.9, quote, {fontFamily: 'Retro Gaming', fontSize: '40px', color: '00000'})
+        .setOrigin(0.5)
+
+        let distance = this.add.text(game.config.width/2.9, game.config.height/2.12, 'Distance', {fontFamily: 'Retro Gaming', fontSize: '55px', color: '00000'})
+
+        let userScore = this.add.text(game.config.width/2.9, game.config.height/1.9, Math.trunc(metersSwam) + 'M', {fontFamily: 'Retro Gaming', fontSize: '55px', color: '00000'})
+        // .setOrigin(0.5)
 
         //color the button when cursor is hovered over
         yes.on('pointerover', function(event) {
-            yes.setTint(808080);
+            yes.setColor('#FFFFFF');
         });
         yes.on('pointerout', function (pointer) {
-            yes.clearTint();
+            // yes.clearTint();
+            yes.setColor('00000');
         });
         yes.on('pointerdown', function(pointer) { 
             // game.scene.stop('GameScene');
@@ -105,10 +281,10 @@ class DeathScene extends Phaser.Scene {
 
         //color the button when cursor is hovered over
         no.on('pointerover', function(event) {
-            no.setTint(808080);
+            no.setColor('#FFFFFF');
         });
         no.on('pointerout', function (pointer) {
-            no.clearTint();
+            no.setColor('00000');
         });
         no.on('pointerdown', function(pointer) { 
             game.scene.stop('GameScene');
@@ -116,6 +292,20 @@ class DeathScene extends Phaser.Scene {
             game.scene.start('TitleScene');
         });
     }//END CREATE
+
+
+    // program to get a random item from an array
+
+    getRandomItem(quotes) {
+
+        // get random index value
+        const randomIndex = Math.floor(Math.random() * quotes.length);
+
+        // get random item
+        const item = quotes[randomIndex];
+
+        return item;
+    }
 }//END DEATHSCENE
 
 class PauseScene extends Phaser.Scene {
@@ -173,7 +363,8 @@ class PauseScene extends Phaser.Scene {
     }//END PAUSE SCENE
 }
 let bubbles,
-playButton
+playButton,
+question
 //title scene
 class TitleScene extends Phaser.Scene {
     constructor() {
@@ -189,6 +380,7 @@ class TitleScene extends Phaser.Scene {
         this.load.image('playButton', 'assets/play.png')
         this.load.image('bubble', 'assets/bubble2.png')
         this.load.image('border', 'assets/borderv2.png')
+        this.load.image('question', 'assets/otterescape_questionmark.png'); //for how to play scene
     }//END PRELOAD
     create() {
         // var background = this.add.image(1500,490, 'titlebackground').setScale(2)
@@ -213,6 +405,23 @@ class TitleScene extends Phaser.Scene {
         .setOrigin(0.5)
         .setScale(2)
         .setDepth(1)
+
+        question = this.add.sprite(game.config.width*0.95, game.config.height/1.09, 'question')
+        .setInteractive({ useHandCursor: true })
+        .setScale(2.5)
+        .setOrigin(0.5)
+        .setDepth(1)
+        question.on('pointerover', function(event) {
+            question.setTint(808080);
+        });
+        question.on('pointerout', function (pointer) {
+            question.clearTint();
+        });
+        //starts the game scene
+        question.on('pointerdown', function(pointer) { 
+            game.scene.start('HowToPlayScene');
+            game.scene.stop('TitleScene');
+        });
 
         //color the button when cursor is hovered over
         playButton.on('pointerover', function(event) {
@@ -262,6 +471,7 @@ class TitleScene extends Phaser.Scene {
     swtichScenes = async() => {
         this.title.visible = false;
         playButton.visible = false;
+        question.visible = false;
         bubbles.getChildren().forEach(bubble => {
             bubble.visible = false;
         })              
@@ -339,6 +549,7 @@ class PreGameScene extends Phaser.Scene {
         game.scene.stop('preGameScene')
         game.scene.start('GameScene');
         game.scene.stop('DeathScene');
+        game.scene.stop('HowToPlayScene');
     }
 }
 
@@ -478,7 +689,7 @@ class GameScene extends Phaser.Scene {
             this.scene.pause();
             game.scene.start('DeathScene');
             isDead = false; //resets the play
-            metersSwam = 0;
+            // metersSwam = 0;
         } else {
             //GAME ELEMENTS
             this.moveBackground()
