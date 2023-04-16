@@ -1,20 +1,33 @@
+function handleVisibilityChange() {
+    if (document.hidden) {
+      game.scene.pause('default');
+    } else {
+      game.scene.resume('default');
+    }
+  }
+  
+  // Add a listener for the visibility change event
+  document.addEventListener('visibilitychange', handleVisibilityChange); //testing for issue
+
 var config;
 var game;
+const delay = ms => new Promise(res => setTimeout(res, ms));
 window.onload = function() {
     let titleScene = new TitleScene();
     let gameScene = new GameScene();
     let pauseScene = new PauseScene();
     let deathScene = new DeathScene();
+    let preGameScene = new PreGameScene();
     // object containing configuration options
     config = {
         type: Phaser.AUTO,
         width: 3000,
         height: 1452,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        scene: [TitleScene, GameScene, PauseScene, DeathScene], //made it a scene array to switch between scenes
+        scene: [TitleScene, GameScene, PauseScene, DeathScene, PreGameScene], //made it a scene array to switch between scenes
         physics: {
             default: "arcade",
-            arcade: { debug:true }
+            arcade: { debug:false }
         }
     }
     game = new Phaser.Game(config);
@@ -33,6 +46,8 @@ window.onload = function() {
 
     game.scene.add('DeathScene', deathScene);
 
+    game.scene.add('preGameScene', preGameScene);
+
 }//END load listener
 
 class DeathScene extends Phaser.Scene {
@@ -46,15 +61,16 @@ class DeathScene extends Phaser.Scene {
         //this.load.image('obstacle1', 'assets/underwaterplant_pink.png');
         //this.load.image('obstacle2', 'assets/underwaterplant_orange.png');
         //this.load.image('obstacle3', 'assets/underwaterplant_green.png');
-        //this.load.image('powerUpPH1', 'assets/puffer.png');
+        //this.load.image('rockpowerup', 'assets/rockpowerup.png');
         //this.load.image('powerUpPH2', 'assets/shell.png');
         //this.load.image('shell_pink', 'assets/shell_pink.png')
+        // this.load.image('background', 'assets/background_V1.png');
         // this.load.image('background', 'assets/background_V1.png');
         this.load.image('deathTitle', 'assets/otterescape_pausescreen_pause.png'); //temp
     }//END PRELOAD
     create() {
-        // let background = this.add.sprite(2040, 950, 'background') //temporary background for pause scene
-        // .setScale(8)
+        // // let background = this.add.sprite(2040, 950, 'background') //temporary background for pause scene
+        // // .setScale(8)
 
         let deathTitle = this.add.sprite(game.config.width/2, game.config.height/3, 'deathTitle')
         .setOrigin(0.5)
@@ -156,30 +172,47 @@ class PauseScene extends Phaser.Scene {
         });//END CREATE
     }//END PAUSE SCENE
 }
+let bubbles,
+playButton
 //title scene
 class TitleScene extends Phaser.Scene {
     constructor() {
         super({key: 'TitleScene'});
     }//END CONSTRUCTOR
-
     preload() {
+
         this.load.image('background', 'assets/background_V1.png');
         this.load.image('title', 'assets/logov2.png');
         this.load.image('playButton', 'assets/playButton.png');
+        this.load.image('titlebackground', 'assets/titlebg.png')
+        this.load.image('title', 'assets/logov2.png')
+        this.load.image('playButton', 'assets/play.png')
+        this.load.image('bubble', 'assets/bubble2.png')
+        this.load.image('border', 'assets/borderv2.png')
     }//END PRELOAD
-
     create() {
-        let background = this.add.sprite(2040, 950, 'background') //temporary background for title scene
-        .setScale(8)
+        // var background = this.add.image(1500,490, 'titlebackground').setScale(2)
+        this.background = this.add.tileSprite(1500, 490, 0, 0, 'titlebackground').setScale(2)
+        // border = this.add.image(game.config.width / 2, game.config.height / 2,'border')
+        // .setDepth(1)
+        // .setScrollFactor(0)
 
-        let title = this.add.sprite(game.config.width/2, game.config.height/2.5, 'title')
+        this.title = this.add.sprite(game.config.width/2, game.config.height/3.5, 'title')
         .setOrigin(0.5)
         .setScale(6.5)
+        .setDepth(1)
+        
+        bubbles = this.physics.add.group()
+        bubbles.maxSize = 10
+        
+        // this.bubble = this.physics.add.sprite(game.config.width / 2, game.config.height / 2, 'bubble')
+        // this.bubble.body.setGravity(0,-150)
 
-        var playButton = this.add.sprite(game.config.width/2, game.config.height/1.3, 'playButton')
+        playButton = this.add.sprite(game.config.width/2, game.config.height/1.4, 'playButton')
         .setInteractive({ useHandCursor: true })
         .setOrigin(0.5)
         .setScale(2)
+        .setDepth(1)
 
         //color the button when cursor is hovered over
         playButton.on('pointerover', function(event) {
@@ -188,15 +221,126 @@ class TitleScene extends Phaser.Scene {
         playButton.on('pointerout', function (pointer) {
             playButton.clearTint();
         });
-
         //starts the game scene
         playButton.on('pointerdown', function(pointer) { 
-            game.scene.start('GameScene');
-            game.scene.stop('TitleScene');
-            game.scene.stop('DeathScene');
-        });
+            this.swtichScenes()
+        },this);        
     }//END CREATE
+    update() {
+        this.moveBackground()
+        this.createNewBubble()
+        this.moveBubbles()
+    }
+    moveBackground() {
+        this.background._tilePosition.x += 1
+    }
+    createNewBubble() {
+        if(bubbles.countActive(true) < 10) {
+            var spawn = Phaser.Math.RND.between(0,100)
+            if(spawn < 2) {
+                var x = Phaser.Math.RND.between(0, game.config.width)
+                var newBubble = bubbles.create(x, game.config.height, 'bubble')
+                newBubble.setVelocityX(30)
+            }
+        }
+    }//END CREATENEWBUBBLE
+    moveBubbles() {
+        bubbles.getChildren().forEach(bubble => {
+            if (bubble.getBounds().top < 0) {
+                bubbles.remove(bubble, true, true);
+                // console.log('killing')
+            } else {
+                var direction = Phaser.Math.RND.between(0,1000);
+                if(direction < 10) {
+                    // console.log(bubble.body.velocity.x)
+                    bubble.setVelocityX(bubble.body.velocity.x * -1)
+                } 
+                bubble.y -= 3;
+            }
+        })        
+    }//END MOVEBUBBLES
+    swtichScenes = async() => {
+        this.title.visible = false;
+        playButton.visible = false;
+        bubbles.getChildren().forEach(bubble => {
+            bubble.visible = false;
+        })              
+        await delay(10)
+        game.scene.pause('TitleScene')
+        game.scene.start('PreGameScene')
+    }
 }//END TITLESCENE
+
+class PreGameScene extends Phaser.Scene {
+    constructor() {
+        super({key: 'PreGameScene'});
+    }//END CONSTRUCTOR
+
+    preload() {
+        this.load.image('bubble', 'assets/bubble2.png')
+        this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
+    }//END PRELOAD
+
+    create() {
+        // bubbles = this.physics.add.group()
+       this.fakeollie = this.physics.add.sprite(-150, game.config.height * .75, 'ollie')
+        .setScale(2)
+        //OLLIES HITBOX
+        this.fakeollie.body
+        .setSize(120,30,true)//width,height, center -- boolean
+        .setOffset(20,35) //x and y offset
+        this.fakeollie.setCollideWorldBounds(false);
+        //ANIMATIONS        
+        this.anims.create({
+            key: 'fake swim',
+            frames: this.anims.generateFrameNumbers('ollie'),
+            frameRate: 18,
+            repeat: -1
+        });
+        this.fakeollie.anims.play('fake swim');
+
+        this.bubbleRush = this.physics.add.group()
+        this.playBubbleRushAnnimation(this.bubbleRush)
+        this.playOllieSwimmingAnimation()
+    }
+    update() {
+        this.moveBubbles()
+    }
+    moveBubbles() {
+        this.bubbleRush.getChildren().forEach(bubble => {
+            var direction = Phaser.Math.RND.between(0,1000);
+            var randomSpeedUp = Phaser.Math.RND.between(0,50);
+            if(direction < 100) {
+                // console.log(bubble.body.velocity.x)
+                bubble.setVelocityX(bubble.body.velocity.x * -1)
+                bubble.setVelocityY(bubble.body.velocity.y - randomSpeedUp)
+            } 
+            // bubble.y -= 3; 
+        })        
+    }//END MOVEBUBBLES
+    playBubbleRushAnnimation = async(bubbleRush) => {
+        while(this.bubbleRush.countActive(true) <100) {
+            var x = Phaser.Math.RND.between(0, game.config.width)
+            var y = Phaser.Math.RND.between(game.config.height, game.config.height+2000)
+            var newBubble = this.bubbleRush.create(x, y, 'bubble')
+            newBubble.setVelocityY(-800)
+            newBubble.setVelocityX(50)
+        }   
+        await delay(5000);
+    }
+    playOllieSwimmingAnimation = async() => {
+        await delay(1200);
+        this.fakeollie.setVelocityX(1200)
+        await delay(2800);
+        this.switchGames()
+    }
+    switchGames = async () => {
+        game.scene.stop('TitleScene');
+        game.scene.stop('preGameScene')
+        game.scene.start('GameScene');
+        game.scene.stop('DeathScene');
+    }
+}
 
 //DECLARATIONS
 let 
@@ -214,7 +358,6 @@ let
         afterJump,
     //NAVBAR
         //METERS SWAM TEXT
-        placeholder = "0000000000",
         metersSwam,
         metersSwamText,
         //JUMP TEXT
@@ -255,14 +398,16 @@ class GameScene extends Phaser.Scene {
         this.load.image('rock5', 'assets/rock5.png')
         this.load.image('rock6', 'assets/rock6.png')
         //POWERUPS
-        this.load.image('powerUpPH1', 'assets/puffer.png')
+        this.load.image('rockpowerup', 'assets/rockpowerup.png')
         this.load.image('bubble', 'assets/bubble.png')
         //CURRENCY
         this.load.image('shell_pink', 'assets/shell_pink.png')
+        this.load.image('shell_orange', 'assets/shell_orange.png')
+        this.load.image('shell_gold', 'assets/shell_gold.png')
     }//END PRELOAD
     create() {
         //WORLD
-        this.physics.world.setBounds(0, 0, game.config.width, game.config.height * 1.52)
+        this.physics.world.setBounds(0, 0, game.config.width, game.config.height * 1.47)
         //BACKGROUND
         background = this.add.tileSprite(4000, 900, 0, 0, 'background')
         .setScale(8)
@@ -292,13 +437,13 @@ class GameScene extends Phaser.Scene {
         camera.startFollow(ollie, false, 0.5, 0.03);
         //METERS SWAM TEXT
         metersSwam = 0
-        metersSwamText = this.add.text(game.config.width * 0.02, game.config.height * 0.01, 'Meters Swam: 0000000000' , {fontSize: '85px', color: '#FFF'}).setScrollFactor(0).setDepth(1);
+        metersSwamText = this.add.text(game.config.width * 0.024, game.config.height * 0.00001, '000000' , {fontFamily: 'Retro Gaming', fontSize: '70px', color: '#FFF'}).setScrollFactor(0).setDepth(1);
         //JUMP TEXT
-        canJumpText = this.add.text(game.config.width * 0.5, game.config.height * 0.01, 'jump', {fontSize: '85px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0).setDepth(1);
+        canJumpText = this.add.text(game.config.width * 0.44, game.config.height * 0.00001, 'jump', {fontFamily: 'Retro Gaming', fontSize: '70px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0).setDepth(1);
         //SHELL COUNT
         shellCount = 0
-        this.shellCounter = this.add.image(game.config.width * 0.79, game.config.height * 0.048, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2).setDepth(1);
-        shellCountText = this.add.text(game.config.width * 0.90, game.config.height * 0.05, 'Shell Count: ' + shellCount, {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0).setDepth(2);
+        this.shellCounter = this.add.image(game.config.width * 0.875, game.config.height * 0.03, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2).setDepth(1);
+        shellCountText = this.add.text(game.config.width * 0.93, game.config.height * 0.03,'00000', {fontFamily: 'Retro Gaming', fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0).setDepth(2);
         //OBSTACLES
         this.groundObstacles = this.physics.add.group();
         setInterval(() => this.createGroundObstacles(this.groundObstacles), Phaser.Math.RND.between(3000, 5000));
@@ -308,7 +453,7 @@ class GameScene extends Phaser.Scene {
         this.physics.add.collider(ollie, this.floatObstacles, this.obstacleCollision.bind(this))
         //POWERUPS
         this.powerUps = this.physics.add.group();
-        setInterval(() => this.createPowerUps(this.powerUps), 4000);
+        setInterval(() => this.createPowerUps(this.powerUps), 10000);
         this.physics.add.collider(ollie, this.powerUps, this.collectPowerUp.bind(this))
         //CURRENCY
         this.currencies = this.physics.add.group();
@@ -357,9 +502,9 @@ class GameScene extends Phaser.Scene {
         background._tilePosition.x += 1.69
     }//END MOVEBACKGROUND
     addMetersSwam(points){
-
+        var placeholder = '000000'
         metersSwam += points;
-        metersSwamText.setText('Meters Swam: ' + placeholder.substring(10 - metersSwam.toString().length) + Math.trunc(metersSwam));
+        metersSwamText.setText(placeholder.substring(Math.trunc(metersSwam).toString().length) + Math.trunc(metersSwam));
     }//END ADDMETERSSWAM
 //---END GAME ELEMENTS---//
 
@@ -504,19 +649,20 @@ class GameScene extends Phaser.Scene {
     } //END MOVE OBSTACLES
     movePowerUp() {
         if(currentPowerUp) {
-            currentPowerUp.x = ollie.x;
             switch(powerUpsQueue[0]) {
                 case 1:
-                    currentPowerUp.y = ollie.y-50;
+                    currentPowerUp.x = ollie.x+60
+                    currentPowerUp.y = ollie.y+20;
                     break;
                 case 2: 
+                    currentPowerUp.x = ollie.x;
                     currentPowerUp.y = ollie.y;
             }
             
         }
     }//END CHECK FOR POWERUPS
     createPowerUps(powerUps) {
-        var powerUpList = ['powerUpPH1', 'bubble']
+        var powerUpList = ['rockpowerup', 'bubble']
         let powerUpIndex = Phaser.Math.RND.between(0, 1);
         var chosenPowerUp = powerUpList[powerUpIndex];
         
@@ -528,15 +674,15 @@ class GameScene extends Phaser.Scene {
                 powerUp.name = 'bubble'
                 powerUp
                 .setOrigin(0.5, 0.5)
-                .setScale(0.3)
+                .setScale(1)
                 .setImmovable(false)
                 .setCollideWorldBounds(false)
                 break;
-            case 'powerUpPH1':
-                powerUp.name = 'puffer'
+            case 'rockpowerup':
+                powerUp.name = 'rockpowerup'
                 powerUp
                 .setOrigin(0.5, 0.5)
-                .setScale(0.08)
+                .setScale(3)
                 .setImmovable(false)
                 .setCollideWorldBounds(false)
                 break;
@@ -547,7 +693,7 @@ class GameScene extends Phaser.Scene {
         powerUp.destroy();
         if(powerUpsQueue.length < 2) {
             switch(powerUp.name) {
-                case 'puffer':
+                case 'rockpowerup':
                     powerUpsQueue.push(1)
                     break;
                 case 'bubble':
@@ -576,15 +722,20 @@ class GameScene extends Phaser.Scene {
         if(powerUpsQueue.length === 1) {
             switch(powerUpsQueue[0]) {
                 case 1:
-                    currentPowerUp = this.add.image(ollie.x, ollie.y-50, 'powerUpPH1').setScale(0.06)
+                    currentPowerUp = this.add.image(ollie.x+500, ollie.y+200, 'rockpowerup').setScale(1.5)
                     break;
                 case 2:
-                    currentPowerUp = this.add.image(ollie.x, ollie.y, 'bubble').setScale(1)
+                    currentPowerUp = this.add.image(ollie.x, ollie.y, 'bubble').setScale(3)
                     break;
             }
         } else if (powerUpsQueue.length === 2 && !onDeck) {
-            var onDeckPowerUp = (powerUpsQueue[1] === 1) ? 'powerUpPH1' : 'bubble'
-            onDeck = this.add.image(game.config.width * 0.03, game.config.height * 0.08, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale((onDeckPowerUp === 'powerUpPH1' ? 0.06 : 0.1)).setDepth(1);
+            var onDeckPowerUp = (powerUpsQueue[1] === 1) ? 'rockpowerup' : 'bubble'
+            if(onDeckPowerUp === 'rockpowerup') {
+                onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(2).setDepth(1);
+            } else {
+                onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(0.4).setDepth(1.2);
+            }
+            
         }
     }//END GETNEXTPOWERUP
 //---END POWERUPS---//f
@@ -603,7 +754,23 @@ class GameScene extends Phaser.Scene {
     createCurrency(currencies) {
         //choose random value between river height and bottom of the screen
         let currencyHeight = Phaser.Math.RND.between(2000, 500)
-        var currency = currencies.create(game.config.width + 50, currencyHeight, 'shell_pink')
+        let randomValue = Phaser.Math.RND.between(1, 10)
+        console.log(randomValue)
+        var chosenCurrency;
+        //60% highest probability -- pink shell
+        if (randomValue > 1 && randomValue <= 6) {
+            chosenCurrency = 'shell_pink'
+        }
+        //30% medium probability -- orange shell
+        else if (randomValue > 6 && randomValue <= 9) {
+            chosenCurrency = 'shell_orange'
+        }
+        //10% low probability -- gold shell
+        else {
+            chosenCurrency = 'shell_gold'
+        }
+        console.log(chosenCurrency)
+        var currency = currencies.create(game.config.width + 50, currencyHeight, chosenCurrency)
         currency
         .setOrigin(0.5, 0)
         .setScale(1.5)
@@ -611,9 +778,23 @@ class GameScene extends Phaser.Scene {
         .setCollideWorldBounds(false)
     }//END CREATECURRENCY
     collectCurrency(ollie, currency) {
+        var maxShells = '00000'
         currency.destroy();
-        shellCount++;
-        shellCountText.setText('Shell Count: ' + shellCount)
+        console.log(currency.texture.key)
+        switch(currency.texture.key) {
+            case 'shell_pink':
+                shellCount++;
+                break;
+            case 'shell_orange':
+                shellCount+=5;
+                break;
+            case 'shell_gold':
+                shellCount+=10;
+                break;
+        }
+        
+        // shellCountText.setText(maxShells.substring(5 - shellCount.toString().length + shellCount))
+        shellCountText.setText(maxShells.substring(shellCount.toString().length) + shellCount)
         // console.log(shellCount)
     }//END COLLECTCURRENCY
 //---END CURRENCY---//
