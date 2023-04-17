@@ -139,8 +139,8 @@ class HowToPlayScene extends Phaser.Scene {
         });
         home.on('pointerdown', function(pointer) { 
             // game.scene.stop('GameScene');
-            game.scene.start('TitleScene');
             game.scene.stop('HowToPlayScene');
+            game.scene.start('TitleScene')
         });
         }//END CREATE
         update() {
@@ -186,13 +186,12 @@ class HowToPlayScene extends Phaser.Scene {
             bubbles.getChildren().forEach(bubble => {
                 bubble.visible = false;
             })              
-            await delay(10)
-            game.scene.pause('HowToPlayScene')
+            // await delay(10)
             game.scene.start('PreGameScene')
+            game.scene.pause('HowToPlayScene')
+            
         }
 }//END HOW TO PLAY SCENE
-
-
 
 class DeathScene extends Phaser.Scene {
     constructor() {
@@ -419,9 +418,10 @@ class TitleScene extends Phaser.Scene {
         });
         //starts the game scene
         question.on('pointerdown', function(pointer) { 
-            game.scene.start('HowToPlayScene');
-            game.scene.stop('TitleScene');
-        });
+            // game.scene.start('HowToPlayScene');
+            // game.scene.stop('TitleScene');
+            this.switchHTP();
+        },this);
 
         //color the button when cursor is hovered over
         playButton.on('pointerover', function(event) {
@@ -432,7 +432,7 @@ class TitleScene extends Phaser.Scene {
         });
         //starts the game scene
         playButton.on('pointerdown', function(pointer) { 
-            this.swtichScenes()
+            this.switchPreGame()
         },this);        
     }//END CREATE
     update() {
@@ -469,7 +469,7 @@ class TitleScene extends Phaser.Scene {
             }
         })        
     }//END MOVEBUBBLES
-    swtichScenes = async() => {
+    switchPreGame = async() => {
         this.title.visible = false;
         playButton.visible = false;
         question.visible = false;
@@ -479,6 +479,17 @@ class TitleScene extends Phaser.Scene {
         await delay(10)
         game.scene.pause('TitleScene')
         game.scene.start('PreGameScene')
+    }
+    switchHTP = async() => {
+        // this.title.visible = false;
+        // playButton.visible = false;
+        // question.visible = false;
+        // bubbles.getChildren().forEach(bubble => {
+        //     bubble.visible = false;
+        // })              
+        await delay(10)
+        game.scene.start('HowToPlayScene')
+        game.scene.stop('TitleScene')
     }
 }//END TITLESCENE
 
@@ -493,6 +504,7 @@ class PreGameScene extends Phaser.Scene {
     }//END PRELOAD
 
     create() {
+        game.scene.bringToTop('PreGameScene')
         // bubbles = this.physics.add.group()
        this.fakeollie = this.physics.add.sprite(-150, game.config.height * .75, 'ollie')
         .setScale(2)
@@ -505,7 +517,7 @@ class PreGameScene extends Phaser.Scene {
         this.anims.create({
             key: 'fake swim',
             frames: this.anims.generateFrameNumbers('ollie'),
-            frameRate: 18,
+            frameRate: 24,
             repeat: -1
         });
         this.fakeollie.anims.play('fake swim');
@@ -542,7 +554,7 @@ class PreGameScene extends Phaser.Scene {
     }
     playOllieSwimmingAnimation = async() => {
         await delay(1200);
-        this.fakeollie.setVelocityX(1200)
+        this.fakeollie.setVelocityX(1500)
         await delay(2800);
         this.switchGames()
     }
