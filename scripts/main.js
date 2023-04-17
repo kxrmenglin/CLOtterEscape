@@ -90,12 +90,12 @@ class HowToPlayScene extends Phaser.Scene {
         this.fakeollie.setCollideWorldBounds(false);
         //ANIMATIONS        
         this.anims.create({
-            key: 'fake swim',
+            key: 'how to swim',
             frames: this.anims.generateFrameNumbers('ollie'),
             frameRate: 9,
             repeat: -1
         });
-        this.fakeollie.anims.play('fake swim');
+        this.fakeollie.anims.play('how to swim');
 
 
         this.title = this.add.text(game.config.width/3.3, game.config.height/7.5, 'HOW TO PLAY', {fontFamily: 'Retro Gaming', fontSize: '200px', color: '#FFFFFF'})
@@ -506,13 +506,13 @@ class PreGameScene extends Phaser.Scene {
     create() {
         game.scene.bringToTop('PreGameScene')
         // bubbles = this.physics.add.group()
-       this.fakeollie = this.physics.add.sprite(-150, game.config.height * .75, 'ollie')
+       this.fakeollie1 = this.physics.add.sprite(-150, game.config.height * .75, 'ollie')
         .setScale(2)
         //OLLIES HITBOX
-        this.fakeollie.body
+        this.fakeollie1.body
         .setSize(120,30,true)//width,height, center -- boolean
         .setOffset(20,35) //x and y offset
-        this.fakeollie.setCollideWorldBounds(false);
+        this.fakeollie1.setCollideWorldBounds(false);
         //ANIMATIONS        
         this.anims.create({
             key: 'fake swim',
@@ -520,7 +520,7 @@ class PreGameScene extends Phaser.Scene {
             frameRate: 24,
             repeat: -1
         });
-        this.fakeollie.anims.play('fake swim');
+        this.fakeollie1.anims.play('fake swim');
 
         this.bubbleRush = this.physics.add.group()
         this.playBubbleRushAnnimation(this.bubbleRush)
@@ -554,7 +554,7 @@ class PreGameScene extends Phaser.Scene {
     }
     playOllieSwimmingAnimation = async() => {
         await delay(1200);
-        this.fakeollie.setVelocityX(1500)
+        this.fakeollie1.setVelocityX(1500)
         await delay(2800);
         this.switchGames()
     }
@@ -610,6 +610,8 @@ class GameScene extends Phaser.Scene {
         this.load.image('border', 'assets/borderv2.png')
         this.load.image('background', 'assets/background_V1.png')
         this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
+        this.load.spritesheet('ollieJump', 'assets/ollieJump.png', { frameWidth: 220, frameHeight: 190 })
+        this.load.spritesheet('olliePowerUp', 'assets/olliePowerUp.png', {frameWidth: 220, frameHeight: 190});
         //OBSTACLES
         this.load.image('obstacle1', 'assets/underwaterplant_pink.png')
         this.load.image('obstacle2', 'assets/underwaterplant_orange.png')
@@ -656,7 +658,19 @@ class GameScene extends Phaser.Scene {
             frameRate: 11,
             repeat: -1
         });
-        ollie.anims.play('swim');
+        this.anims.create({
+            key: 'jump',
+            frames: this.anims.generateFrameNumbers('ollieJump'),
+            frameRate: 4, //need more frame
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'powerUp',
+            frames: this.anims.generateFrameNumbers('olliePowerUp'),
+            frameRate: 8,
+            repeat: 0
+        });
+        ollie.anims.play('swim')
         //CAMERA
         background.fixedToCamera = true;
         camera = this.cameras.main;
@@ -735,73 +749,126 @@ class GameScene extends Phaser.Scene {
 //---END GAME ELEMENTS---//
 
 //---MOVEMENT---//
-    movement() { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS UP AND POSITIVE IS DOWN
-        var currentVelocity = ollie.body.velocity.y
-        var currentPosition = ollie.body.y
-        var canJump = this.canJump()
+movement() { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS UP AND POSITIVE IS DOWN
+    var currentVelocity = ollie.body.velocity.y
+    var currentPosition = ollie.body.y
+    var currentAngularVelocity = ollie.body.angularVelocity
+    var canJump = this.canJump()
 
-        if((afterJump || inputDisabled) && currentPosition >= waterLevel + 400) {
-            afterJump = false;
-            inputDisabled = false;
+    console.log(currentAngularVelocity) 
+    console.log(ollie.angle)
+
+    if(ollie.angle < -15) {
+        ollie.angle = -15
+    } else if (ollie.angle > 15) {
+        ollie.angle = 15
+    }
+
+    // if(ollie.angle < 25 && ollie.angle > -25) {
+    //     ollie.setAngularVelocity(0)
+    // }
+    //     if (currentVelocity < 0){
+    //         console.log(ollie.angle)
+    //         ollie.setAngularAcceleration(-100)
+    //         // ollie.angle -=2;
+    //         // if (ollie.angle < -30){
+    //         //     ollie.angle = -30;
+    //         // }
+    //     } if (currentVelocity > 0){
+    //         console.log(ollie.angle)
+    //         ollie.setAngularAcceleration(100)
+    //         // ollie.angle +=2;
+    //         // if (ollie.angle > 30){
+    //         //     ollie.angle = 30;
+    //         // }
+    //     } if (currentVelocity == 0){
+    //         console.log(ollie.angle)
+    //         ollie.setAngularAcceleration(0)
+    //         // if (ollie.angle < 0){
+    //         //     ollie.angle += 2;
+    //         // }
+    //         // if(ollie.angle > 0){
+    //         //     ollie.angle -= 2;
+    //         // }
+    //     }
+   
+
+    if((afterJump || inputDisabled) && currentPosition >= waterLevel + 400) {
+        afterJump = false;
+        inputDisabled = false;
+    }
+
+    if(currentPosition <= waterLevel) { //Ollie is above water(already jumped), disable all movement
+        ollie.body.setGravity(0,500)
+        if(afterJump === true && currentVelocity > 0 && (currentPosition >= waterLevel-50 && currentPosition <= waterLevel)) {
+            ollie.setVelocityY(150)
+            console.log('here')
         }
+    } else { //Ollie is under watter
+        ollie.body.setGravity(0, 10)
+        if(canJump) { //if in the zone to jump, he can either jump or swim down
+            ollie.body.setGravity(0,200)
+            inputDisabled = true
+            if(cursors.space.isDown) {
+                afterJump = true
+                ollie.setVelocityY(-500)
 
-        if(currentPosition <= waterLevel) { //Ollie is above water(already jumped), disable all movement
-            ollie.body.setGravity(0,500)
-            if(afterJump === true && currentVelocity > 0 && (currentPosition >= waterLevel-50 && currentPosition <= waterLevel)) {
-                ollie.setVelocityY(150)
-            }
-        } else { //Ollie is under watter
-            ollie.body.setGravity(0, 10)
-            if(canJump) { //if in the zone to jump, he can either jump or swim down
-                ollie.body.setGravity(0,200)
-                inputDisabled = true
-                if(cursors.space.isDown) {
-                    afterJump = true
-                    ollie.setVelocityY(-500)
-                } else if(cursors.down.isDown){
-                    if(currentVelocity < 0){//switching directions
-                        currentVelocity = 5
+                ollie.anims.stop('swim');
+                ollie.anims.play('jump');
+                setTimeout(() => {
+                    ollie.anims.play('swim');
+                }, 1750);
+                
+            } else if(cursors.down.isDown){
+                if(currentVelocity < 0){//switching directions
+                    currentVelocity = 5
+                }
+    
+                if(currentVelocity < 100) {
+                    (currentAngularVelocity + 5 < 30) ? ollie.setAngularVelocity(currentAngularVelocity+5) : ollie.setAngularVelocity(0)
+                    ollie.setVelocityY(currentVelocity+20)
+                } else if(currentVelocity < 200) {
+                    (currentAngularVelocity + 1 < 30) ? ollie.setAngularVelocity(currentAngularVelocity+1) : ollie.setAngularVelocity(0)
+                    ollie.setVelocityY(currentVelocity+15)
+                } else if(currentVelocity < 350) {
+                    (currentAngularVelocity + 1 < 30) ? ollie.setAngularVelocity(currentAngularVelocity+1) : ollie.setAngularVelocity(0)
+                    ollie.setVelocityY(currentVelocity+10)
+                }
+            } 
+        } else { //not in the zone to jump, just under water
+            if(!inputDisabled){
+                if(cursors.up.isDown) {
+                    if(currentVelocity > 0){ //switching directions
+                        currentVelocity = -5
                     }
-        
-                    if(currentVelocity < 100) {
-                        ollie.setVelocityY(currentVelocity+20)
-                    } else if(currentVelocity < 200) {
-                        ollie.setVelocityY(currentVelocity+15)
-                    } else if(currentVelocity < 350) {
-                        ollie.setVelocityY(currentVelocity+10)
+                    if(currentVelocity > -100) {
+                        (currentAngularVelocity - 5 > -30) ? ollie.setAngularVelocity(currentAngularVelocity-5) : ollie.setAngularVelocity(0)
+                        ollie.setVelocityY(currentVelocity-20)
+                    } else if(currentVelocity > -200) {
+                        (currentAngularVelocity - 1 > -30) ? ollie.setAngularVelocity(currentAngularVelocity-1) : ollie.setAngularVelocity(0)
+                        ollie.setVelocityY(currentVelocity-15)
+                    } else if(currentVelocity > -350) {
+                        (currentAngularVelocity - 1 > -30) ? ollie.setAngularVelocity(currentAngularVelocity-1) : ollie.setAngularVelocity(0)
+                        ollie.setVelocityY(currentVelocity-10)
                     }
-                } 
-            } else { //not in the zone to jump, just under water
-                if(!inputDisabled){
-                    if(cursors.up.isDown) {
-                        if(currentVelocity > 0){ //switching directions
-                            currentVelocity = -5
-                        }
-                        if(currentVelocity > -100) {
-                            ollie.setVelocityY(currentVelocity-20)
-                        } else if(currentVelocity > -200) {
-                            ollie.setVelocityY(currentVelocity-15)
-                        } else if(currentVelocity > -350) {
-                            ollie.setVelocityY(currentVelocity-10)
-                        }
-                    }
-                } 
-                if(cursors.down.isDown) {
-                    if(currentVelocity < 0){//switching directions
-                        currentVelocity = 5
-                    }
-        
-                    if(currentVelocity < 100) {
-                        ollie.setVelocityY(currentVelocity+20)
-                    } else if(currentVelocity < 200) {
-                        ollie.setVelocityY(currentVelocity+15)
-                    } else if(currentVelocity < 350) {
-                        ollie.setVelocityY(currentVelocity+10)
-                    }
+                }
+            } 
+            if(cursors.down.isDown) {
+                if(currentVelocity < 0){//switching directions
+                    currentVelocity = 5
+                }
+    
+                if(currentVelocity < 100) {
+                    ollie.setVelocityY(currentVelocity+20)
+                } else if(currentVelocity < 200) {
+                    ollie.setVelocityY(currentVelocity+15)
+                } else if(currentVelocity < 350) {
+                    ollie.setVelocityY(currentVelocity+10)
                 }
             }
         }
-    }//END MOVEMENT
+    }
+}//END MOVEMENT
     canJump() {
         var currentPosition = ollie.body.y
         if(currentPosition <= waterLevel + 200 && currentPosition >= waterLevel && !afterJump) {
@@ -986,6 +1053,13 @@ class GameScene extends Phaser.Scene {
         powerUp.body.setImmovable(false);
     } //END CREATEPOWERUPS
     collectPowerUp(ollie, powerUp) {
+        //animation
+        ollie.anims.stop('swim');
+        ollie.anims.play('powerUp');
+        setTimeout(() => {
+            ollie.anims.play('swim');
+        }, 1000);
+        //end animation
         powerUp.destroy();
         if(powerUpsQueue.length < 2) {
             switch(powerUp.name) {
