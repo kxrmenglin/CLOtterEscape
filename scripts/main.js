@@ -524,11 +524,11 @@ class GameScene extends Phaser.Scene {
 
         if(currentPosition <= waterLevel) { //Ollie is above water(already jumped), disable all movement
             ollie.body.setGravity(0,500)
+            if(afterJump === true && currentVelocity > 0 && (currentPosition >= waterLevel-50 && currentPosition <= waterLevel)) {
+                ollie.setVelocityY(150)
+            }
         } else { //Ollie is under watter
             ollie.body.setGravity(0, 10)
-            if(afterJump === true && currentVelocity > 0 && (currentPosition >= waterLevel-6 || currentPosition <= waterLevel-3)) {
-                ollie.setVelocityY(150)
-            } 
             if(canJump) { //if in the zone to jump, he can either jump or swim down
                 ollie.body.setGravity(0,200)
                 inputDisabled = true
