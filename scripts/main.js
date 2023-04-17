@@ -749,49 +749,16 @@ class GameScene extends Phaser.Scene {
 //---END GAME ELEMENTS---//
 
 //---MOVEMENT---//
-movement() { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS UP AND POSITIVE IS DOWN
+movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS UP AND POSITIVE IS DOWN
     var currentVelocity = ollie.body.velocity.y
     var currentPosition = ollie.body.y
     var currentAngularVelocity = ollie.body.angularVelocity
     var canJump = this.canJump()
 
-    console.log(currentAngularVelocity) 
-    console.log(ollie.angle)
-
-    if(ollie.angle < -15) {
-        ollie.angle = -15
-    } else if (ollie.angle > 15) {
-        ollie.angle = 15
-    }
-
-    // if(ollie.angle < 25 && ollie.angle > -25) {
-    //     ollie.setAngularVelocity(0)
-    // }
-    //     if (currentVelocity < 0){
-    //         console.log(ollie.angle)
-    //         ollie.setAngularAcceleration(-100)
-    //         // ollie.angle -=2;
-    //         // if (ollie.angle < -30){
-    //         //     ollie.angle = -30;
-    //         // }
-    //     } if (currentVelocity > 0){
-    //         console.log(ollie.angle)
-    //         ollie.setAngularAcceleration(100)
-    //         // ollie.angle +=2;
-    //         // if (ollie.angle > 30){
-    //         //     ollie.angle = 30;
-    //         // }
-    //     } if (currentVelocity == 0){
-    //         console.log(ollie.angle)
-    //         ollie.setAngularAcceleration(0)
-    //         // if (ollie.angle < 0){
-    //         //     ollie.angle += 2;
-    //         // }
-    //         // if(ollie.angle > 0){
-    //         //     ollie.angle -= 2;
-    //         // }
-    //     }
-   
+    // console.log(currentAngularVelocity) 
+    // console.log(ollie.angle)
+        // console.log(currentVelocity)
+  
 
     if((afterJump || inputDisabled) && currentPosition >= waterLevel + 400) {
         afterJump = false;
@@ -800,11 +767,17 @@ movement() { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS UP AND POS
 
     if(currentPosition <= waterLevel) { //Ollie is above water(already jumped), disable all movement
         ollie.body.setGravity(0,500)
-        if(afterJump === true && currentVelocity > 0 && (currentPosition >= waterLevel-50 && currentPosition <= waterLevel)) {
-            ollie.setVelocityY(150)
-            console.log('here')
-        }
+        if(afterJump === true && currentVelocity > 0 && (currentPosition >= waterLevel-50 && currentPosition <= waterLevel)) { //hits the water
+            ollie.setVelocityY(150)      
+            // ollie.angle = 30
+            // ollie.setAngularVelocity(100)
+        } 
     } else { //Ollie is under watter
+        if(ollie.angle < -15) {
+            ollie.angle = -15
+        } else if (ollie.angle > 15) {
+            ollie.angle = 15
+        }
         ollie.body.setGravity(0, 10)
         if(canJump) { //if in the zone to jump, he can either jump or swim down
             ollie.body.setGravity(0,200)
@@ -812,26 +785,26 @@ movement() { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS UP AND POS
             if(cursors.space.isDown) {
                 afterJump = true
                 ollie.setVelocityY(-500)
-
-                ollie.anims.stop('swim');
                 ollie.anims.play('jump');
-                setTimeout(() => {
-                    ollie.anims.play('swim');
-                }, 1750);
-                
+                ollie.setAngularVelocity(0)
+                ollie.angle = 0
+                await delay(1300)
+                ollie.angle = 30
+                ollie.anims.play('swim')
             } else if(cursors.down.isDown){
                 if(currentVelocity < 0){//switching directions
+                    ollie.setAngularVelocity(currentAngularVelocity+100)
                     currentVelocity = 5
                 }
     
                 if(currentVelocity < 100) {
-                    (currentAngularVelocity + 5 < 30) ? ollie.setAngularVelocity(currentAngularVelocity+5) : ollie.setAngularVelocity(0)
+                    (currentAngularVelocity + 5 < 50) ? ollie.setAngularVelocity(currentAngularVelocity+10) : ollie.setAngularVelocity(0)
                     ollie.setVelocityY(currentVelocity+20)
                 } else if(currentVelocity < 200) {
-                    (currentAngularVelocity + 1 < 30) ? ollie.setAngularVelocity(currentAngularVelocity+1) : ollie.setAngularVelocity(0)
+                    (currentAngularVelocity + 1 < 50) ? ollie.setAngularVelocity(currentAngularVelocity+10) : ollie.setAngularVelocity(0)
                     ollie.setVelocityY(currentVelocity+15)
                 } else if(currentVelocity < 350) {
-                    (currentAngularVelocity + 1 < 30) ? ollie.setAngularVelocity(currentAngularVelocity+1) : ollie.setAngularVelocity(0)
+                    (currentAngularVelocity + 1 < 50) ? ollie.setAngularVelocity(currentAngularVelocity+10) : ollie.setAngularVelocity(0)
                     ollie.setVelocityY(currentVelocity+10)
                 }
             } 
@@ -839,30 +812,35 @@ movement() { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS UP AND POS
             if(!inputDisabled){
                 if(cursors.up.isDown) {
                     if(currentVelocity > 0){ //switching directions
+                        ollie.setAngularVelocity(currentAngularVelocity-100)
                         currentVelocity = -5
                     }
                     if(currentVelocity > -100) {
-                        (currentAngularVelocity - 5 > -30) ? ollie.setAngularVelocity(currentAngularVelocity-5) : ollie.setAngularVelocity(0)
+                        (currentAngularVelocity - 5 > -50) ? ollie.setAngularVelocity(currentAngularVelocity-10) : ollie.setAngularVelocity(0)
                         ollie.setVelocityY(currentVelocity-20)
                     } else if(currentVelocity > -200) {
-                        (currentAngularVelocity - 1 > -30) ? ollie.setAngularVelocity(currentAngularVelocity-1) : ollie.setAngularVelocity(0)
+                        (currentAngularVelocity - 1 > -50) ? ollie.setAngularVelocity(currentAngularVelocity-10) : ollie.setAngularVelocity(0)
                         ollie.setVelocityY(currentVelocity-15)
                     } else if(currentVelocity > -350) {
-                        (currentAngularVelocity - 1 > -30) ? ollie.setAngularVelocity(currentAngularVelocity-1) : ollie.setAngularVelocity(0)
+                        (currentAngularVelocity - 1 > -50) ? ollie.setAngularVelocity(currentAngularVelocity-10) : ollie.setAngularVelocity(0)
                         ollie.setVelocityY(currentVelocity-10)
                     }
                 }
             } 
             if(cursors.down.isDown) {
                 if(currentVelocity < 0){//switching directions
+                    ollie.setAngularVelocity(currentAngularVelocity+100)
                     currentVelocity = 5
                 }
     
                 if(currentVelocity < 100) {
+                    (currentAngularVelocity + 5 < 50) ? ollie.setAngularVelocity(currentAngularVelocity+10) : ollie.setAngularVelocity(0)
                     ollie.setVelocityY(currentVelocity+20)
                 } else if(currentVelocity < 200) {
+                    (currentAngularVelocity + 1 < 50) ? ollie.setAngularVelocity(currentAngularVelocity+10) : ollie.setAngularVelocity(0)
                     ollie.setVelocityY(currentVelocity+15)
                 } else if(currentVelocity < 350) {
+                    (currentAngularVelocity + 1 < 50) ? ollie.setAngularVelocity(currentAngularVelocity+10) : ollie.setAngularVelocity(0)
                     ollie.setVelocityY(currentVelocity+10)
                 }
             }
