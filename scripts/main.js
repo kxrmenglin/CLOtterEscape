@@ -27,7 +27,7 @@ window.onload = function() {
         scene: [TitleScene, GameScene, PauseScene, DeathScene, PreGameScene], //made it a scene array to switch between scenes
         physics: {
             default: "arcade",
-            arcade: { debug:false }
+            arcade: { debug:true }
         }
     }
     game = new Phaser.Game(config);
@@ -241,6 +241,7 @@ class TitleScene extends Phaser.Scene {
                 var x = Phaser.Math.RND.between(0, game.config.width)
                 var newBubble = bubbles.create(x, game.config.height, 'bubble')
                 newBubble.setVelocityX(30)
+                newBubble.body.setCircle(55,0,0).setOffset(18,14)
             }
         }
     }//END CREATENEWBUBBLE
@@ -323,6 +324,7 @@ class PreGameScene extends Phaser.Scene {
             var x = Phaser.Math.RND.between(0, game.config.width)
             var y = Phaser.Math.RND.between(game.config.height, game.config.height+2000)
             var newBubble = this.bubbleRush.create(x, y, 'bubble')
+            newBubble.body.setCircle(55,0,0).setOffset(18,14)
             newBubble.setVelocityY(-800)
             newBubble.setVelocityX(50)
         }   
@@ -622,13 +624,18 @@ class GameScene extends Phaser.Scene {
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(200, 200);
             obstacle.setScale(2);
+            obstacle.body
+            .setSize(150,250,true)//width,height, center -- boolean
+            .setOffset(20,35) //x and y offset
         }
         //TALL ROCK SPAWN (rock 2)
         else if (obstacleIndex === 4) {
             var obstacle = groundObstacles.create(game.config.width + 50, 1990, chosenObstacle);
             obstacle.setOrigin(0.5, 0);
-            obstacle.setSize(200, 150);
+            obstacle.setSize(80, 100);
             obstacle.setScale(3);
+            obstacle.body
+            .setCircle(35, 3, 0)//radius,x offset, y offset 
         }
         //TINYROCKSPAWN (rock 6)
         else if (obstacleIndex === 8) {
@@ -636,6 +643,8 @@ class GameScene extends Phaser.Scene {
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(50, 50);
             obstacle.setScale(2);
+            obstacle.body
+            .setCircle(20, 5, 0)//radius,x offset, y offset 
         }
         //REG ROCK SPAWN (rock 1, 3, 4, 5)
         else {
@@ -643,6 +652,24 @@ class GameScene extends Phaser.Scene {
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(200, 100);
             obstacle.setScale(2);
+            switch (obstacleIndex) {
+                case 3:
+                    obstacle.body
+                    .setCircle(50, 20, 0)//radius,x offset, y offset s
+                    break; 
+                case 5:
+                    obstacle.body
+                    .setCircle(35, 0, 0)//radius,x offset, y offset s
+                    break;
+                case 6:
+                    obstacle.body
+                    .setSize(130, 60, true)
+                    break;
+                case 7:
+                    obstacle.body
+                    .setSize(100, 60, true)
+                    break;
+            }
         }
     } //END CREATEGROUNDOBSTACLES
 
@@ -654,15 +681,26 @@ class GameScene extends Phaser.Scene {
         if (obstacleIndex === 2) {
             var floatObstacle = floatObstacles.create(game.config.width + 50, 300, chosenFloatObstacle)
             floatObstacle.setOrigin(0.5, 0)
-            floatObstacle.setSize(100, 100)
+            console.log(floatObstacle.body.halfWidth + '+'+ floatObstacle.body.halfHeight)
+            floatObstacle.body
+            .setCircle(75, 0, 0)
         }
         //BOOT OR CAN SPAWN
         else {
             let floatObstacleHeight = Phaser.Math.RND.between(2000, 500)
             var floatObstacle = floatObstacles.create(game.config.width + 50, floatObstacleHeight, chosenFloatObstacle)
             floatObstacle.setOrigin(0.5, 0)
-            floatObstacle.setSize(100, 100)
             .setScale(1.5)
+            switch (obstacleIndex) {
+                case 0:
+                    floatObstacle.body
+                    .setSize(80, 67, true)
+                    break;
+                case 1:
+                    floatObstacle.body
+                    .setSize(50,90, true)
+                    break
+            }
         }
 
     }//END CREATEFLOATOBSTACLES 
@@ -705,16 +743,15 @@ class GameScene extends Phaser.Scene {
         switch(chosenPowerUp) {
             case 'bubble':
                 powerUp.name = 'bubble'
+                powerUp.body.setCircle(55,9,17)
                 powerUp
-                .setOrigin(0.5, 0.5)
-                .setScale(1)
                 .setImmovable(false)
                 .setCollideWorldBounds(false)
                 break;
             case 'rockpowerup':
                 powerUp.name = 'rockpowerup'
+                powerUp.body.setSize(19,15,true).setOffset(3,8)
                 powerUp
-                .setOrigin(0.5, 0.5)
                 .setScale(3)
                 .setImmovable(false)
                 .setCollideWorldBounds(false)
@@ -804,9 +841,10 @@ class GameScene extends Phaser.Scene {
         }
         console.log(chosenCurrency)
         var currency = currencies.create(game.config.width + 50, currencyHeight, chosenCurrency)
+        console.log(currency.body.halfHeight + '+' + currency.body.halfWidth)
+        currency.body.setSize(20,23,true).setOffset(0,3)
         currency
-        .setOrigin(0.5, 0)
-        .setScale(1.5)
+        .setScale(2)
         .setImmovable(false)
         .setCollideWorldBounds(false)
     }//END CREATECURRENCY
