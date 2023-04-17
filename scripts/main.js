@@ -28,7 +28,7 @@ window.onload = function() {
         scene: [TitleScene, GameScene, PauseScene, DeathScene, PreGameScene, HowToPlayScene], //made it a scene array to switch between scenes
         physics: {
             default: "arcade",
-            arcade: { debug:true }
+            arcade: { debug:false }
         }
     }
     game = new Phaser.Game(config);
