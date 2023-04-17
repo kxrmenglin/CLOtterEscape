@@ -90,12 +90,12 @@ class HowToPlayScene extends Phaser.Scene {
         this.fakeollie.setCollideWorldBounds(false);
         //ANIMATIONS        
         this.anims.create({
-            key: 'fake swim',
+            key: 'how to swim',
             frames: this.anims.generateFrameNumbers('ollie'),
             frameRate: 9,
             repeat: -1
         });
-        this.fakeollie.anims.play('fake swim');
+        this.fakeollie.anims.play('how to swim');
 
 
         this.title = this.add.text(game.config.width/3.3, game.config.height/7.5, 'HOW TO PLAY', {fontFamily: 'Retro Gaming', fontSize: '200px', color: '#FFFFFF'})
@@ -506,13 +506,13 @@ class PreGameScene extends Phaser.Scene {
     create() {
         game.scene.bringToTop('PreGameScene')
         // bubbles = this.physics.add.group()
-       this.fakeollie = this.physics.add.sprite(-150, game.config.height * .75, 'ollie')
+       this.fakeollie1 = this.physics.add.sprite(-150, game.config.height * .75, 'ollie')
         .setScale(2)
         //OLLIES HITBOX
-        this.fakeollie.body
+        this.fakeollie1.body
         .setSize(120,30,true)//width,height, center -- boolean
         .setOffset(20,35) //x and y offset
-        this.fakeollie.setCollideWorldBounds(false);
+        this.fakeollie1.setCollideWorldBounds(false);
         //ANIMATIONS        
         this.anims.create({
             key: 'fake swim',
@@ -520,7 +520,7 @@ class PreGameScene extends Phaser.Scene {
             frameRate: 24,
             repeat: -1
         });
-        this.fakeollie.anims.play('fake swim');
+        this.fakeollie1.anims.play('fake swim');
 
         this.bubbleRush = this.physics.add.group()
         this.playBubbleRushAnnimation(this.bubbleRush)
@@ -554,7 +554,7 @@ class PreGameScene extends Phaser.Scene {
     }
     playOllieSwimmingAnimation = async() => {
         await delay(1200);
-        this.fakeollie.setVelocityX(1500)
+        this.fakeollie1.setVelocityX(1500)
         await delay(2800);
         this.switchGames()
     }
