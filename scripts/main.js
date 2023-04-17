@@ -244,6 +244,8 @@ class GameScene extends Phaser.Scene {
         this.load.image('border', 'assets/border.png')
         this.load.image('background', 'assets/background_V1.png')
         this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
+        this.load.spritesheet('ollieJump', 'assets/ollieJump.png', { frameWidth: 220, frameHeight: 190 })
+        this.load.spritesheet('olliePowerUp', 'assets/olliePowerUp.png', {frameWidth: 220, frameHeight: 190});
         //OBSTACLES
         this.load.image('obstacle1', 'assets/underwaterplant_pink.png')
         this.load.image('obstacle2', 'assets/underwaterplant_orange.png')
@@ -284,7 +286,19 @@ class GameScene extends Phaser.Scene {
             frameRate: 8,
             repeat: -1
         });
-        ollie.anims.play('swim');
+        this.anims.create({
+            key: 'jump',
+            frames: this.anims.generateFrameNumbers('ollieJump'),
+            frameRate: 8,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'powerUp',
+            frames: this.anims.generateFrameNumbers('olliePowerUp'),
+            frameRate: 8,
+            repeat: 0
+        });
+        ollie.anims.play('swim')
         //CAMERA
         background.fixedToCamera = true;
         camera = this.cameras.main;
@@ -354,7 +368,6 @@ class GameScene extends Phaser.Scene {
         background._tilePosition.x += 1.69
     }//END MOVEBACKGROUND
     addMetersSwam(points){
-
         metersSwam += points;
         metersSwamText.setText('Meters Swam: ' + placeholder.substring(10 - metersSwam.toString().length) + Math.trunc(metersSwam));
     }//END ADDMETERSSWAM
@@ -381,11 +394,34 @@ class GameScene extends Phaser.Scene {
                 afterJump = false
                 ollie.setVelocityY(500)
             }
+            if (ollie.body.velocity.y < 0){
+                ollie.angle -=2;
+                if (ollie.angle < -30){
+                    ollie.angle = -30;
+                }
+            } if (ollie.body.velocity.y > 0){
+                ollie.angle +=2;
+                if (ollie.angle > 30){
+                    ollie.angle = 30;
+                }
+            } if (ollie.body.velocity.y == 0){
+                if (ollie.angle < 0){
+                    ollie.angle += 2;
+                }
+                if(ollie.angle > 0){
+                    ollie.angle -= 2;
+                }
+            }
         } else if(ollie.y <= waterLevel + 150 && ollie.y >= waterLevel) { //below water but in range of waterLevel to charge jump - can move up, down, and jump
             ollie.body.gravity.y = 900
             if(cursors.space.isDown && ollie.body.velocity.y < 0) { //presses space - only works if Ollie is moving upwards to prevent space spam
                 afterJump = true
                 ollie.setVelocityY(ollie.body.velocity.y * 1.03) //increase upward velocity while space is pressed
+                ollie.anims.stop('swim');
+                ollie.anims.play('jump');
+                setTimeout(() => {
+                    ollie.anims.play('swim');
+                }, 1000);
             } else if(cursors.down.isDown) { // down pressed
                 afterJump = false
                 ollie.setVelocityY(500)
@@ -542,6 +578,13 @@ class GameScene extends Phaser.Scene {
         powerUp.body.setImmovable(false);
     } //END CREATEPOWERUPS
     collectPowerUp(ollie, powerUp) {
+        //animation
+        ollie.anims.stop('swim');
+        ollie.anims.play('powerUp');
+        setTimeout(() => {
+            ollie.anims.play('swim');
+        }, 1000);
+        //end animation
         powerUp.destroy();
         if(powerUpsQueue.length < 2) {
             switch(powerUp.name) {
