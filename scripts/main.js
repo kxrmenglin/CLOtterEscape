@@ -612,6 +612,7 @@ class GameScene extends Phaser.Scene {
         this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
         this.load.spritesheet('ollieJump', 'assets/ollieJump.png', { frameWidth: 220, frameHeight: 190 })
         this.load.spritesheet('olliePowerUp', 'assets/olliePowerUp.png', {frameWidth: 220, frameHeight: 190});
+        this.load.spritesheet('ollieDeath', 'assets/ollieDeath.png', {frameWidth: 220, frameHeight: 190});
         //OBSTACLES
         this.load.image('obstacle1', 'assets/underwaterplant_pink.png')
         this.load.image('obstacle2', 'assets/underwaterplant_orange.png')
@@ -670,6 +671,12 @@ class GameScene extends Phaser.Scene {
             frameRate: 8,
             repeat: 0
         });
+        this.anims.create({
+            key: 'death',
+            frames: this.anims.generateFrameNumbers('ollieDeath'),
+            frameRate: 8,
+            repeat: 0
+        });
         ollie.anims.play('swim')
         //CAMERA
         background.fixedToCamera = true;
@@ -716,8 +723,12 @@ class GameScene extends Phaser.Scene {
             //freezes game scene background
             //hide all obstacles/ stop them
             //put in ollie hitting obstacle animation
-            this.scene.pause();
-            game.scene.start('DeathScene');
+            ollie.anims.play('death').on('animationcomplete', () => {
+                this.scene.pause();
+                this.scene.start('DeathScene');
+            });
+            // this.scene.pause();
+            // game.scene.start('DeathScene');
             isDead = false; //resets the play
             // metersSwam = 0;
         } else {
