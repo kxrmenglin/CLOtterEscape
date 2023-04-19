@@ -1068,23 +1068,6 @@ movement() { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS UP AND POS
         powerUp.body.setImmovable(false);
     } //END CREATEPOWERUPS
     collectPowerUp(ollie, powerUp) {
-        //animation
-        // ollie.anims.stop('swim');
-        // ollie.body.setSize(120,30,true).setOffset(50,70)
-        // ollie.anims.play('powerUp');
-        // if(powerUp.name == 'rockpowerup'){
-        //     setTimeout(() => {
-        //         ollie.anims.play('pearl');
-        //         ollie.body.setSize(120,30,true).setOffset(40,70)
-        //     }, 1000);
-        // }
-        // else{
-        //     setTimeout(() => {
-        //         ollie.anims.play('swim');
-        //         ollie.body.setSize(120,30,true).setOffset(20,35)
-        //     }, 1000);
-        // }
-        //end animation
         powerUp.destroy();
         if(powerUpsQueue.length < 2) {
             switch(powerUp.name) {
