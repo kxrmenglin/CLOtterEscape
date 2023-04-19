@@ -1069,18 +1069,21 @@ movement() { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS UP AND POS
     } //END CREATEPOWERUPS
     collectPowerUp(ollie, powerUp) {
         //animation
-        ollie.anims.stop('swim');
-        ollie.anims.play('powerUp');
-        if(powerUp.name == 'rockpowerup'){
-            setTimeout(() => {
-                ollie.anims.play('pearl');
-            }, 1000);
-        }
-        else{
-            setTimeout(() => {
-                ollie.anims.play('swim');
-            }, 1000);
-        }
+        // ollie.anims.stop('swim');
+        // ollie.body.setSize(120,30,true).setOffset(50,70)
+        // ollie.anims.play('powerUp');
+        // if(powerUp.name == 'rockpowerup'){
+        //     setTimeout(() => {
+        //         ollie.anims.play('pearl');
+        //         ollie.body.setSize(120,30,true).setOffset(40,70)
+        //     }, 1000);
+        // }
+        // else{
+        //     setTimeout(() => {
+        //         ollie.anims.play('swim');
+        //         ollie.body.setSize(120,30,true).setOffset(20,35)
+        //     }, 1000);
+        // }
         //end animation
         powerUp.destroy();
         if(powerUpsQueue.length < 2) {
@@ -1106,6 +1109,7 @@ movement() { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS UP AND POS
             } 
             ollie.anims.stop('pearl');
             ollie.anims.play('swim');
+            ollie.body.setSize(120,30,true).setOffset(20,35)
             this.loadNextPowerUp()
         } else {
             console.log('Hit ' + JSON.stringify(obstacle) + '!')
@@ -1120,10 +1124,23 @@ movement() { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS UP AND POS
         if(powerUpsQueue.length === 1) {
             switch(powerUpsQueue[0]) {
                 case 1:
-                    currentPowerUp = this.add.image(ollie.x+500, ollie.y+200, 'rockpowerup').setScale(1.5)
+                    ollie.anims.stop('swim');
+                    ollie.body.setSize(120,30,true).setOffset(50,70)
+                    ollie.anims.play('powerUp');
+                    setTimeout(() => {
+                        ollie.anims.play('pearl');
+                        ollie.body.setSize(120,30,true).setOffset(40,80)
+                    }, 1000);
                     break;
                 case 2:
-                    currentPowerUp = this.add.image(ollie.x, ollie.y, 'bubble').setScale(3)
+                    ollie.anims.stop('swim');
+                    ollie.body.setSize(120,30,true).setOffset(50,70)
+                    ollie.anims.play('powerUp');
+                    setTimeout(() => {
+                        ollie.anims.play('swim');
+                        ollie.body.setSize(120,30,true).setOffset(20,35)
+                        currentPowerUp = this.add.image(ollie.x, ollie.y, 'bubble').setScale(3)
+                    }, 1000);
                     break;
             }
         } else if (powerUpsQueue.length === 2 && !onDeck) {
