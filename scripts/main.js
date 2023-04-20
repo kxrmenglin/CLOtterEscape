@@ -582,6 +582,7 @@ let
     //MOVEMENT
         afterJump,
         inputDisabled = false,
+        ox = 0,
     //NAVBAR
         //METERS SWAM TEXT
         metersSwam,
@@ -612,6 +613,8 @@ class GameScene extends Phaser.Scene {
         this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
         this.load.spritesheet('ollieJump', 'assets/ollieJump.png', { frameWidth: 220, frameHeight: 190 })
         this.load.spritesheet('olliePowerUp', 'assets/olliePowerUp.png', {frameWidth: 220, frameHeight: 190});
+        this.load.spritesheet('ollieDeath', 'assets/ollieDeath.png', {frameWidth: 220, frameHeight: 190});
+        this.load.spritesheet('olliePearl', 'assets/olliePearl.png', {frameWidth: 220, frameHeight: 190});
         //OBSTACLES
         this.load.image('obstacle1', 'assets/underwaterplant_pink.png')
         this.load.image('obstacle2', 'assets/underwaterplant_orange.png')
@@ -669,6 +672,18 @@ class GameScene extends Phaser.Scene {
             frames: this.anims.generateFrameNumbers('olliePowerUp'),
             frameRate: 8,
             repeat: 0
+        });
+        this.anims.create({
+            key: 'death',
+            frames: this.anims.generateFrameNumbers('ollieDeath'),
+            frameRate: 8,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'pearl',
+            frames: this.anims.generateFrameNumbers('olliePearl'),
+            frameRate: 11,
+            repeat: -1
         });
         ollie.anims.play('swim')
         //CAMERA
@@ -1031,13 +1046,6 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
         powerUp.body.setImmovable(false);
     } //END CREATEPOWERUPS
     collectPowerUp(ollie, powerUp) {
-        //animation
-        ollie.anims.stop('swim');
-        ollie.anims.play('powerUp');
-        setTimeout(() => {
-            ollie.anims.play('swim');
-        }, 1000);
-        //end animation
         powerUp.destroy();
         if(powerUpsQueue.length < 2) {
             switch(powerUp.name) {
@@ -1060,20 +1068,40 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
                 onDeck.destroy() 
                 onDeck = null
             } 
+            ollie.anims.stop('pearl');
+            ollie.anims.play('swim');
+            ollie.body.setSize(120,30,true).setOffset(20,35)
             this.loadNextPowerUp()
         } else {
             console.log('Hit ' + JSON.stringify(obstacle) + '!')
-            isDead = true;
+            ollie.anims.play('death');
+            ollie.body.velocity.x = -564;
+            setTimeout(() => {
+                isDead = true;
+            }, 1000);
         }
     } //END OBSTACLECOLLISION
     loadNextPowerUp() { 
         if(powerUpsQueue.length === 1) {
             switch(powerUpsQueue[0]) {
                 case 1:
-                    currentPowerUp = this.add.image(ollie.x+500, ollie.y+200, 'rockpowerup').setScale(1.5)
+                    ollie.anims.stop('swim');
+                    ollie.body.setSize(120,30,true).setOffset(50,70)
+                    ollie.anims.play('powerUp');
+                    setTimeout(() => {
+                        ollie.anims.play('pearl');
+                        ollie.body.setSize(120,30,true).setOffset(40,80)
+                    }, 1000);
                     break;
                 case 2:
-                    currentPowerUp = this.add.image(ollie.x, ollie.y, 'bubble').setScale(3)
+                    ollie.anims.stop('swim');
+                    ollie.body.setSize(120,30,true).setOffset(50,70)
+                    ollie.anims.play('powerUp');
+                    setTimeout(() => {
+                        ollie.anims.play('swim');
+                        ollie.body.setSize(120,30,true).setOffset(20,35)
+                        currentPowerUp = this.add.image(ollie.x, ollie.y, 'bubble').setScale(3)
+                    }, 1000);
                     break;
             }
         } else if (powerUpsQueue.length === 2 && !onDeck) {
