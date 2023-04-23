@@ -1315,43 +1315,53 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
         var obstacleList = ['obstacle1', 'obstacle2', 'obstacle3', 'rock1', 'rock2', 'rock3', 'rock4', 'rock5', 'rock6'];
         let obstacleIndex = Phaser.Math.RND.between(0, 8);
         var chosenObstacle = obstacleList[obstacleIndex];
+        let scaleValue = Phaser.Math.RND.between(1, 4);
+
         //CORAL REEF SPAWN (obstacle 1, 2 ,3)
         if (obstacleIndex <= 2){
-            var obstacle = groundObstacles.create(game.config.width + 50, 1750, chosenObstacle);
-            obstacle.setOrigin(0.5, 0);
+            let scaleValue = Phaser.Math.RND.between(1, 3);
+            let yPos = 2050 - (100*(scaleValue-1));
+            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+            obstacle.setOrigin(0.5, 0.5);
             obstacle.setSize(200, 200);
-            obstacle.setScale(2);
+            //obstacle.setScale(2);
             obstacle.setImmovable(true)
+            obstacle.setScale(scaleValue)
             obstacle.body
             .setSize(150,250,true)//width,height, center -- boolean
             .setOffset(20,35) //x and y offset
         }
         //TALL ROCK SPAWN (rock 2)
         else if (obstacleIndex === 4) {
-            var obstacle = groundObstacles.create(game.config.width + 50, 1990, chosenObstacle);
-            obstacle.setOrigin(0.5, 0);
+            let yPos = 2150 - (50*(scaleValue-1));
+            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+            obstacle.setOrigin(0.5, 0.5);
             obstacle.setSize(80, 100);
-            obstacle.setScale(3);
+            //obstacle.setScale(3);
             obstacle.setImmovable(true)
+            obstacle.setScale(scaleValue)
             obstacle.body
             .setCircle(35, 3, 0)//radius,x offset, y offset 
         }
         //TINYROCKSPAWN (rock 6)
         else if (obstacleIndex === 8) {
-            var obstacle = groundObstacles.create(game.config.width + 50, 2095, chosenObstacle);
-            obstacle.setOrigin(0.5, 0);
+            let yPos = 2150 - (10*(scaleValue-1));
+            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+            obstacle.setOrigin(0.5, 0.5);
             obstacle.setSize(50, 50);
-            obstacle.setScale(2);
+            //obstacle.setScale(2);
             obstacle.setImmovable(true)
+            obstacle.setScale(scaleValue)
             obstacle.body
             .setCircle(20, 5, 0)//radius,x offset, y offset 
         }
         //REG ROCK SPAWN (rock 1, 3, 4, 5)
         else {
-            var obstacle = groundObstacles.create(game.config.width + 50, 2065, chosenObstacle);
-            obstacle.setOrigin(0.5, 0);
+            let yPos = 2200 - (50*(scaleValue-1));
+            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+            obstacle.setOrigin(0.5, 0.5);
             obstacle.setSize(200, 100);
-            obstacle.setScale(2);
+            obstacle.setScale(scaleValue)
             obstacle.setImmovable(true)
             switch (obstacleIndex) {
                 case 3:
