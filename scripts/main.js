@@ -11,6 +11,8 @@ function handleVisibilityChange() {
 
 var config;
 var game;
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
 window.onload = function() {
     let titleScene = new TitleScene();
     let gameScene = new GameScene();
@@ -240,8 +242,11 @@ let
         onDeck,  
     //OBSTACLES
         sx = 0,
+        fx = 0,
     //POWERUPS --- 0 = nothing, 1 = puffer, 2 = bubble
         currentPowerUp,
+        currencyTimer = 0,
+        powerUpTimer = 0,
         loadedPowerUp = 0,
         powerUpsQueue = []
 //END DECLARATIONS
@@ -317,18 +322,20 @@ class GameScene extends Phaser.Scene {
         shellCountText = this.add.text(game.config.width * 0.90, game.config.height * 0.05, 'Shell Count: ' + shellCount, {fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0).setDepth(2);
         //OBSTACLES
         this.groundObstacles = this.physics.add.group();
-        setInterval(() => this.createGroundObstacles(this.groundObstacles), Phaser.Math.RND.between(1000, 3000));
+        this.createGroundObstacles(this.groundObstacles);
+        //setInterval(() => this.createGroundObstacles(this.groundObstacles), Phaser.Math.RND.between(1000, 3000));
         this.physics.add.collider(ollie, this.groundObstacles, this.obstacleCollision.bind(this))
         this.floatObstacles = this.physics.add.group();
-        setInterval(() =>this.createFloatObstacles(this.floatObstacles), Phaser.Math.RND.between(5000, 8000))
+        //setInterval(() =>this.createFloatObstacles(this.floatObstacles), Phaser.Math.RND.between(5000, 8000))
+        this.createFloatObstacles(this.floatObstacles);
         this.physics.add.collider(ollie, this.floatObstacles, this.obstacleCollision.bind(this))
         //POWERUPS
         this.powerUps = this.physics.add.group();
-        setInterval(() => this.createPowerUps(this.powerUps), 10000);
+        //setInterval(() => this.createPowerUps(this.powerUps), 10000);
         this.physics.add.collider(ollie, this.powerUps, this.collectPowerUp.bind(this))
         //CURRENCY
         this.currencies = this.physics.add.group();
-        setInterval(() => this.createCurrency(this.currencies), 2000);
+        //setInterval(() => this.createCurrency(this.currencies), 2000);
         this.physics.add.collider(ollie, this.currencies, this.collectCurrency)
         //INPUT
         cursors = this.input.keyboard.createCursorKeys();
@@ -424,105 +431,121 @@ class GameScene extends Phaser.Scene {
 //---OBSTACLES---//
     moveObstacles(groundObstacles) {
         sx += 8; //movement of the obstacles
-        if (sx === 16){
-            groundObstacles.getChildren().forEach(obstacle => {
-                if (obstacle.getBounds().right < 0) {
-                    groundObstacles.killAndHide(obstacle);
-                } else {
-                    obstacle.x -= 20;
-                }
-            })
-            // sx = 0;
-        }
-    }//END MOVEOBSTACLES
-    moveFloatObstacles(floatObstacles) {
-        if (sx === 16){
-            floatObstacles.getChildren().forEach(obstacle => {
-                if (obstacle.getBounds().right < 0) {
-                    floatObstacles.killAndHide(obstacle);
-                } else {
-                    obstacle.x -= 20;
-                }
-            })
+        console.log('sx: ' + sx)
+        if (sx === 800){
+            this.createGroundObstacles(groundObstacles);
             sx = 0;
         }
-    }//END MOVEFLOATOBSTACLES
-    createGroundObstacles(groundObstacles) {
-        var obstacleList = ['obstacle1', 'obstacle2', 'obstacle3', 'rock1', 'rock2', 'rock3', 'rock4', 'rock5', 'rock6'];
-        let obstacleIndex = Phaser.Math.RND.between(0, 8);
-        var chosenObstacle = obstacleList[obstacleIndex];
-        let scaleValue = Phaser.Math.RND.between(1, 4);
-        console.log('width: ' + game.config.width);
-        console.log('height: ' + game.config.height);
+
+        groundObstacles.getChildren().forEach(obstacle => {
+                if (obstacle.getBounds().right < 0) {
+                    console.log('working')
+                    //this.createGroundObstacles(groundObstacles);
+                    //groundObstacles.killAndHide(obstacle);
+                    groundObstacles.remove(obstacle, true, true);
+                    //sx = 0;
+                } else {
+                    obstacle.x -= 10;
+                }
+        })
         
-        //CORAL REEF SPAWN (obstacle 1, 2 ,3)
-        if (obstacleIndex <= 2){
-            //Smaller scaleValue for coral reefs because grow too big
-            let scaleValue = Phaser.Math.RND.between(1, 3);
-            let yPos = 2050 - (100*(scaleValue-1));
-            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
-            obstacle.setOrigin(0.5, 0.5);
-            obstacle.setSize(200, 160);
-            obstacle.setScale(scaleValue);
+    }//END MOVEOBSTACLES
+    moveFloatObstacles(floatObstacles) {
+        fx += 8;
+        if (fx === 864){
+            this.createFloatObstacles(floatObstacles);
+            fx = 0;
+        }
+        floatObstacles.getChildren().forEach(obstacle => {
+                if (obstacle.getBounds().right < 0) {
+                    floatObstacles.remove(obstacle, true, true);
+                } else {
+                    obstacle.x -= 10;
+                }
+            })
+        
+    }//END MOVEFLOATOBSTACLES
+    createGroundObstacles(groundObstacles){
+        //console.log('amount active= ' + groundObstacles.countActive(true))
+            var obstacleList = ['obstacle1', 'obstacle2', 'obstacle3', 'rock1', 'rock2', 'rock3', 'rock4', 'rock5', 'rock6'];
+            let obstacleIndex = Phaser.Math.RND.between(0, 8);
+            var chosenObstacle = obstacleList[obstacleIndex];
+            let scaleValue = Phaser.Math.RND.between(1, 4);
+            // console.log('width: ' + game.config.width);
+            // console.log('height: ' + game.config.height);
+            
+            //CORAL REEF SPAWN (obstacle 1, 2 ,3)
+            if (obstacleIndex <= 2){
+                //Smaller scaleValue for coral reefs because grow too big
+                let scaleValue = Phaser.Math.RND.between(1, 3);
+                let yPos = 2050 - (100*(scaleValue-1));
+                var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+                obstacle.setOrigin(0.5, 0.5);
+                obstacle.setSize(200, 160);
+                obstacle.setScale(scaleValue);
 
-        }
-        //TALL ROCK SPAWN (rock 2)
-        //DONE
-        else if (obstacleIndex === 4) {
-            //Every obstacle needs different eqn for positioning based on how much it was scaled:
-            let yPos = 2150 - (50*(scaleValue-1));
+            }
+            //TALL ROCK SPAWN (rock 2)
+            //DONE
+            else if (obstacleIndex === 4) {
+                //Every obstacle needs different eqn for positioning based on how much it was scaled:
+                let yPos = 2150 - (50*(scaleValue-1));
+                var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+                obstacle.setOrigin(0.5, 0.5);
+                obstacle.setSize(120, 100);
+                obstacle.setScale(scaleValue);
+            }
+            //TINYROCKSPAWN (rock 6)
+            //DONE
+            else if (obstacleIndex === 8) {
+                let yPos = 2150 - (10*(scaleValue-1));
+                var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+                obstacle.setOrigin(0.5, 0.5);
+                obstacle.setSize(50, 50);
+                obstacle.setScale(scaleValue);
+            }
 
-            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
-            obstacle.setOrigin(0.5, 0.5);
-            obstacle.setSize(120, 100);
-            obstacle.setScale(scaleValue);
-        }
-        //TINYROCKSPAWN (rock 6)
-        //DONE
-        else if (obstacleIndex === 8) {
-            let yPos = 2150 - (10*(scaleValue-1));
-            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
-            obstacle.setOrigin(0.5, 0.5);
-            obstacle.setSize(50, 50);
-            obstacle.setScale(scaleValue);
-        }
-
-        //REG ROCK SPAWN (rock 1, 3, 4, 5)
-        else {
-            let yPos = 2200 - (50*(scaleValue-1));
-            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
-            obstacle.setOrigin(0.5, 0.5);
-            obstacle.setSize(200, 100);
-            obstacle.setScale(scaleValue);
-        }
-        console.log(scaleValue)
+            //REG ROCK SPAWN (rock 1, 3, 4, 5)
+            else {
+                let yPos = 2200 - (50*(scaleValue-1));
+                var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+                obstacle.setOrigin(0.5, 0.5);
+                obstacle.setSize(200, 100);
+                obstacle.setScale(scaleValue);
+            }
     } //END CREATEGROUNDOBSTACLES
 
-    createFloatObstacles(floatObstacles) {
-        var obstacleList = ['boot', 'can', 'duck']
-        let obstacleIndex = Phaser.Math.RND.between(0, 2)
-        var chosenFloatObstacle = obstacleList[obstacleIndex]
-        //DUCK SPAWN HIGHER
-        if (obstacleIndex === 2) {
-            var floatObstacle = floatObstacles.create(game.config.width + 50, 300, chosenFloatObstacle)
-            floatObstacle.setOrigin(0.5, 0)
-            floatObstacle.setSize(100, 100)
-        }
-        //BOOT OR CAN SPAWN
-        else {
-            let floatObstacleHeight = Phaser.Math.RND.between(2000, 500)
-            var floatObstacle = floatObstacles.create(game.config.width + 50, floatObstacleHeight, chosenFloatObstacle)
-            floatObstacle.setOrigin(0.5, 0)
-            floatObstacle.setSize(100, 100)
-            .setScale(1.5)
-        }
-
+     createFloatObstacles(floatObstacles){
+            var obstacleList = ['boot', 'can', 'duck']
+            let obstacleIndex = Phaser.Math.RND.between(0, 2)
+            var chosenFloatObstacle = obstacleList[obstacleIndex]
+            //DUCK SPAWN HIGHER
+            if (obstacleIndex === 2) {
+                var floatObstacle = floatObstacles.create(game.config.width + 50, 300, chosenFloatObstacle)
+                floatObstacle.setOrigin(0.5, 0)
+                floatObstacle.setSize(100, 100)
+            }
+            //BOOT OR CAN SPAWN
+            else {
+                let floatObstacleHeight = Phaser.Math.RND.between(2000, 500)
+                var floatObstacle = floatObstacles.create(game.config.width + 50, floatObstacleHeight, chosenFloatObstacle)
+                floatObstacle.setOrigin(0.5, 0)
+                floatObstacle.setSize(100, 100)
+                .setScale(1.5)
+            }
     }//END CREATEFLOATOBSTACLES 
 //---END OBSTACLES---//
 
 //---POWERUPS---//
     movePowerUps(powerUps) {
+
+        //EDIT: ADDED GLOBAL TIMER VAR TO TIME THE CREATION OF POWERUPS/OBSTACLES/ETC 
+        powerUpTimer += 1
         //updates power up pos
+        if (powerUpTimer === 1000) {
+            this.createPowerUps(powerUps)
+            powerUpTimer = 0;
+        }
         powerUps.getChildren().forEach(powerUpChild => {
             if (powerUpChild.getBounds().right < 0) {
                 powerUps.kill(powerUpChild);
@@ -598,7 +621,7 @@ class GameScene extends Phaser.Scene {
             } 
             this.loadNextPowerUp()
         } else {
-            console.log('Hit ' + JSON.stringify(obstacle) + '!')
+            //console.log('Hit ' + JSON.stringify(obstacle) + '!')
             isDead = true;
         }
     } //END OBSTACLECOLLISION
@@ -621,6 +644,11 @@ class GameScene extends Phaser.Scene {
 
 //---CURRENCY---//
     moveCurrencies(currencies) {
+        currencyTimer += 1;
+        if (currencyTimer == 100) {
+            this.createCurrency(currencies);
+            currencyTimer = 0;
+        }
         currencies.getChildren().forEach(currencyChild => {
             if (currencyChild.getBounds().right < 0) {
                 currencies.kill(currencyChild);
@@ -634,7 +662,7 @@ class GameScene extends Phaser.Scene {
         //choose random value between river height and bottom of the screen
         let currencyHeight = Phaser.Math.RND.between(2000, 500)
         let randomValue = Phaser.Math.RND.between(1, 10)
-        console.log(randomValue)
+        //console.log(randomValue)
         var chosenCurrency;
         //60% highest probability -- pink shell
         if (randomValue > 1 && randomValue <= 6) {
@@ -648,7 +676,7 @@ class GameScene extends Phaser.Scene {
         else {
             chosenCurrency = 'shell_gold'
         }
-        console.log(chosenCurrency)
+        //(chosenCurrency)
         var currency = currencies.create(game.config.width + 50, currencyHeight, chosenCurrency)
         currency
         .setOrigin(0.5, 0)
