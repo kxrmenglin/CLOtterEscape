@@ -59,6 +59,7 @@ window.onload = function() {
     game.scene.add('StoryBoardScene4', storyboardScene4);
 
 }//END load listener
+let menuClick
 
 
 class StoryBoardScene1 extends Phaser.Scene {
@@ -70,10 +71,12 @@ class StoryBoardScene1 extends Phaser.Scene {
 
     preload() {
         this.load.image('scene1', 'assets/storyboard1.png')
+        this.load.audio('menuClick', ['assets/audio/menuClick.ogg'])
     }//END PRELOAD
 
     create() {
         //scene 1 stuff
+        menuClick = this.sound.add('menuClick', {loop: false})
         this.scene1 = this.add.sprite(1500, 550, 'scene1')
         .setOrigin(0.5)
         .setScale(1.5)
@@ -102,6 +105,7 @@ class StoryBoardScene1 extends Phaser.Scene {
         .setInteractive( {useHandCursor: true} )
         skip.on('pointerover', function(event) {
             skip.setColor('#000000');
+            menuClick.play()
         });
         skip.on('pointerout', function (pointer) {
             skip.setColor('#F7D060');
@@ -162,6 +166,7 @@ class StoryBoardScene2 extends Phaser.Scene {
         .setInteractive( {useHandCursor: true} )
         skip.on('pointerover', function(event) {
             skip.setColor('#000000');
+            menuClick.play()
         });
         skip.on('pointerout', function (pointer) {
             skip.setColor('#F7D060');
@@ -230,6 +235,7 @@ class StoryBoardScene3 extends Phaser.Scene {
         .setInteractive( {useHandCursor: true} )
         skip.on('pointerover', function(event) {
             skip.setColor('#000000');
+            menuClick.play()
         });
         skip.on('pointerout', function (pointer) {
             skip.setColor('#F7D060');
@@ -293,6 +299,7 @@ class StoryBoardScene4 extends Phaser.Scene {
         .setInteractive( {useHandCursor: true} )
         skip.on('pointerover', function(event) {
             skip.setColor('#000000');
+            menuClick.play()
         });
         skip.on('pointerout', function (pointer) {
             skip.setColor('#F7D060');
@@ -331,7 +338,6 @@ class StoryBoardScene4 extends Phaser.Scene {
 let play,
 home,
 titleMusic,
-menuClick,
 titleMusicPlaying = false
 class HowToPlayScene extends Phaser.Scene {
     constructor() {
@@ -607,6 +613,7 @@ class DeathScene extends Phaser.Scene {
         .setDepth(1)
         question.on('pointerover', function(event) {
             question.setTint(808080);
+            menuClick.play()
         });
         question.on('pointerout', function (pointer) {
             question.clearTint();
