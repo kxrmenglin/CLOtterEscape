@@ -15,6 +15,7 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
 window.onload = function() {
     let titleScene = new TitleScene();
     let gameScene = new GameScene();
+    let creditsScene = new CreditsScene();
     let pauseScene = new PauseScene();
     let deathScene = new DeathScene();
     let preGameScene = new PreGameScene();
@@ -25,7 +26,7 @@ window.onload = function() {
         width: 3000,
         height: 1452,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        scene: [TitleScene, GameScene, PauseScene, DeathScene, PreGameScene, HowToPlayScene], //made it a scene array to switch between scenes
+        scene: [TitleScene, GameScene, PauseScene, DeathScene, PreGameScene, HowToPlayScene, CreditsScene], //made it a scene array to switch between scenes
         physics: {
             default: "arcade",
             arcade: { debug:true }
@@ -54,7 +55,10 @@ window.onload = function() {
 }//END load listener
 
 let play,
-home
+home,
+titleMusic,
+menuClick,
+titleMusicPlaying = false
 class HowToPlayScene extends Phaser.Scene {
     constructor() {
         super({key: 'HowToPlayScene'});
@@ -69,10 +73,11 @@ class HowToPlayScene extends Phaser.Scene {
         this.load.image('bubble', 'assets/bubble2.png')
         this.load.image('titlebackground', 'assets/titlebg.png')
         this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
+        
     }//END PRELOAD
 
     create() {
-
+        
         // this.background = this.add.sprite(1500, 100, 'background')
         // .setScale(8)
         this.background = this.add.tileSprite(1500, 490, 0, 0, 'titlebackground').setScale(2)
@@ -118,6 +123,7 @@ class HowToPlayScene extends Phaser.Scene {
         //color the button when cursor is hovered over
         play.on('pointerover', function(event) {
             play.setColor('#F5C12D');
+            menuClick.play()
         });
         play.on('pointerout', function (pointer) {
             play.setColor('#FFFFFF');
@@ -133,6 +139,7 @@ class HowToPlayScene extends Phaser.Scene {
         //color the button when cursor is hovered over
         home.on('pointerover', function(event) {
             home.setColor('#F5C12D');
+            menuClick.play()
         });
         home.on('pointerout', function (pointer) {
             home.setColor('#FFFFFF');
@@ -266,6 +273,7 @@ class DeathScene extends Phaser.Scene {
         //color the button when cursor is hovered over
         yes.on('pointerover', function(event) {
             yes.setColor('#FFFFFF');
+            menuClick.play()
         });
         yes.on('pointerout', function (pointer) {
             // yes.clearTint();
@@ -281,6 +289,7 @@ class DeathScene extends Phaser.Scene {
         //color the button when cursor is hovered over
         no.on('pointerover', function(event) {
             no.setColor('#FFFFFF');
+            menuClick.play()
         });
         no.on('pointerout', function (pointer) {
             no.setColor('00000');
@@ -288,7 +297,7 @@ class DeathScene extends Phaser.Scene {
         no.on('pointerdown', function(pointer) { 
             game.scene.stop('GameScene');
             game.scene.stop('DeathScene');
-            game.scene.start('TitleScene');
+            game.scene.start('CreditsScene');
         });
     }//END CREATE
 
@@ -337,6 +346,7 @@ class PauseScene extends Phaser.Scene {
         //color the button when cursor is hovered over
         resume.on('pointerover', function(event) {
             resume.setTint(808080);
+            menuClick.play()
         });
         resume.on('pointerout', function (pointer) {
             resume.clearTint();
@@ -344,12 +354,15 @@ class PauseScene extends Phaser.Scene {
         resume.on('pointerdown', function(pointer) { //
             game.scene.stop('PauseScene');
             game.scene.resume('GameScene');
+            titleMusic.play()
+            titleMusicPlaying = true
         });
 
 
         //color the button when cursor is hovered over
         end.on('pointerover', function(event) {
             end.setTint(808080);
+            menuClick.play()
         });
         end.on('pointerout', function (pointer) {
             end.clearTint();
@@ -370,7 +383,6 @@ class TitleScene extends Phaser.Scene {
         super({key: 'TitleScene'});
     }//END CONSTRUCTOR
     preload() {
-
         this.load.image('background', 'assets/background_V1.png');
         this.load.image('title', 'assets/logov2.png');
         this.load.image('playButton', 'assets/playButton.png');
@@ -380,8 +392,18 @@ class TitleScene extends Phaser.Scene {
         this.load.image('bubble', 'assets/bubble2.png')
         this.load.image('border', 'assets/borderv2.png')
         this.load.image('question', 'assets/otterescape_questionmark.png'); //for how to play scene
+        this.load.audio('titleMusic', ['assets/audio/titleMusic.ogg'])
+        this.load.audio('menuClick', ['assets/audio/menuClick.ogg'])
     }//END PRELOAD
     create() {
+
+        titleMusic = this.sound.add('titleMusic', {loop: true})
+        if(!titleMusicPlaying) {
+            titleMusic.play()
+            titleMusicPlaying = true
+        }
+
+        menuClick = this.sound.add('menuClick', {loop: false})
         // var background = this.add.image(1500,490, 'titlebackground').setScale(2)
         this.background = this.add.tileSprite(1500, 490, 0, 0, 'titlebackground').setScale(2)
         // border = this.add.image(game.config.width / 2, game.config.height / 2,'border')
@@ -412,6 +434,7 @@ class TitleScene extends Phaser.Scene {
         .setDepth(1)
         question.on('pointerover', function(event) {
             question.setTint(808080);
+            menuClick.play()
         });
         question.on('pointerout', function (pointer) {
             question.clearTint();
@@ -426,6 +449,7 @@ class TitleScene extends Phaser.Scene {
         //color the button when cursor is hovered over
         playButton.on('pointerover', function(event) {
             playButton.setTint(808080);
+            menuClick.play()
         });
         playButton.on('pointerout', function (pointer) {
             playButton.clearTint();
@@ -493,6 +517,8 @@ class TitleScene extends Phaser.Scene {
     }
 }//END TITLESCENE
 
+let bubbleEffect
+
 class PreGameScene extends Phaser.Scene {
     constructor() {
         super({key: 'PreGameScene'});
@@ -501,9 +527,13 @@ class PreGameScene extends Phaser.Scene {
     preload() {
         this.load.image('bubble', 'assets/bubble2.png')
         this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
+        this.load.audio('bubbleEffect', ['assets/audio/bubbleEffect.ogg'])
     }//END PRELOAD
 
     create() {
+        titleMusic.stop()
+        bubbleEffect = this.sound.add('bubbleEffect', {loop: true})
+        bubbleEffect.play()
         game.scene.bringToTop('PreGameScene')
         // bubbles = this.physics.add.group()
        this.fakeollie1 = this.physics.add.sprite(-150, game.config.height * .75, 'ollie')
@@ -556,6 +586,7 @@ class PreGameScene extends Phaser.Scene {
         await delay(1200);
         this.fakeollie1.setVelocityX(1500)
         await delay(2800);
+        bubbleEffect.stop()
         this.switchGames()
     }
     switchGames = async () => {
@@ -570,6 +601,15 @@ class PreGameScene extends Phaser.Scene {
 //DECLARATIONS
 let 
     //GAME ELEMNTS 
+        //AUDIO
+        bubbleSound,
+        coin1,
+        coin2,
+        death,
+        death2,
+        destroyobstacle,
+        losepowerup,
+        pearlsound,
         //CONSTANTS
         border,
         background,
@@ -635,8 +675,31 @@ class GameScene extends Phaser.Scene {
         this.load.image('shell_pink', 'assets/shell_pink.png')
         this.load.image('shell_orange', 'assets/shell_orange.png')
         this.load.image('shell_gold', 'assets/shell_gold.png')
+        //AUDIO
+        this.load.audio('bubblesound',['assets/audio/bubblepowerup.ogg'])
+        this.load.audio('coin1',['assets/audio/coin1.ogg'])
+        this.load.audio('coin2',['assets/audio/coin2.ogg'])
+        this.load.audio('death',['assets/audio/death.ogg'])
+        this.load.audio('death2',['assets/audio/death2.ogg'])
+        this.load.audio('destroyobstacle',['assets/audio/destroyobstacle.ogg'])
+        this.load.audio('losepowerup',['assets/audio/lose powerup.ogg'])
+        this.load.audio('pearlsound',['assets/audio/pearl.ogg'])
+        
     }//END PRELOAD
     create() {
+        //AUDIO
+        bubbleSound = this.sound.add('bubblesound', {loop: false})
+        coin1 = this.sound.add('coin1', {loop: false})
+        coin2 = this.sound.add('coin2', {loop: false})
+        death = this.sound.add('death', {loop: false})
+        death2 = this.sound.add('death2', {loop: false})
+        destroyobstacle = this.sound.add('destroyobstacle', {loop: false})
+        losepowerup = this.sound.add('losepowerup', {loop: false})
+        pearlsound = this.sound.add('pearlsound', {loop: false})
+        titleMusic.play()
+        titleMusic.volume = 0.2
+        
+
         //WORLD
         this.physics.world.setBounds(0, 160, game.config.width, game.config.height * 1.35)
         //BACKGROUND
@@ -721,6 +784,8 @@ class GameScene extends Phaser.Scene {
         //* need to make sure ollie resumes from the same spot, not the starting point, and shell count stays the same
         this.input.keyboard.on('keydown-ESC', function(pointer) {
             game.scene.pause('GameScene');
+            titleMusic.pause()
+            titleMusicPlaying = false
             game.scene.start('PauseScene');
         })
         //WATER LEVEL
@@ -731,6 +796,8 @@ class GameScene extends Phaser.Scene {
             //freezes game scene background
             //hide all obstacles/ stop them
             //put in ollie hitting obstacle animation
+            titleMusic.pause()
+            titleMusicPlaying = false
             this.scene.pause();
             game.scene.start('DeathScene');
             isDead = false; //resets the play
@@ -811,7 +878,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
                     ollie.setAngularVelocity(currentAngularVelocity+100)
                     currentVelocity = 5
                 }
-    
+
                 if(currentVelocity < 100) {
                     (currentAngularVelocity + 5 < 50) ? ollie.setAngularVelocity(currentAngularVelocity+10) : ollie.setAngularVelocity(0)
                     ollie.setVelocityY(currentVelocity+20)
@@ -910,6 +977,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(200, 200);
             obstacle.setScale(2);
+            obstacle.setImmovable(true)
             obstacle.body
             .setSize(150,250,true)//width,height, center -- boolean
             .setOffset(20,35) //x and y offset
@@ -920,6 +988,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(80, 100);
             obstacle.setScale(3);
+            obstacle.setImmovable(true)
             obstacle.body
             .setCircle(35, 3, 0)//radius,x offset, y offset 
         }
@@ -929,6 +998,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(50, 50);
             obstacle.setScale(2);
+            obstacle.setImmovable(true)
             obstacle.body
             .setCircle(20, 5, 0)//radius,x offset, y offset 
         }
@@ -938,6 +1008,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(200, 100);
             obstacle.setScale(2);
+            obstacle.setImmovable(true)
             switch (obstacleIndex) {
                 case 3:
                     obstacle.body
@@ -1070,11 +1141,14 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
             } 
             ollie.anims.stop('pearl');
             ollie.anims.play('swim');
+            losepowerup.play()
+            destroyobstacle.play()
             ollie.body.setSize(120,30,true).setOffset(20,35)
             this.loadNextPowerUp()
         } else {
             console.log('Hit ' + JSON.stringify(obstacle) + '!')
             ollie.anims.play('death');
+            death.play()
             ollie.body.velocity.x = -564;
             setTimeout(() => {
                 isDead = true;
@@ -1088,6 +1162,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
                     ollie.anims.stop('swim');
                     ollie.body.setSize(120,30,true).setOffset(50,70)
                     ollie.anims.play('powerUp');
+                    pearlsound.play()
                     setTimeout(() => {
                         ollie.anims.play('pearl');
                         ollie.body.setSize(120,30,true).setOffset(40,80)
@@ -1097,6 +1172,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
                     ollie.anims.stop('swim');
                     ollie.body.setSize(120,30,true).setOffset(50,70)
                     ollie.anims.play('powerUp');
+                    bubbleSound.play()
                     setTimeout(() => {
                         ollie.anims.play('swim');
                         ollie.body.setSize(120,30,true).setOffset(20,35)
@@ -1157,6 +1233,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
     collectCurrency(ollie, currency) {
         var maxShells = '00000'
         currency.destroy();
+        coin1.play()
         console.log(currency.texture.key)
         switch(currency.texture.key) {
             case 'shell_pink':
@@ -1177,6 +1254,40 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
 //---END CURRENCY---//
 
 } //END GAMESCENE
+
+let yollie
+
+class CreditsScene extends Phaser.Scene {
+    constructor() {
+        super({key: 'CreditsScene'});
+    }//END CONSTRUCTOR
+    preload() {
+        this.load.image('credits', 'assets/otterescape_endingcredits .png' )
+        this.load.image('yeti', 'assets/yeti.png')
+        
+    }//END PRELOAD
+    create() {
+        this.add.image(game.config.width / 2, game.config.height / 2, 'credits')
+    }//END CREATE
+
+    update() {
+        this.yollie()
+    }
+
+    yollie = async() => {
+        var spawnChance = Phaser.Math.RND.between(0,1000)
+        var randomHeight = Phaser.Math.RND.between(0, 1400)
+        if(spawnChance < 2) {
+            yollie = this.physics.add.sprite(0, randomHeight, 'yeti')
+            console.log("yollie  @ " + randomHeight)
+            yollie.setScale(0.2).setVelocityX(2000)
+        } else {
+            
+        }
+        await delay(2000)
+    }
+}//END DEATHSCENE
+
 function resize() { 
     let canvas = document.querySelector("canvas")
     let windowWidth = window.innerWidth
