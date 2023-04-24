@@ -1639,7 +1639,8 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
 
 } //END GAMESCENE
 
-let yollie
+let yollie,
+wee
 
 class CreditsScene extends Phaser.Scene {
     constructor() {
@@ -1648,9 +1649,11 @@ class CreditsScene extends Phaser.Scene {
     preload() {
         this.load.image('credits', 'assets/otterescape_endingcredits .png' )
         this.load.image('yeti', 'assets/yeti.png')
+        this.load.audio('wee', ['assets/audio/wee.wav'])
         
     }//END PRELOAD
     create() {
+        wee = this.sound.add('wee', {loop: false})
         this.add.image(game.config.width / 2, game.config.height / 2, 'credits')
     }//END CREATE
 
@@ -1662,8 +1665,10 @@ class CreditsScene extends Phaser.Scene {
         var spawnChance = Phaser.Math.RND.between(0,1000)
         var randomHeight = Phaser.Math.RND.between(0, 1400)
         if(spawnChance < 2) {
+            wee.play();
             yollie = this.physics.add.sprite(0, randomHeight, 'yeti')
             console.log("yollie  @ " + randomHeight)
+            
             yollie.setScale(0.2).setVelocityX(2000)
         } else {
             
