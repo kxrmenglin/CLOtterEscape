@@ -963,8 +963,11 @@ let
         onDeck,  
     //OBSTACLES
         sx = 0,
+        fx = 0,
     //POWERUPS --- 0 = nothing, 1 = puffer, 2 = bubble
         currentPowerUp,
+        currencyTimer = 0,
+        powerUpTimer = 0,
         loadedPowerUp = 0,
         powerUpsQueue = []
 //END DECLARATIONS
@@ -1093,18 +1096,20 @@ class GameScene extends Phaser.Scene {
         shellCountText = this.add.text(game.config.width * 0.93, game.config.height * 0.03,'00000', {fontFamily: 'Retro Gaming', fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0).setDepth(2);
         //OBSTACLES
         this.groundObstacles = this.physics.add.group();
-        setInterval(() => this.createGroundObstacles(this.groundObstacles), Phaser.Math.RND.between(3000, 5000));
+        this.createGroundObstacles(this.groundObstacles);
+        //setInterval(() => this.createGroundObstacles(this.groundObstacles), Phaser.Math.RND.between(1000, 3000));
         this.physics.add.collider(ollie, this.groundObstacles, this.obstacleCollision.bind(this))
         this.floatObstacles = this.physics.add.group();
-        setInterval(() =>this.createFloatObstacles(this.floatObstacles), Phaser.Math.RND.between(5000, 8000))
+        //setInterval(() =>this.createFloatObstacles(this.floatObstacles), Phaser.Math.RND.between(5000, 8000))
+        this.createFloatObstacles(this.floatObstacles);
         this.physics.add.collider(ollie, this.floatObstacles, this.obstacleCollision.bind(this))
         //POWERUPS
         this.powerUps = this.physics.add.group();
-        setInterval(() => this.createPowerUps(this.powerUps), 10000);
+        //setInterval(() => this.createPowerUps(this.powerUps), 10000);
         this.physics.add.collider(ollie, this.powerUps, this.collectPowerUp.bind(this))
         //CURRENCY
         this.currencies = this.physics.add.group();
-        setInterval(() => this.createCurrency(this.currencies), 2000);
+        //setInterval(() => this.createCurrency(this.currencies), 2000);
         this.physics.add.collider(ollie, this.currencies, this.collectCurrency)
         //INPUT
         cursors = this.input.keyboard.createCursorKeys();
@@ -1272,70 +1277,91 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
 //---OBSTACLES---//
     moveObstacles(groundObstacles) {
         sx += 8; //movement of the obstacles
-        if (sx === 16){
-            groundObstacles.getChildren().forEach(obstacle => {
-                if (obstacle.getBounds().right < 0) {
-                    groundObstacles.killAndHide(obstacle);
-                } else {
-                    obstacle.x -= 20;
-                }
-            })
-            // sx = 0;
-        }
-    }//END MOVEOBSTACLES
-    moveFloatObstacles(floatObstacles) {
-        if (sx === 16){
-            floatObstacles.getChildren().forEach(obstacle => {
-                if (obstacle.getBounds().right < 0) {
-                    floatObstacles.killAndHide(obstacle);
-                } else {
-                    obstacle.x -= 20;
-                }
-            })
+        console.log('sx: ' + sx)
+        if (sx === 800){
+            this.createGroundObstacles(groundObstacles);
             sx = 0;
         }
+
+        groundObstacles.getChildren().forEach(obstacle => {
+                if (obstacle.getBounds().right < 0) {
+                    console.log('working')
+                    //this.createGroundObstacles(groundObstacles);
+                    //groundObstacles.killAndHide(obstacle);
+                    groundObstacles.remove(obstacle, true, true);
+                    //sx = 0;
+                } else {
+                    obstacle.x -= 10;
+                }
+        })
+        
+    }//END MOVEOBSTACLES
+    moveFloatObstacles(floatObstacles) {
+        fx += 8;
+        if (fx === 864){
+            this.createFloatObstacles(floatObstacles);
+            fx = 0;
+        }
+        floatObstacles.getChildren().forEach(obstacle => {
+                if (obstacle.getBounds().right < 0) {
+                    floatObstacles.remove(obstacle, true, true);
+                } else {
+                    obstacle.x -= 10;
+                }
+            })
+        
     }//END MOVEFLOATOBSTACLES
     createGroundObstacles(groundObstacles) {
         var obstacleList = ['obstacle1', 'obstacle2', 'obstacle3', 'rock1', 'rock2', 'rock3', 'rock4', 'rock5', 'rock6'];
         let obstacleIndex = Phaser.Math.RND.between(0, 8);
         var chosenObstacle = obstacleList[obstacleIndex];
+        let scaleValue = Phaser.Math.RND.between(1, 4);
+
         //CORAL REEF SPAWN (obstacle 1, 2 ,3)
         if (obstacleIndex <= 2){
-            var obstacle = groundObstacles.create(game.config.width + 50, 1750, chosenObstacle);
-            obstacle.setOrigin(0.5, 0);
+            let scaleValue = Phaser.Math.RND.between(1, 3);
+            let yPos = 2050 - (100*(scaleValue-1));
+            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+            obstacle.setOrigin(0.5, 0.5);
             obstacle.setSize(200, 200);
-            obstacle.setScale(2);
+            //obstacle.setScale(2);
             obstacle.setImmovable(true)
+            obstacle.setScale(scaleValue)
             obstacle.body
             .setSize(150,250,true)//width,height, center -- boolean
             .setOffset(20,35) //x and y offset
         }
         //TALL ROCK SPAWN (rock 2)
         else if (obstacleIndex === 4) {
-            var obstacle = groundObstacles.create(game.config.width + 50, 1990, chosenObstacle);
-            obstacle.setOrigin(0.5, 0);
+            let yPos = 2150 - (50*(scaleValue-1));
+            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+            obstacle.setOrigin(0.5, 0.5);
             obstacle.setSize(80, 100);
-            obstacle.setScale(3);
+            //obstacle.setScale(3);
             obstacle.setImmovable(true)
+            obstacle.setScale(scaleValue)
             obstacle.body
             .setCircle(35, 3, 0)//radius,x offset, y offset 
         }
         //TINYROCKSPAWN (rock 6)
         else if (obstacleIndex === 8) {
-            var obstacle = groundObstacles.create(game.config.width + 50, 2095, chosenObstacle);
-            obstacle.setOrigin(0.5, 0);
+            let yPos = 2150 - (10*(scaleValue-1));
+            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+            obstacle.setOrigin(0.5, 0.5);
             obstacle.setSize(50, 50);
-            obstacle.setScale(2);
+            //obstacle.setScale(2);
             obstacle.setImmovable(true)
+            obstacle.setScale(scaleValue)
             obstacle.body
             .setCircle(20, 5, 0)//radius,x offset, y offset 
         }
         //REG ROCK SPAWN (rock 1, 3, 4, 5)
         else {
-            var obstacle = groundObstacles.create(game.config.width + 50, 2065, chosenObstacle);
-            obstacle.setOrigin(0.5, 0);
+            let yPos = 2200 - (50*(scaleValue-1));
+            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+            obstacle.setOrigin(0.5, 0.5);
             obstacle.setSize(200, 100);
-            obstacle.setScale(2);
+            obstacle.setScale(scaleValue)
             obstacle.setImmovable(true)
             switch (obstacleIndex) {
                 case 3:
@@ -1393,7 +1419,14 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
 
 //---POWERUPS---//
     movePowerUps(powerUps) {
+
+        //EDIT: ADDED GLOBAL TIMER VAR TO TIME THE CREATION OF POWERUPS/OBSTACLES/ETC 
+        powerUpTimer += 1
         //updates power up pos
+        if (powerUpTimer === 1000) {
+            this.createPowerUps(powerUps)
+            powerUpTimer = 0;
+        }
         powerUps.getChildren().forEach(powerUpChild => {
             if (powerUpChild.getBounds().right < 0) {
                 powerUps.kill(powerUpChild);
@@ -1526,6 +1559,11 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
 
 //---CURRENCY---//
     moveCurrencies(currencies) {
+        currencyTimer += 1;
+        if (currencyTimer == 100) {
+            this.createCurrency(currencies);
+            currencyTimer = 0;
+        }
         currencies.getChildren().forEach(currencyChild => {
             if (currencyChild.getBounds().right < 0) {
                 currencies.kill(currencyChild);
@@ -1539,7 +1577,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
         //choose random value between river height and bottom of the screen
         let currencyHeight = Phaser.Math.RND.between(2000, 500)
         let randomValue = Phaser.Math.RND.between(1, 10)
-        console.log(randomValue)
+        //console.log(randomValue)
         var chosenCurrency;
         //60% highest probability -- pink shell
         if (randomValue > 1 && randomValue <= 6) {
@@ -1553,7 +1591,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
         else {
             chosenCurrency = 'shell_gold'
         }
-        console.log(chosenCurrency)
+        //(chosenCurrency)
         var currency = currencies.create(game.config.width + 50, currencyHeight, chosenCurrency)
         console.log(currency.body.halfHeight + '+' + currency.body.halfWidth)
         currency.body.setSize(20,23,true).setOffset(0,3)
