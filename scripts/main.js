@@ -348,7 +348,7 @@ class HowToPlayScene extends Phaser.Scene {
         this.load.image('bubble', 'assets/bubble2.png')
         this.load.image('titlebackground', 'assets/titlebg.png')
         this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
-        this.load.image('updatedbubble', 'assets/updatedbubble.png')
+        this.load.image('bubble', 'assets/bubble.png')
         this.load.image('pearl', 'assets/otterescape_pearl_withsparkles.png')
         this.load.image('arrows', 'assets/arrows-small.png')
         this.load.image('howtoplay', 'assets/howtoplay.png')
@@ -1419,9 +1419,8 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
     }//END CHECK FOR POWERUPS
     createPowerUps(powerUps) {
         var powerUpList = ['rockpowerup', 'bubble']
-        let powerUpIndex = Phaser.Math.RND.between(0, 1);
-        var chosenPowerUp = powerUpList[powerUpIndex];
-        
+        let powerUpIndex = Phaser.Math.RND.between(0,1)
+        var chosenPowerUp = powerUpList[powerUpIndex]
         let powerUpHeight = Phaser.Math.RND.between(2000, 500)
         var powerUp = powerUps.create(game.config.width * 0.97, powerUpHeight, chosenPowerUp);
 
@@ -1435,9 +1434,9 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
                 break;
             case 'rockpowerup':
                 powerUp.name = 'rockpowerup'
-                powerUp.body.setSize(19,15,true).setOffset(3,8)
+                powerUp.body.setCircle(36,0,11)
                 powerUp
-                .setScale(3)
+                .setScale(0.8)
                 .setImmovable(false)
                 .setCollideWorldBounds(false)
                 break;
@@ -1461,7 +1460,10 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
     obstacleCollision(ollie, obstacle) {
         if(powerUpsQueue.length > 0) {
             obstacle.destroy()
-            currentPowerUp.destroy()
+            console.log(currentPowerUp)
+            if(currentPowerUp) {
+                currentPowerUp.destroy()
+            }
             powerUpsQueue.shift()
             if(powerUpsQueue.length === 1) {
                 onDeck.destroy() 
@@ -1511,7 +1513,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
         } else if (powerUpsQueue.length === 2 && !onDeck) {
             var onDeckPowerUp = (powerUpsQueue[1] === 1) ? 'rockpowerup' : 'bubble'
             if(onDeckPowerUp === 'rockpowerup') {
-                onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(2).setDepth(1);
+                onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(0.5).setDepth(1);
             } else {
                 onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(0.4).setDepth(1.2);
             }
