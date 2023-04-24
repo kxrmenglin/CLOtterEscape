@@ -1035,7 +1035,7 @@ class GameScene extends Phaser.Scene {
         losepowerup = this.sound.add('losepowerup', {loop: false})
         pearlsound = this.sound.add('pearlsound', {loop: false})
         titleMusic.play()
-        titleMusic.volume = 0.2
+        titleMusic.volume = 0.5
         
 
         //WORLD
