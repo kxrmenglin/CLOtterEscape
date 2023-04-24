@@ -15,17 +15,22 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
 window.onload = function() {
     let titleScene = new TitleScene();
     let gameScene = new GameScene();
+    let creditsScene = new CreditsScene();
     let pauseScene = new PauseScene();
     let deathScene = new DeathScene();
     let preGameScene = new PreGameScene();
     let howToPlayScene = new HowToPlayScene();
+    let storyboardScene1 = new StoryBoardScene1();
+    let storyboardScene2 = new StoryBoardScene2();
+    let storyboardScene3 = new StoryBoardScene3();
+    let storyboardScene4 = new StoryBoardScene4();
     // object containing configuration options
     config = {
         type: Phaser.AUTO,
         width: 3000,
         height: 1452,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        scene: [TitleScene, GameScene, PauseScene, DeathScene, PreGameScene, HowToPlayScene], //made it a scene array to switch between scenes
+        scene: [StoryBoardScene1, StoryBoardScene2, StoryBoardScene3, StoryBoardScene4, TitleScene, GameScene, PauseScene, DeathScene, PreGameScene, HowToPlayScene, CreditsScene], //made it a scene array to switch between scenes
         physics: {
             default: "arcade",
             arcade: { debug:false }
@@ -37,13 +42,10 @@ window.onload = function() {
     window.addEventListener("resize", resize, false);
 
     game.scene.add('TitleScene', titleScene);
-    // game.scene.start('TitleScene');
 
     game.scene.add('GameScene', gameScene);
-    // game.scene.start('GameScene');
 
     game.scene.add('PauseScene', pauseScene);
-    // game.scene.start('PauseScene');
 
     game.scene.add('DeathScene', deathScene);
 
@@ -51,37 +53,317 @@ window.onload = function() {
 
     game.scene.add('HowToPlayScene', howToPlayScene);
 
+    game.scene.add('StoryBoardScene1', storyboardScene1);
+    game.scene.add('StoryBoardScene2', storyboardScene2);
+    game.scene.add('StoryBoardScene3', storyboardScene3);
+    game.scene.add('StoryBoardScene4', storyboardScene4);
+
 }//END load listener
 
+
+class StoryBoardScene1 extends Phaser.Scene {
+    timedEvent;
+
+    constructor() {
+        super({key: 'StoryBoardScene1'});
+    }//END CONSTRUCTOR
+
+    preload() {
+        this.load.image('scene1', 'assets/storyboard1.png')
+    }//END PRELOAD
+
+    create() {
+        //scene 1 stuff
+        this.scene1 = this.add.sprite(1500, 550, 'scene1')
+        .setOrigin(0.5)
+        .setScale(1.5)
+
+        // this.add.text(128, 128, 'This is a test using customfont.ttf instead of retro gaming.ttf', {
+        //     fontFamily: 'CustomFont',
+        //     fontSize: '80px'
+        // });
+
+        //text
+        /*Once upon a time, there was an otter named Ollie. 
+        Ollie and his family spent every day together, sharing stories 
+        and meals as they enjoyed their beautiful, underwater home. */
+
+
+        this.text1 = this.add.text(game.config.width/2, game.config.height/1.19, 'Once upon a time, there was an otter named Ollie.', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setStroke('#000000',10);
+
+        this.text2 = this.add.text(game.config.width/2, game.config.height/1.12, 'Ollie and his family spent every day together, sharing stories', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setStroke('#000000',10);
+
+        this.text3 = this.add.text(game.config.width/2, game.config.height/1.06, 'and meals as they enjoyed their beautiful, underwater home.', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setStroke('#000000',10);
+
+        //skippable feature
+        var skip = this.add.text(game.config.width/1.03, game.config.height/1.06, '>>', {fontFamily: 'CustomFont', fontSize: '90px', align: 'center', color: '#F7D060'})
+        .setOrigin(0.5)
+        .setDepth(1)
+        .setInteractive( {useHandCursor: true} )
+        skip.on('pointerover', function(event) {
+            skip.setColor('#000000');
+        });
+        skip.on('pointerout', function (pointer) {
+            skip.setColor('#F7D060');
+        });
+        skip.on('pointerdown', function(pointer) { 
+            // this.swtichStory();
+            game.scene.start('StoryBoardScene2')
+            game.scene.stop('StoryBoardScene1')
+
+        }, this);
+
+        //skips automatically after 10 seconds
+        this.timedEvent = this.time.delayedCall(10000, this.onEvent, [], this);
+
+    }//END CREATE
+    onEvent() {
+        game.scene.start('StoryBoardScene2')
+        game.scene.stop('StoryBoardScene1')
+    }//END ONEVENT
+}//END STORYBOARDSCENE1
+
+class StoryBoardScene2 extends Phaser.Scene {
+    constructor() {
+        super({key: 'StoryBoardScene2'});
+    }//END CONSTRUCTOR
+
+    preload() {
+        this.load.image('scene2', 'assets/storyboard4.png') //placeholder
+
+    }//END PRELOAD
+
+    create() {
+        //scene 2 stuff
+        this.scene2 = this.add.sprite(1500, 790, 'scene2')
+        .setOrigin(0.5)
+        .setScale(2)
+
+        //text
+        /* But one fateful day, two evil humans went on a mission to steal local 
+        marine life. In a chaotic hurry, every animal in the ocean began to flee. 
+        Everyone was safe, except for one, lone otter: Ollie. */
+        this.text1 = this.add.text(game.config.width/2, game.config.height/1.2, 'But one fateful day, two evil humans went on a mission to steal local', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setStroke('#000000',10);
+
+        this.text2 = this.add.text(game.config.width/2, game.config.height/1.13, 'marine life. In a chaotic hurry, every animal in the ocean began to flee.', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setStroke('#000000',10);
+
+        this.text3 = this.add.text(game.config.width/2, game.config.height/1.07, 'Everyone was safe, except for one, lone otter: Ollie.', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setStroke('#000000',10);
+
+        //skippable feature
+        var skip = this.add.text(game.config.width/1.03, game.config.height/1.06, '>>', {fontFamily: 'CustomFont', fontSize: '90px', align: 'center', color: '#F7D060'})
+        .setOrigin(0.5)
+        .setDepth(1)
+        .setInteractive( {useHandCursor: true} )
+        skip.on('pointerover', function(event) {
+            skip.setColor('#000000');
+        });
+        skip.on('pointerout', function (pointer) {
+            skip.setColor('#F7D060');
+        });
+        skip.on('pointerdown', function(pointer) { 
+            // this.swtichStory();
+            game.scene.start('StoryBoardScene3')
+            game.scene.stop('StoryBoardScene2')
+
+        }, this);
+
+        //skips automatically after 10 seconds
+        this.timedEvent = this.time.delayedCall(10000, this.onEvent, [], this);
+
+    }//END CREATE
+    onEvent() {
+        game.scene.start('StoryBoardScene3')
+        game.scene.stop('StoryBoardScene2')
+    }//END ONEVENT
+}//END STORYBOARDSCENE2
+
+class StoryBoardScene3 extends Phaser.Scene {
+    constructor() {
+        super({key: 'StoryBoardScene3'});
+    }//END CONSTRUCTOR
+
+    preload() {
+        this.load.image('scene3', 'assets/storyboard3.png')
+
+    }//END PRELOAD
+
+    create() {
+        //scene 3 stuff
+        this.scene3 = this.add.sprite(1500, 700, 'scene3')
+        .setOrigin(0.5)
+        .setScale(2.5)
+
+        //text
+        /*
+        Ollie was captured and thrown in a cage, all while listening to haunting 
+        whispers of being sold or killed. Ollie couldn’t believe he was separated 
+        from his beloved family, crying for several nights in a row. With no food 
+        or resources, Ollie decided he had to find his way out.
+         */
+        this.text1 = this.add.text(game.config.width/2, game.config.height/1.28, 'Ollie was captured and thrown in a cage, all while listening to haunting', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setStroke('#000000',10);
+
+        this.text2 = this.add.text(game.config.width/2, game.config.height/1.2, 'whispers of being sold or killed. Ollie couldn’t believe he was separated', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setStroke('#000000',10);
+
+        this.text3 = this.add.text(game.config.width/2, game.config.height/1.12, 'from his beloved family, crying for several nights in a row. With no food', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setStroke('#000000',10);
+
+        this.text4 = this.add.text(game.config.width/2, game.config.height/1.055, 'or resources, Ollie decided he had to find his way out.', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setStroke('#000000',10);
+
+
+        //skippable feature
+        var skip = this.add.text(game.config.width/1.03, game.config.height/1.06, '>>', {fontFamily: 'CustomFont', fontSize: '90px', align: 'center', color: '#F7D060'})
+        .setOrigin(0.5)
+        .setDepth(1)
+        .setInteractive( {useHandCursor: true} )
+        skip.on('pointerover', function(event) {
+            skip.setColor('#000000');
+        });
+        skip.on('pointerout', function (pointer) {
+            skip.setColor('#F7D060');
+        });
+        skip.on('pointerdown', function(pointer) { 
+            // this.swtichStory();
+            game.scene.start('StoryBoardScene4')
+            game.scene.stop('StoryBoardScene3')
+
+        }, this);
+
+        //skips automatically after 10 seconds
+        this.timedEvent = this.time.delayedCall(10000, this.onEvent, [], this);
+
+    }//END CREATE
+    onEvent() {
+        game.scene.start('StoryBoardScene4')
+        game.scene.stop('StoryBoardScene3')
+    }//END ONEVENT
+
+
+}//END STORYBOARDSCENE3
+
+class StoryBoardScene4 extends Phaser.Scene {
+    constructor() {
+        super({key: 'StoryBoardScene4'});
+    }//END CONSTRUCTOR
+
+    preload() {
+        this.load.image('scene4', 'assets/storyboard4.png')
+
+    }//END PRELOAD
+
+    create() {
+
+        //scene 4 stuff
+        this.scene4 = this.add.sprite(1500, 790, 'scene4')
+        .setOrigin(0.5)
+        .setScale(2)
+
+        //text
+        /* 
+        blah blah blah blah
+        */
+        this.text1 = this.add.text(game.config.width/2, game.config.height/1.2, 'blah blah', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setStroke('#000000',10);
+
+        this.text2 = this.add.text(game.config.width/2, game.config.height/1.13, 'baahahbhdbhidfoh', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setStroke('#000000',10);
+
+        this.text3 = this.add.text(game.config.width/2, game.config.height/1.065, 'start the game', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setStroke('#000000',10);
+
+        //skippable feature
+        var skip = this.add.text(game.config.width/1.03, game.config.height/1.06, '>>', {fontFamily: 'CustomFont', fontSize: '90px', align: 'center', color: '#F7D060'})
+        .setOrigin(0.5)
+        .setDepth(1)
+        .setInteractive( {useHandCursor: true} )
+        skip.on('pointerover', function(event) {
+            skip.setColor('#000000');
+        });
+        skip.on('pointerout', function (pointer) {
+            skip.setColor('#F7D060');
+        });
+        skip.on('pointerdown', function(pointer) { 
+            // this.swtichStory();
+            game.scene.start('TitleScene')
+            game.scene.stop('StoryBoardScene4')
+
+        }, this);
+
+        //skips automatically after 10 seconds
+        this.timedEvent = this.time.delayedCall(10000, this.onEvent, [], this);
+
+        //fades out (kinda)
+        var blackRectangle = this.add.graphics({ fillStyle: { color: 0x000000 } })
+        .setAlpha(0)
+        .setScale(10);
+        var coverScreen = new Phaser.Geom.Rectangle(0, 0, 400, 300);
+        blackRectangle.fillRectShape(coverScreen);
+        this.tweens.add({
+        targets: blackRectangle,
+        duration: 2000,
+        alpha: 1,
+        delay: 8000
+        });
+
+    }//END CREATE
+    onEvent() {
+        game.scene.start('TitleScene')
+        game.scene.stop('StoryBoardScene4')
+    }//END ONEVENT
+
+}//END STORYBOARDSCENE2
+
 let play,
-home
+home,
+titleMusic,
+menuClick,
+titleMusicPlaying = false
 class HowToPlayScene extends Phaser.Scene {
     constructor() {
         super({key: 'HowToPlayScene'});
     }//END CONSTRUCTOR
 
     preload() {
-        // this.load.image('pauseTitle', 'assets/otterescape_pausescreen_pause.png');
-        // this.load.image('endButton', 'assets/otterescape_pausescreen_end.png');
-        // this.load.image('resumeButton', 'assets/otterescape_pausescreen_resume.png');
-
-        // this.load.image('background', 'assets/background_V1.png'); //placeholder
         this.load.image('bubble', 'assets/bubble2.png')
         this.load.image('titlebackground', 'assets/titlebg.png')
         this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
+        this.load.image('updatedbubble', 'assets/updatedbubble.png')
+        this.load.image('pearl', 'assets/otterescape_pearl_withsparkles.png')
+        this.load.image('arrows', 'assets/arrows-small.png')
+        this.load.image('howtoplay', 'assets/howtoplay.png')
     }//END PRELOAD
 
     create() {
-
-        // this.background = this.add.sprite(1500, 100, 'background')
-        // .setScale(8)
-        this.background = this.add.tileSprite(1500, 490, 0, 0, 'titlebackground').setScale(2)
+        this.background = this.add.tileSprite(1500, 490, 0, 0, 'titlebackground')
+        .setScale(2)
 
         bubbles = this.physics.add.group()
         bubbles.maxSize = 10
 
-        this.fakeollie = this.physics.add.sprite(900, game.config.height * .65, 'ollie')
-        .setScale(7)
+        this.fakeollie = this.physics.add.sprite(1100, 800, 'ollie')
+        .setOrigin(0.5)
+        .setScale(6)
         .setDepth(1)
         //OLLIES HITBOX
         this.fakeollie.body
@@ -92,32 +374,56 @@ class HowToPlayScene extends Phaser.Scene {
         this.anims.create({
             key: 'how to swim',
             frames: this.anims.generateFrameNumbers('ollie'),
-            frameRate: 9,
+            frameRate: 8,
             repeat: -1
         });
         this.fakeollie.anims.play('how to swim');
 
+        this.bubble = this.add.sprite(1700, 1100, 'bubble')
+        .setScale(2)
 
-        this.title = this.add.text(game.config.width/3.3, game.config.height/7.5, 'HOW TO PLAY', {fontFamily: 'Retro Gaming', fontSize: '200px', color: '#FFFFFF'})
+        this.pearl = this.add.sprite(1400, 1140, 'pearl')
+        .setScale(2.2)
+
+        this.powerupDes = this.add.text(game.config.width/7.5, game.config.height/1.4, 'collect powerups\n' + 'to break obstacles', {fontFamily: 'CustomFont', fontSize: '70px', align: 'left', color: '#FFFFFF'})
+        // .setOrign(0.5)
+        // .setDepth(1)
+
+        // this.title = this.add.text(game.config.width/3.3, game.config.height/7.5, 'HOW TO PLAY', {fontFamily: 'CustomFont', fontSize: '200px', color: '#FFFFFF'})
+        // .setOrigin(0.5)
+        // .setDepth(1)
+
+        this.obstacleDes = this.add.text(game.config.width/2, game.config.height/1.09, 'Don\'t hit the obstacles!', {fontFamily: 'CustomFont', fontSize: '70px', align: 'left', color: '#FFACAC'})
+        .setDepth(1)
+        .setOrigin(0.5)
+
+        this.title = this.add.sprite(game.config.width/3.8, game.config.height/5.8, 'howtoplay')
+        .setScale(5.2)
+        .setDepth(1)
+
+        this.controlDes = this.add.text(game.config.width/1.2, game.config.height/3, 'use the '+ '      ' + '\nkeys to move', {fontFamily: 'CustomFont', fontSize: '80px', align: 'right', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setDepth(1)
 
-        this.controlDes = this.add.text(game.config.width/1.27, game.config.height/3, 'use the up & down\n' + 'arrow keys to move', {fontFamily: 'Retro Gaming', fontSize: '80px', align: 'right', color: '#FFFFFF'})
+        this.arrowDes = this.add.sprite(game.config.width/1.1, game.config.height/3.4, 'arrows')
+        .setOrigin(0.5)
+        .setDepth(1)
+        .setScale(2)
+
+
+        this.jumpDes = this.add.text(game.config.width/1.18, game.config.height/1.7, 'push SPACE\n' + 'to jump!', {fontFamily: 'CustomFont', fontSize: '80px', align: 'right', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setDepth(1)
 
-        this.jumpDes = this.add.text(game.config.width/1.18, game.config.height/1.7, 'push SPACE\n' + 'to jump!', {fontFamily: 'Retro Gaming', fontSize: '80px', align: 'right', color: '#FFFFFF'})
-        .setOrigin(0.5)
-        .setDepth(1)
 
-
-        play = this.add.text(game.config.width/1.15, game.config.height/1.1, 'Let\'s Play! →', {fontFamily: 'Retro Gaming', fontSize: '55px', align: 'right', color: '#FFFFFF'})
+        play = this.add.text(game.config.width/1.1, game.config.height/1.1, 'Let\'s Play! →', {fontFamily: 'CustomFont', fontSize: '55px', align: 'right', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true })
         .setDepth(1)
         //color the button when cursor is hovered over
         play.on('pointerover', function(event) {
             play.setColor('#F5C12D');
+            menuClick.play()
         });
         play.on('pointerout', function (pointer) {
             play.setColor('#FFFFFF');
@@ -126,19 +432,20 @@ class HowToPlayScene extends Phaser.Scene {
             this.swtichScenes()
         },this);
 
-        home = this.add.text(game.config.width/9, game.config.height/1.1, '← Back to Home', {fontFamily: 'Retro Gaming', fontSize: '55px', align: 'left', color: '#FFFFFF'})
+        home = this.add.text(game.config.width/9, game.config.height/1.1, '← Back to Home', {fontFamily: 'CustomFont', fontSize: '55px', align: 'left', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true })
         .setDepth(1)
         //color the button when cursor is hovered over
         home.on('pointerover', function(event) {
             home.setColor('#F5C12D');
+            menuClick.play()
         });
         home.on('pointerout', function (pointer) {
             home.setColor('#FFFFFF');
         });
         home.on('pointerdown', function(pointer) { 
-            // game.scene.stop('GameScene');
+            game.scene.stop('GameScene');
             game.scene.stop('HowToPlayScene');
             game.scene.start('TitleScene')
         });
@@ -179,6 +486,11 @@ class HowToPlayScene extends Phaser.Scene {
         swtichScenes = async() => {
             home.visible = false;
             play.visible = false;
+            this.arrowDes.visible = false;
+            this.obstacleDes.visible = false;
+            this.powerupDes.visible = false;
+            this.pearl.visible = false;
+            this.bubble.visible = false;
             this.title.visible = false;
             this.controlDes.visible = false;
             this.jumpDes.visible = false;
@@ -236,36 +548,37 @@ class DeathScene extends Phaser.Scene {
         .setOrigin(0.5)
         .setScale(2.8)
 
-        let playTitle = this.add.text(game.config.width/1.68, game.config.height/2, 'Play', {fontFamily: 'Retro Gaming', fontSize: '80px', color: '00000'})
+        let playTitle = this.add.text(game.config.width/1.68, game.config.height/2, 'Play', {fontFamily: 'CustomFont', fontSize: '80px', color: '00000'})
         .setOrigin(0.5)
 
-        let againTitle = this.add.text(game.config.width/1.68, game.config.height/1.72, 'Again?', {fontFamily: 'Retro Gaming', fontSize: '80px', color: '00000'})
+        let againTitle = this.add.text(game.config.width/1.68, game.config.height/1.72, 'Again?', {fontFamily: 'CustomFont', fontSize: '80px', color: '00000'})
         .setOrigin(0.5)
 
 
-        var yes = this.add.text(game.config.width/1.88, game.config.height/1.5, 'yes', {fontFamily: 'Retro Gaming', fontSize: '60px', color: '00000'})
+        var yes = this.add.text(game.config.width/1.88, game.config.height/1.5, 'yes', {fontFamily: 'CustomFont', fontSize: '60px', color: '00000'})
         .setInteractive({ useHandCursor: true })
 
-        var no = this.add.text(game.config.width/1.62, game.config.height/1.5, 'no', {fontFamily: 'Retro Gaming', fontSize: '60px', color: '00000'})
+        var no = this.add.text(game.config.width/1.62, game.config.height/1.5, 'no', {fontFamily: 'CustomFont', fontSize: '60px', color: '00000'})
         .setInteractive({ useHandCursor: true })
 
 
-        let gameOver = this.add.text(game.config.width/2.12, game.config.height/3.5, 'GAME OVER', {fontFamily: 'Retro Gaming', fontSize: '100px', color: '#D81414'})
+        let gameOver = this.add.text(game.config.width/2.12, game.config.height/3.5, 'GAME OVER', {fontFamily: 'CustomFont', fontSize: '100px', color: '#D81414'})
         .setOrigin(0.5)
 
         let quote = this.getRandomItem(quotes)
         
-        let randomQuote = this.add.text(game.config.width/2.12, game.config.height/2.9, quote, {fontFamily: 'Retro Gaming', fontSize: '40px', color: '00000'})
+        let randomQuote = this.add.text(game.config.width/2.12, game.config.height/2.9, quote, {fontFamily: 'CustomFont', fontSize: '40px', align: 'center', color: '00000'})
         .setOrigin(0.5)
 
-        let distance = this.add.text(game.config.width/2.9, game.config.height/2.12, 'Distance', {fontFamily: 'Retro Gaming', fontSize: '55px', color: '00000'})
+        let distance = this.add.text(game.config.width/2.9, game.config.height/2.12, 'Distance', {fontFamily: 'CustomFont', fontSize: '55px', color: '00000'})
 
-        let userScore = this.add.text(game.config.width/2.9, game.config.height/1.9, Math.trunc(metersSwam) + 'M', {fontFamily: 'Retro Gaming', fontSize: '55px', color: '00000'})
+        let userScore = this.add.text(game.config.width/2.9, game.config.height/1.9, Math.trunc(metersSwam) + 'M', {fontFamily: 'CustomFont', fontSize: '55px', color: '00000'})
         // .setOrigin(0.5)
 
         //color the button when cursor is hovered over
         yes.on('pointerover', function(event) {
             yes.setColor('#FFFFFF');
+            menuClick.play()
         });
         yes.on('pointerout', function (pointer) {
             // yes.clearTint();
@@ -281,6 +594,7 @@ class DeathScene extends Phaser.Scene {
         //color the button when cursor is hovered over
         no.on('pointerover', function(event) {
             no.setColor('#FFFFFF');
+            menuClick.play()
         });
         no.on('pointerout', function (pointer) {
             no.setColor('00000');
@@ -288,8 +602,25 @@ class DeathScene extends Phaser.Scene {
         no.on('pointerdown', function(pointer) { 
             game.scene.stop('GameScene');
             game.scene.stop('DeathScene');
-            game.scene.start('TitleScene');
+            game.scene.start('CreditsScene');
         });
+
+
+        question = this.add.sprite(game.config.width/1.508, game.config.height/3.25, 'question')
+        .setInteractive({ useHandCursor: true })
+        .setScale(2.5)
+        .setOrigin(0.5)
+        .setDepth(1)
+        question.on('pointerover', function(event) {
+            question.setTint(808080);
+        });
+        question.on('pointerout', function (pointer) {
+            question.clearTint();
+        });
+        //starts the game scene
+        question.on('pointerdown', function(pointer) { 
+            this.switchHTP();
+        },this);
     }//END CREATE
 
 
@@ -304,6 +635,11 @@ class DeathScene extends Phaser.Scene {
         const item = quotes[randomIndex];
 
         return item;
+    }
+
+    switchHTP = async() => {
+        game.scene.start('HowToPlayScene')
+        game.scene.stop('DeathScene')
     }
 }//END DEATHSCENE
 
@@ -337,6 +673,7 @@ class PauseScene extends Phaser.Scene {
         //color the button when cursor is hovered over
         resume.on('pointerover', function(event) {
             resume.setTint(808080);
+            menuClick.play()
         });
         resume.on('pointerout', function (pointer) {
             resume.clearTint();
@@ -344,12 +681,15 @@ class PauseScene extends Phaser.Scene {
         resume.on('pointerdown', function(pointer) { //
             game.scene.stop('PauseScene');
             game.scene.resume('GameScene');
+            titleMusic.play()
+            titleMusicPlaying = true
         });
 
 
         //color the button when cursor is hovered over
         end.on('pointerover', function(event) {
             end.setTint(808080);
+            menuClick.play()
         });
         end.on('pointerout', function (pointer) {
             end.clearTint();
@@ -370,7 +710,6 @@ class TitleScene extends Phaser.Scene {
         super({key: 'TitleScene'});
     }//END CONSTRUCTOR
     preload() {
-
         this.load.image('background', 'assets/background_V1.png');
         this.load.image('title', 'assets/logov2.png');
         this.load.image('playButton', 'assets/playButton.png');
@@ -380,8 +719,18 @@ class TitleScene extends Phaser.Scene {
         this.load.image('bubble', 'assets/bubble2.png')
         this.load.image('border', 'assets/borderv2.png')
         this.load.image('question', 'assets/otterescape_questionmark.png'); //for how to play scene
+        this.load.audio('titleMusic', ['assets/audio/titleMusic.ogg'])
+        this.load.audio('menuClick', ['assets/audio/menuClick.ogg'])
     }//END PRELOAD
     create() {
+
+        titleMusic = this.sound.add('titleMusic', {loop: true})
+        if(!titleMusicPlaying) {
+            titleMusic.play()
+            titleMusicPlaying = true
+        }
+
+        menuClick = this.sound.add('menuClick', {loop: false})
         // var background = this.add.image(1500,490, 'titlebackground').setScale(2)
         this.background = this.add.tileSprite(1500, 490, 0, 0, 'titlebackground').setScale(2)
         // border = this.add.image(game.config.width / 2, game.config.height / 2,'border')
@@ -412,6 +761,7 @@ class TitleScene extends Phaser.Scene {
         .setDepth(1)
         question.on('pointerover', function(event) {
             question.setTint(808080);
+            menuClick.play()
         });
         question.on('pointerout', function (pointer) {
             question.clearTint();
@@ -426,6 +776,7 @@ class TitleScene extends Phaser.Scene {
         //color the button when cursor is hovered over
         playButton.on('pointerover', function(event) {
             playButton.setTint(808080);
+            menuClick.play()
         });
         playButton.on('pointerout', function (pointer) {
             playButton.clearTint();
@@ -493,6 +844,8 @@ class TitleScene extends Phaser.Scene {
     }
 }//END TITLESCENE
 
+let bubbleEffect
+
 class PreGameScene extends Phaser.Scene {
     constructor() {
         super({key: 'PreGameScene'});
@@ -501,9 +854,13 @@ class PreGameScene extends Phaser.Scene {
     preload() {
         this.load.image('bubble', 'assets/bubble2.png')
         this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
+        this.load.audio('bubbleEffect', ['assets/audio/bubbleEffect.ogg'])
     }//END PRELOAD
 
     create() {
+        titleMusic.stop()
+        bubbleEffect = this.sound.add('bubbleEffect', {loop: true})
+        bubbleEffect.play()
         game.scene.bringToTop('PreGameScene')
         // bubbles = this.physics.add.group()
        this.fakeollie1 = this.physics.add.sprite(-150, game.config.height * .75, 'ollie')
@@ -556,6 +913,7 @@ class PreGameScene extends Phaser.Scene {
         await delay(1200);
         this.fakeollie1.setVelocityX(1500)
         await delay(2800);
+        bubbleEffect.stop()
         this.switchGames()
     }
     switchGames = async () => {
@@ -570,6 +928,15 @@ class PreGameScene extends Phaser.Scene {
 //DECLARATIONS
 let 
     //GAME ELEMNTS 
+        //AUDIO
+        bubbleSound,
+        coin1,
+        coin2,
+        death,
+        death2,
+        destroyobstacle,
+        losepowerup,
+        pearlsound,
         //CONSTANTS
         border,
         background,
@@ -582,6 +949,7 @@ let
     //MOVEMENT
         afterJump,
         inputDisabled = false,
+        ox = 0,
     //NAVBAR
         //METERS SWAM TEXT
         metersSwam,
@@ -612,6 +980,8 @@ class GameScene extends Phaser.Scene {
         this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
         this.load.spritesheet('ollieJump', 'assets/ollieJump.png', { frameWidth: 220, frameHeight: 190 })
         this.load.spritesheet('olliePowerUp', 'assets/olliePowerUp.png', {frameWidth: 220, frameHeight: 190});
+        this.load.spritesheet('ollieDeath', 'assets/ollieDeath.png', {frameWidth: 220, frameHeight: 190});
+        this.load.spritesheet('olliePearl', 'assets/olliePearl.png', {frameWidth: 220, frameHeight: 190});
         //OBSTACLES
         this.load.image('obstacle1', 'assets/underwaterplant_pink.png')
         this.load.image('obstacle2', 'assets/underwaterplant_orange.png')
@@ -632,8 +1002,31 @@ class GameScene extends Phaser.Scene {
         this.load.image('shell_pink', 'assets/shell_pink.png')
         this.load.image('shell_orange', 'assets/shell_orange.png')
         this.load.image('shell_gold', 'assets/shell_gold.png')
+        //AUDIO
+        this.load.audio('bubblesound',['assets/audio/bubblepowerup.ogg'])
+        this.load.audio('coin1',['assets/audio/coin1.ogg'])
+        this.load.audio('coin2',['assets/audio/coin2.ogg'])
+        this.load.audio('death',['assets/audio/death.ogg'])
+        this.load.audio('death2',['assets/audio/death2.ogg'])
+        this.load.audio('destroyobstacle',['assets/audio/destroyobstacle.ogg'])
+        this.load.audio('losepowerup',['assets/audio/lose powerup.ogg'])
+        this.load.audio('pearlsound',['assets/audio/pearl.ogg'])
+        
     }//END PRELOAD
     create() {
+        //AUDIO
+        bubbleSound = this.sound.add('bubblesound', {loop: false})
+        coin1 = this.sound.add('coin1', {loop: false})
+        coin2 = this.sound.add('coin2', {loop: false})
+        death = this.sound.add('death', {loop: false})
+        death2 = this.sound.add('death2', {loop: false})
+        destroyobstacle = this.sound.add('destroyobstacle', {loop: false})
+        losepowerup = this.sound.add('losepowerup', {loop: false})
+        pearlsound = this.sound.add('pearlsound', {loop: false})
+        titleMusic.play()
+        titleMusic.volume = 0.2
+        
+
         //WORLD
         this.physics.world.setBounds(0, 160, game.config.width, game.config.height * 1.35)
         //BACKGROUND
@@ -670,6 +1063,18 @@ class GameScene extends Phaser.Scene {
             frameRate: 8,
             repeat: 0
         });
+        this.anims.create({
+            key: 'death',
+            frames: this.anims.generateFrameNumbers('ollieDeath'),
+            frameRate: 8,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'pearl',
+            frames: this.anims.generateFrameNumbers('olliePearl'),
+            frameRate: 11,
+            repeat: -1
+        });
         ollie.anims.play('swim')
         //CAMERA
         background.fixedToCamera = true;
@@ -678,13 +1083,13 @@ class GameScene extends Phaser.Scene {
         camera.startFollow(ollie, false, 0.5, 0.03);
         //METERS SWAM TEXT
         metersSwam = 0
-        metersSwamText = this.add.text(game.config.width * 0.024, game.config.height * 0.00001, '000000' , {fontFamily: 'Retro Gaming', fontSize: '70px', color: '#FFF'}).setScrollFactor(0).setDepth(1);
+        metersSwamText = this.add.text(game.config.width * 0.024, game.config.height * 0.00001, '000000' , {fontFamily: 'CustomFont', fontSize: '70px', color: '#FFF'}).setScrollFactor(0).setDepth(1);
         //JUMP TEXT
-        canJumpText = this.add.text(game.config.width * 0.44, game.config.height * 0.00001, 'jump', {fontFamily: 'Retro Gaming', fontSize: '70px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0).setDepth(1);
+        canJumpText = this.add.text(game.config.width * 0.44, game.config.height * 0.00001, 'jump', {fontFamily: 'CustomFont', fontSize: '70px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0).setDepth(1);
         //SHELL COUNT
         shellCount = 0
         this.shellCounter = this.add.image(game.config.width * 0.875, game.config.height * 0.03, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2).setDepth(1);
-        shellCountText = this.add.text(game.config.width * 0.93, game.config.height * 0.03,'00000', {fontFamily: 'Retro Gaming', fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0).setDepth(2);
+        shellCountText = this.add.text(game.config.width * 0.93, game.config.height * 0.03,'00000', {fontFamily: 'CustomFont', fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0).setDepth(2);
         //OBSTACLES
         this.groundObstacles = this.physics.add.group();
         setInterval(() => this.createGroundObstacles(this.groundObstacles), Phaser.Math.RND.between(3000, 5000));
@@ -706,6 +1111,8 @@ class GameScene extends Phaser.Scene {
         //* need to make sure ollie resumes from the same spot, not the starting point, and shell count stays the same
         this.input.keyboard.on('keydown-ESC', function(pointer) {
             game.scene.pause('GameScene');
+            titleMusic.pause()
+            titleMusicPlaying = false
             game.scene.start('PauseScene');
         })
         //WATER LEVEL
@@ -716,6 +1123,8 @@ class GameScene extends Phaser.Scene {
             //freezes game scene background
             //hide all obstacles/ stop them
             //put in ollie hitting obstacle animation
+            titleMusic.pause()
+            titleMusicPlaying = false
             this.scene.pause();
             game.scene.start('DeathScene');
             isDead = false; //resets the play
@@ -796,7 +1205,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
                     ollie.setAngularVelocity(currentAngularVelocity+100)
                     currentVelocity = 5
                 }
-    
+
                 if(currentVelocity < 100) {
                     (currentAngularVelocity + 5 < 50) ? ollie.setAngularVelocity(currentAngularVelocity+10) : ollie.setAngularVelocity(0)
                     ollie.setVelocityY(currentVelocity+20)
@@ -895,6 +1304,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(200, 200);
             obstacle.setScale(2);
+            obstacle.setImmovable(true)
             obstacle.body
             .setSize(150,250,true)//width,height, center -- boolean
             .setOffset(20,35) //x and y offset
@@ -905,6 +1315,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(80, 100);
             obstacle.setScale(3);
+            obstacle.setImmovable(true)
             obstacle.body
             .setCircle(35, 3, 0)//radius,x offset, y offset 
         }
@@ -914,6 +1325,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(50, 50);
             obstacle.setScale(2);
+            obstacle.setImmovable(true)
             obstacle.body
             .setCircle(20, 5, 0)//radius,x offset, y offset 
         }
@@ -923,6 +1335,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
             obstacle.setOrigin(0.5, 0);
             obstacle.setSize(200, 100);
             obstacle.setScale(2);
+            obstacle.setImmovable(true)
             switch (obstacleIndex) {
                 case 3:
                     obstacle.body
@@ -1031,13 +1444,6 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
         powerUp.body.setImmovable(false);
     } //END CREATEPOWERUPS
     collectPowerUp(ollie, powerUp) {
-        //animation
-        ollie.anims.stop('swim');
-        ollie.anims.play('powerUp');
-        setTimeout(() => {
-            ollie.anims.play('swim');
-        }, 1000);
-        //end animation
         powerUp.destroy();
         if(powerUpsQueue.length < 2) {
             switch(powerUp.name) {
@@ -1060,20 +1466,45 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
                 onDeck.destroy() 
                 onDeck = null
             } 
+            ollie.anims.stop('pearl');
+            ollie.anims.play('swim');
+            losepowerup.play()
+            destroyobstacle.play()
+            ollie.body.setSize(120,30,true).setOffset(20,35)
             this.loadNextPowerUp()
         } else {
             console.log('Hit ' + JSON.stringify(obstacle) + '!')
-            isDead = true;
+            ollie.anims.play('death');
+            death.play()
+            ollie.body.velocity.x = -564;
+            setTimeout(() => {
+                isDead = true;
+            }, 1000);
         }
     } //END OBSTACLECOLLISION
     loadNextPowerUp() { 
         if(powerUpsQueue.length === 1) {
             switch(powerUpsQueue[0]) {
                 case 1:
-                    currentPowerUp = this.add.image(ollie.x+500, ollie.y+200, 'rockpowerup').setScale(1.5)
+                    ollie.anims.stop('swim');
+                    ollie.body.setSize(120,30,true).setOffset(50,70)
+                    ollie.anims.play('powerUp');
+                    pearlsound.play()
+                    setTimeout(() => {
+                        ollie.anims.play('pearl');
+                        ollie.body.setSize(120,30,true).setOffset(40,80)
+                    }, 1000);
                     break;
                 case 2:
-                    currentPowerUp = this.add.image(ollie.x, ollie.y, 'bubble').setScale(3)
+                    ollie.anims.stop('swim');
+                    ollie.body.setSize(120,30,true).setOffset(50,70)
+                    ollie.anims.play('powerUp');
+                    bubbleSound.play()
+                    setTimeout(() => {
+                        ollie.anims.play('swim');
+                        ollie.body.setSize(120,30,true).setOffset(20,35)
+                        currentPowerUp = this.add.image(ollie.x, ollie.y, 'bubble').setScale(3)
+                    }, 1000);
                     break;
             }
         } else if (powerUpsQueue.length === 2 && !onDeck) {
@@ -1129,6 +1560,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
     collectCurrency(ollie, currency) {
         var maxShells = '00000'
         currency.destroy();
+        coin1.play()
         console.log(currency.texture.key)
         switch(currency.texture.key) {
             case 'shell_pink':
@@ -1149,6 +1581,40 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
 //---END CURRENCY---//
 
 } //END GAMESCENE
+
+let yollie
+
+class CreditsScene extends Phaser.Scene {
+    constructor() {
+        super({key: 'CreditsScene'});
+    }//END CONSTRUCTOR
+    preload() {
+        this.load.image('credits', 'assets/otterescape_endingcredits .png' )
+        this.load.image('yeti', 'assets/yeti.png')
+        
+    }//END PRELOAD
+    create() {
+        this.add.image(game.config.width / 2, game.config.height / 2, 'credits')
+    }//END CREATE
+
+    update() {
+        this.yollie()
+    }
+
+    yollie = async() => {
+        var spawnChance = Phaser.Math.RND.between(0,1000)
+        var randomHeight = Phaser.Math.RND.between(0, 1400)
+        if(spawnChance < 2) {
+            yollie = this.physics.add.sprite(0, randomHeight, 'yeti')
+            console.log("yollie  @ " + randomHeight)
+            yollie.setScale(0.2).setVelocityX(2000)
+        } else {
+            
+        }
+        await delay(2000)
+    }
+}//END DEATHSCENE
+
 function resize() { 
     let canvas = document.querySelector("canvas")
     let windowWidth = window.innerWidth

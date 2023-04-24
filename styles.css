@@ -8,5 +8,5 @@ html, body, div, canvas{
 
 @font-face {
     font-family: CustomFont;
-    src: url('./Retro Gaming.ttf');
+    src: url('assets/Retro Gaming.ttf');
 }
