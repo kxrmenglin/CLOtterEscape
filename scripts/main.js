@@ -348,7 +348,6 @@ class HowToPlayScene extends Phaser.Scene {
         this.load.image('bubble', 'assets/bubble2.png')
         this.load.image('titlebackground', 'assets/titlebg.png')
         this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
-        this.load.image('bubble', 'assets/bubble.png')
         this.load.image('pearl', 'assets/otterescape_pearl_withsparkles.png')
         this.load.image('arrows', 'assets/arrows-small.png')
         this.load.image('howtoplay', 'assets/howtoplay.png')
@@ -977,7 +976,8 @@ class GameScene extends Phaser.Scene {
     preload() {
         //GAME ELEMENTS
         this.load.image('border', 'assets/borderv2.png')
-        this.load.image('background', 'assets/background_V1.png')
+        // this.load.image('background', 'assets/background_V1.png')
+        this.load.image('background', 'assets/backgroundlargestloop.png')
         this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
         this.load.spritesheet('ollieJump', 'assets/ollieJump.png', { frameWidth: 220, frameHeight: 190 })
         this.load.spritesheet('olliePowerUp', 'assets/olliePowerUp.png', {frameWidth: 220, frameHeight: 190});
@@ -998,7 +998,7 @@ class GameScene extends Phaser.Scene {
         this.load.image('rock6', 'assets/rock6.png')
         //POWERUPS
         this.load.image('rockpowerup', 'assets/rockpowerup.png')
-        this.load.image('bubble', 'assets/bubble.png')
+        this.load.image('bubblepowerup', 'assets/bubble.png')
         //CURRENCY
         this.load.image('shell_pink', 'assets/shell_pink.png')
         this.load.image('shell_orange', 'assets/shell_orange.png')
@@ -1418,17 +1418,19 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
         }
     }//END CHECK FOR POWERUPS
     createPowerUps(powerUps) {
-        var powerUpList = ['rockpowerup', 'bubble']
-        let powerUpIndex = Phaser.Math.RND.between(0,1)
+        var powerUpList = ['rockpowerup', 'bubblepowerup']
+        // let powerUpIndex = Phaser.Math.RND.between(0,1)
+        let powerUpIndex = 1
         var chosenPowerUp = powerUpList[powerUpIndex]
         let powerUpHeight = Phaser.Math.RND.between(2000, 500)
         var powerUp = powerUps.create(game.config.width * 0.97, powerUpHeight, chosenPowerUp);
 
         switch(chosenPowerUp) {
-            case 'bubble':
-                powerUp.name = 'bubble'
-                powerUp.body.setCircle(55,9,17)
+            case 'bubblepowerup':
+                powerUp.name = 'bubblepowerup'
+                powerUp.body.setCircle(233,67,133)
                 powerUp
+                .setScale(0.2)
                 .setImmovable(false)
                 .setCollideWorldBounds(false)
                 break;
@@ -1450,7 +1452,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
                 case 'rockpowerup':
                     powerUpsQueue.push(1)
                     break;
-                case 'bubble':
+                case 'bubblepowerup':
                     powerUpsQueue.push(2)
                     break;
             }
@@ -1506,16 +1508,16 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
                     setTimeout(() => {
                         ollie.anims.play('swim');
                         ollie.body.setSize(120,30,true).setOffset(20,35)
-                        currentPowerUp = this.add.image(ollie.x, ollie.y, 'bubble').setScale(3)
+                        currentPowerUp = this.add.image(ollie.x, ollie.y, 'bubblepowerup').setScale(0.7)
                     }, 1000);
                     break;
             }
         } else if (powerUpsQueue.length === 2 && !onDeck) {
-            var onDeckPowerUp = (powerUpsQueue[1] === 1) ? 'rockpowerup' : 'bubble'
+            var onDeckPowerUp = (powerUpsQueue[1] === 1) ? 'rockpowerup' : 'bubblepowerup'
             if(onDeckPowerUp === 'rockpowerup') {
                 onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(0.5).setDepth(1);
             } else {
-                onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(0.4).setDepth(1.2);
+                onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(0.05).setDepth(1.2);
             }
             
         }
