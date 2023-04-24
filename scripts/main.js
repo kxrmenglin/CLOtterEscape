@@ -59,6 +59,7 @@ window.onload = function() {
     game.scene.add('StoryBoardScene4', storyboardScene4);
 
 }//END load listener
+let menuClick
 
 
 class StoryBoardScene1 extends Phaser.Scene {
@@ -70,10 +71,12 @@ class StoryBoardScene1 extends Phaser.Scene {
 
     preload() {
         this.load.image('scene1', 'assets/storyboard1.png')
+        this.load.audio('menuClick', ['assets/audio/menuClick.ogg'])
     }//END PRELOAD
 
     create() {
         //scene 1 stuff
+        menuClick = this.sound.add('menuClick', {loop: false})
         this.scene1 = this.add.sprite(1500, 550, 'scene1')
         .setOrigin(0.5)
         .setScale(1.5)
@@ -108,6 +111,7 @@ class StoryBoardScene1 extends Phaser.Scene {
         .setInteractive( {useHandCursor: true} )
         skip.on('pointerover', function(event) {
             skip.setColor('#000000');
+            menuClick.play()
         });
         skip.on('pointerout', function (pointer) {
             skip.setColor('#F7D060');
@@ -168,6 +172,7 @@ class StoryBoardScene2 extends Phaser.Scene {
         .setInteractive( {useHandCursor: true} )
         skip.on('pointerover', function(event) {
             skip.setColor('#000000');
+            menuClick.play()
         });
         skip.on('pointerout', function (pointer) {
             skip.setColor('#F7D060');
@@ -236,6 +241,7 @@ class StoryBoardScene3 extends Phaser.Scene {
         .setInteractive( {useHandCursor: true} )
         skip.on('pointerover', function(event) {
             skip.setColor('#000000');
+            menuClick.play()
         });
         skip.on('pointerout', function (pointer) {
             skip.setColor('#F7D060');
@@ -299,6 +305,7 @@ class StoryBoardScene4 extends Phaser.Scene {
         .setInteractive( {useHandCursor: true} )
         skip.on('pointerover', function(event) {
             skip.setColor('#000000');
+            menuClick.play()
         });
         skip.on('pointerout', function (pointer) {
             skip.setColor('#F7D060');
@@ -337,7 +344,6 @@ class StoryBoardScene4 extends Phaser.Scene {
 let play,
 home,
 titleMusic,
-menuClick,
 titleMusicPlaying = false
 class HowToPlayScene extends Phaser.Scene {
     constructor() {
@@ -348,7 +354,6 @@ class HowToPlayScene extends Phaser.Scene {
         this.load.image('bubble', 'assets/bubble2.png')
         this.load.image('titlebackground', 'assets/titlebg.png')
         this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
-        this.load.image('updatedbubble', 'assets/updatedbubble.png')
         this.load.image('pearl', 'assets/otterescape_pearl_withsparkles.png')
         this.load.image('arrows', 'assets/arrows-small.png')
         this.load.image('howtoplay', 'assets/howtoplay.png')
@@ -613,6 +618,7 @@ class DeathScene extends Phaser.Scene {
         .setDepth(1)
         question.on('pointerover', function(event) {
             question.setTint(808080);
+            menuClick.play()
         });
         question.on('pointerout', function (pointer) {
             question.clearTint();
@@ -963,8 +969,11 @@ let
         onDeck,  
     //OBSTACLES
         sx = 0,
+        fx = 0,
     //POWERUPS --- 0 = nothing, 1 = puffer, 2 = bubble
         currentPowerUp,
+        currencyTimer = 0,
+        powerUpTimer = 0,
         loadedPowerUp = 0,
         powerUpsQueue = []
 //END DECLARATIONS
@@ -976,7 +985,8 @@ class GameScene extends Phaser.Scene {
     preload() {
         //GAME ELEMENTS
         this.load.image('border', 'assets/borderv2.png')
-        this.load.image('background', 'assets/background_V1.png')
+        // this.load.image('background', 'assets/background_V1.png')
+        this.load.image('background', 'assets/backgroundlargestloop.png')
         this.load.spritesheet('ollie', 'assets/ollieSwim.png', { frameWidth: 160, frameHeight: 125 })
         this.load.spritesheet('ollieJump', 'assets/ollieJump.png', { frameWidth: 220, frameHeight: 190 })
         this.load.spritesheet('olliePowerUp', 'assets/olliePowerUp.png', {frameWidth: 220, frameHeight: 190});
@@ -997,7 +1007,7 @@ class GameScene extends Phaser.Scene {
         this.load.image('rock6', 'assets/rock6.png')
         //POWERUPS
         this.load.image('rockpowerup', 'assets/rockpowerup.png')
-        this.load.image('bubble', 'assets/bubble.png')
+        this.load.image('bubblepowerup', 'assets/bubble.png')
         //CURRENCY
         this.load.image('shell_pink', 'assets/shell_pink.png')
         this.load.image('shell_orange', 'assets/shell_orange.png')
@@ -1092,18 +1102,20 @@ class GameScene extends Phaser.Scene {
         shellCountText = this.add.text(game.config.width * 0.93, game.config.height * 0.03,'00000', {fontFamily: 'CustomFont', fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0).setDepth(2);
         //OBSTACLES
         this.groundObstacles = this.physics.add.group();
-        setInterval(() => this.createGroundObstacles(this.groundObstacles), Phaser.Math.RND.between(3000, 5000));
+        this.createGroundObstacles(this.groundObstacles);
+        //setInterval(() => this.createGroundObstacles(this.groundObstacles), Phaser.Math.RND.between(1000, 3000));
         this.physics.add.collider(ollie, this.groundObstacles, this.obstacleCollision.bind(this))
         this.floatObstacles = this.physics.add.group();
-        setInterval(() =>this.createFloatObstacles(this.floatObstacles), Phaser.Math.RND.between(5000, 8000))
+        //setInterval(() =>this.createFloatObstacles(this.floatObstacles), Phaser.Math.RND.between(5000, 8000))
+        this.createFloatObstacles(this.floatObstacles);
         this.physics.add.collider(ollie, this.floatObstacles, this.obstacleCollision.bind(this))
         //POWERUPS
         this.powerUps = this.physics.add.group();
-        setInterval(() => this.createPowerUps(this.powerUps), 10000);
+        //setInterval(() => this.createPowerUps(this.powerUps), 10000);
         this.physics.add.collider(ollie, this.powerUps, this.collectPowerUp.bind(this))
         //CURRENCY
         this.currencies = this.physics.add.group();
-        setInterval(() => this.createCurrency(this.currencies), 2000);
+        //setInterval(() => this.createCurrency(this.currencies), 2000);
         this.physics.add.collider(ollie, this.currencies, this.collectCurrency)
         //INPUT
         cursors = this.input.keyboard.createCursorKeys();
@@ -1271,70 +1283,91 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
 //---OBSTACLES---//
     moveObstacles(groundObstacles) {
         sx += 8; //movement of the obstacles
-        if (sx === 16){
-            groundObstacles.getChildren().forEach(obstacle => {
-                if (obstacle.getBounds().right < 0) {
-                    groundObstacles.killAndHide(obstacle);
-                } else {
-                    obstacle.x -= 20;
-                }
-            })
-            // sx = 0;
-        }
-    }//END MOVEOBSTACLES
-    moveFloatObstacles(floatObstacles) {
-        if (sx === 16){
-            floatObstacles.getChildren().forEach(obstacle => {
-                if (obstacle.getBounds().right < 0) {
-                    floatObstacles.killAndHide(obstacle);
-                } else {
-                    obstacle.x -= 20;
-                }
-            })
+        console.log('sx: ' + sx)
+        if (sx === 800){
+            this.createGroundObstacles(groundObstacles);
             sx = 0;
         }
+
+        groundObstacles.getChildren().forEach(obstacle => {
+                if (obstacle.getBounds().right < 0) {
+                    console.log('working')
+                    //this.createGroundObstacles(groundObstacles);
+                    //groundObstacles.killAndHide(obstacle);
+                    groundObstacles.remove(obstacle, true, true);
+                    //sx = 0;
+                } else {
+                    obstacle.x -= 10;
+                }
+        })
+        
+    }//END MOVEOBSTACLES
+    moveFloatObstacles(floatObstacles) {
+        fx += 8;
+        if (fx === 864){
+            this.createFloatObstacles(floatObstacles);
+            fx = 0;
+        }
+        floatObstacles.getChildren().forEach(obstacle => {
+                if (obstacle.getBounds().right < 0) {
+                    floatObstacles.remove(obstacle, true, true);
+                } else {
+                    obstacle.x -= 10;
+                }
+            })
+        
     }//END MOVEFLOATOBSTACLES
     createGroundObstacles(groundObstacles) {
         var obstacleList = ['obstacle1', 'obstacle2', 'obstacle3', 'rock1', 'rock2', 'rock3', 'rock4', 'rock5', 'rock6'];
         let obstacleIndex = Phaser.Math.RND.between(0, 8);
         var chosenObstacle = obstacleList[obstacleIndex];
+        let scaleValue = Phaser.Math.RND.between(1, 4);
+
         //CORAL REEF SPAWN (obstacle 1, 2 ,3)
         if (obstacleIndex <= 2){
-            var obstacle = groundObstacles.create(game.config.width + 50, 1750, chosenObstacle);
-            obstacle.setOrigin(0.5, 0);
+            let scaleValue = Phaser.Math.RND.between(1, 3);
+            let yPos = 2050 - (100*(scaleValue-1));
+            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+            obstacle.setOrigin(0.5, 0.5);
             obstacle.setSize(200, 200);
-            obstacle.setScale(2);
+            //obstacle.setScale(2);
             obstacle.setImmovable(true)
+            obstacle.setScale(scaleValue)
             obstacle.body
             .setSize(150,250,true)//width,height, center -- boolean
             .setOffset(20,35) //x and y offset
         }
         //TALL ROCK SPAWN (rock 2)
         else if (obstacleIndex === 4) {
-            var obstacle = groundObstacles.create(game.config.width + 50, 1990, chosenObstacle);
-            obstacle.setOrigin(0.5, 0);
+            let yPos = 2150 - (50*(scaleValue-1));
+            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+            obstacle.setOrigin(0.5, 0.5);
             obstacle.setSize(80, 100);
-            obstacle.setScale(3);
+            //obstacle.setScale(3);
             obstacle.setImmovable(true)
+            obstacle.setScale(scaleValue)
             obstacle.body
             .setCircle(35, 3, 0)//radius,x offset, y offset 
         }
         //TINYROCKSPAWN (rock 6)
         else if (obstacleIndex === 8) {
-            var obstacle = groundObstacles.create(game.config.width + 50, 2095, chosenObstacle);
-            obstacle.setOrigin(0.5, 0);
+            let yPos = 2150 - (10*(scaleValue-1));
+            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+            obstacle.setOrigin(0.5, 0.5);
             obstacle.setSize(50, 50);
-            obstacle.setScale(2);
+            //obstacle.setScale(2);
             obstacle.setImmovable(true)
+            obstacle.setScale(scaleValue)
             obstacle.body
             .setCircle(20, 5, 0)//radius,x offset, y offset 
         }
         //REG ROCK SPAWN (rock 1, 3, 4, 5)
         else {
-            var obstacle = groundObstacles.create(game.config.width + 50, 2065, chosenObstacle);
-            obstacle.setOrigin(0.5, 0);
+            let yPos = 2200 - (50*(scaleValue-1));
+            var obstacle = groundObstacles.create(game.config.width + 50, yPos, chosenObstacle);
+            obstacle.setOrigin(0.5, 0.5);
             obstacle.setSize(200, 100);
-            obstacle.setScale(2);
+            obstacle.setScale(scaleValue)
             obstacle.setImmovable(true)
             switch (obstacleIndex) {
                 case 3:
@@ -1392,7 +1425,14 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
 
 //---POWERUPS---//
     movePowerUps(powerUps) {
+
+        //EDIT: ADDED GLOBAL TIMER VAR TO TIME THE CREATION OF POWERUPS/OBSTACLES/ETC 
+        powerUpTimer += 1
         //updates power up pos
+        if (powerUpTimer === 1000) {
+            this.createPowerUps(powerUps)
+            powerUpTimer = 0;
+        }
         powerUps.getChildren().forEach(powerUpChild => {
             if (powerUpChild.getBounds().right < 0) {
                 powerUps.kill(powerUpChild);
@@ -1417,26 +1457,27 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
         }
     }//END CHECK FOR POWERUPS
     createPowerUps(powerUps) {
-        var powerUpList = ['rockpowerup', 'bubble']
-        let powerUpIndex = Phaser.Math.RND.between(0, 1);
-        var chosenPowerUp = powerUpList[powerUpIndex];
-        
+        var powerUpList = ['rockpowerup', 'bubblepowerup']
+        // let powerUpIndex = Phaser.Math.RND.between(0,1)
+        let powerUpIndex = 1
+        var chosenPowerUp = powerUpList[powerUpIndex]
         let powerUpHeight = Phaser.Math.RND.between(2000, 500)
         var powerUp = powerUps.create(game.config.width * 0.97, powerUpHeight, chosenPowerUp);
 
         switch(chosenPowerUp) {
-            case 'bubble':
-                powerUp.name = 'bubble'
-                powerUp.body.setCircle(55,9,17)
+            case 'bubblepowerup':
+                powerUp.name = 'bubblepowerup'
+                powerUp.body.setCircle(233,67,133)
                 powerUp
+                .setScale(0.2)
                 .setImmovable(false)
                 .setCollideWorldBounds(false)
                 break;
             case 'rockpowerup':
                 powerUp.name = 'rockpowerup'
-                powerUp.body.setSize(19,15,true).setOffset(3,8)
+                powerUp.body.setCircle(36,0,11)
                 powerUp
-                .setScale(3)
+                .setScale(0.8)
                 .setImmovable(false)
                 .setCollideWorldBounds(false)
                 break;
@@ -1450,7 +1491,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
                 case 'rockpowerup':
                     powerUpsQueue.push(1)
                     break;
-                case 'bubble':
+                case 'bubblepowerup':
                     powerUpsQueue.push(2)
                     break;
             }
@@ -1460,7 +1501,10 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
     obstacleCollision(ollie, obstacle) {
         if(powerUpsQueue.length > 0) {
             obstacle.destroy()
-            currentPowerUp.destroy()
+            console.log(currentPowerUp)
+            if(currentPowerUp) {
+                currentPowerUp.destroy()
+            }
             powerUpsQueue.shift()
             if(powerUpsQueue.length === 1) {
                 onDeck.destroy() 
@@ -1503,16 +1547,16 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
                     setTimeout(() => {
                         ollie.anims.play('swim');
                         ollie.body.setSize(120,30,true).setOffset(20,35)
-                        currentPowerUp = this.add.image(ollie.x, ollie.y, 'bubble').setScale(3)
+                        currentPowerUp = this.add.image(ollie.x, ollie.y, 'bubblepowerup').setScale(0.7)
                     }, 1000);
                     break;
             }
         } else if (powerUpsQueue.length === 2 && !onDeck) {
-            var onDeckPowerUp = (powerUpsQueue[1] === 1) ? 'rockpowerup' : 'bubble'
+            var onDeckPowerUp = (powerUpsQueue[1] === 1) ? 'rockpowerup' : 'bubblepowerup'
             if(onDeckPowerUp === 'rockpowerup') {
-                onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(2).setDepth(1);
+                onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(0.5).setDepth(1);
             } else {
-                onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(0.4).setDepth(1.2);
+                onDeck = this.add.image(game.config.width * 0.035, game.config.height * 0.068, onDeckPowerUp).setOrigin(0.5).setScrollFactor(0,0).setScale(0.05).setDepth(1.2);
             }
             
         }
@@ -1521,6 +1565,11 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
 
 //---CURRENCY---//
     moveCurrencies(currencies) {
+        currencyTimer += 1;
+        if (currencyTimer == 100) {
+            this.createCurrency(currencies);
+            currencyTimer = 0;
+        }
         currencies.getChildren().forEach(currencyChild => {
             if (currencyChild.getBounds().right < 0) {
                 currencies.kill(currencyChild);
@@ -1534,7 +1583,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
         //choose random value between river height and bottom of the screen
         let currencyHeight = Phaser.Math.RND.between(2000, 500)
         let randomValue = Phaser.Math.RND.between(1, 10)
-        console.log(randomValue)
+        //console.log(randomValue)
         var chosenCurrency;
         //60% highest probability -- pink shell
         if (randomValue > 1 && randomValue <= 6) {
@@ -1548,7 +1597,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
         else {
             chosenCurrency = 'shell_gold'
         }
-        console.log(chosenCurrency)
+        //(chosenCurrency)
         var currency = currencies.create(game.config.width + 50, currencyHeight, chosenCurrency)
         console.log(currency.body.halfHeight + '+' + currency.body.halfWidth)
         currency.body.setSize(20,23,true).setOffset(0,3)
