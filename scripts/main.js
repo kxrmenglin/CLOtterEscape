@@ -81,25 +81,31 @@ class StoryBoardScene1 extends Phaser.Scene {
         .setOrigin(0.5)
         .setScale(1.5)
 
+        // this.add.text(128, 128, 'This is a test using customfont.ttf instead of retro gaming.ttf', {
+        //     fontFamily: 'CustomFont',
+        //     fontSize: '80px'
+        // });
+
         //text
         /*Once upon a time, there was an otter named Ollie. 
         Ollie and his family spent every day together, sharing stories 
         and meals as they enjoyed their beautiful, underwater home. */
 
-        this.text1 = this.add.text(game.config.width/2, game.config.height/1.19, 'Once upon a time, there was an otter named Ollie.', {fontFamily: 'Retro Gaming', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+
+        this.text1 = this.add.text(game.config.width/2, game.config.height/1.19, 'Once upon a time, there was an otter named Ollie.', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
-        this.text2 = this.add.text(game.config.width/2, game.config.height/1.12, 'Ollie and his family spent every day together, sharing stories', {fontFamily: 'Retro Gaming', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text2 = this.add.text(game.config.width/2, game.config.height/1.12, 'Ollie and his family spent every day together, sharing stories', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
-        this.text3 = this.add.text(game.config.width/2, game.config.height/1.06, 'and meals as they enjoyed their beautiful, underwater home.', {fontFamily: 'Retro Gaming', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text3 = this.add.text(game.config.width/2, game.config.height/1.06, 'and meals as they enjoyed their beautiful, underwater home.', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
         //skippable feature
-        var skip = this.add.text(game.config.width/1.03, game.config.height/1.06, '>>', {fontFamily: 'Retro Gaming', fontSize: '90px', align: 'center', color: '#F7D060'})
+        var skip = this.add.text(game.config.width/1.03, game.config.height/1.06, '>>', {fontFamily: 'CustomFont', fontSize: '90px', align: 'center', color: '#F7D060'})
         .setOrigin(0.5)
         .setDepth(1)
         .setInteractive( {useHandCursor: true} )
@@ -147,20 +153,20 @@ class StoryBoardScene2 extends Phaser.Scene {
         /* But one fateful day, two evil humans went on a mission to steal local 
         marine life. In a chaotic hurry, every animal in the ocean began to flee. 
         Everyone was safe, except for one, lone otter: Ollie. */
-        this.text1 = this.add.text(game.config.width/2, game.config.height/1.2, 'But one fateful day, two evil humans went on a mission to steal local', {fontFamily: 'Retro Gaming', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text1 = this.add.text(game.config.width/2, game.config.height/1.2, 'But one fateful day, two evil humans went on a mission to steal local', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
-        this.text2 = this.add.text(game.config.width/2, game.config.height/1.13, 'marine life. In a chaotic hurry, every animal in the ocean began to flee.', {fontFamily: 'Retro Gaming', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text2 = this.add.text(game.config.width/2, game.config.height/1.13, 'marine life. In a chaotic hurry, every animal in the ocean began to flee.', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
-        this.text3 = this.add.text(game.config.width/2, game.config.height/1.07, 'Everyone was safe, except for one, lone otter: Ollie.', {fontFamily: 'Retro Gaming', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text3 = this.add.text(game.config.width/2, game.config.height/1.07, 'Everyone was safe, except for one, lone otter: Ollie.', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
         //skippable feature
-        var skip = this.add.text(game.config.width/1.03, game.config.height/1.06, '>>', {fontFamily: 'Retro Gaming', fontSize: '90px', align: 'center', color: '#F7D060'})
+        var skip = this.add.text(game.config.width/1.03, game.config.height/1.06, '>>', {fontFamily: 'CustomFont', fontSize: '90px', align: 'center', color: '#F7D060'})
         .setOrigin(0.5)
         .setDepth(1)
         .setInteractive( {useHandCursor: true} )
@@ -211,25 +217,25 @@ class StoryBoardScene3 extends Phaser.Scene {
         from his beloved family, crying for several nights in a row. With no food 
         or resources, Ollie decided he had to find his way out.
          */
-        this.text1 = this.add.text(game.config.width/2, game.config.height/1.28, 'Ollie was captured and thrown in a cage, all while listening to haunting', {fontFamily: 'Retro Gaming', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text1 = this.add.text(game.config.width/2, game.config.height/1.28, 'Ollie was captured and thrown in a cage, all while listening to haunting', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
-        this.text2 = this.add.text(game.config.width/2, game.config.height/1.2, 'whispers of being sold or killed. Ollie couldn’t believe he was separated', {fontFamily: 'Retro Gaming', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text2 = this.add.text(game.config.width/2, game.config.height/1.2, 'whispers of being sold or killed. Ollie couldn’t believe he was separated', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
-        this.text3 = this.add.text(game.config.width/2, game.config.height/1.12, 'from his beloved family, crying for several nights in a row. With no food', {fontFamily: 'Retro Gaming', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text3 = this.add.text(game.config.width/2, game.config.height/1.12, 'from his beloved family, crying for several nights in a row. With no food', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
-        this.text4 = this.add.text(game.config.width/2, game.config.height/1.055, 'or resources, Ollie decided he had to find his way out.', {fontFamily: 'Retro Gaming', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text4 = this.add.text(game.config.width/2, game.config.height/1.055, 'or resources, Ollie decided he had to find his way out.', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
 
         //skippable feature
-        var skip = this.add.text(game.config.width/1.03, game.config.height/1.06, '>>', {fontFamily: 'Retro Gaming', fontSize: '90px', align: 'center', color: '#F7D060'})
+        var skip = this.add.text(game.config.width/1.03, game.config.height/1.06, '>>', {fontFamily: 'CustomFont', fontSize: '90px', align: 'center', color: '#F7D060'})
         .setOrigin(0.5)
         .setDepth(1)
         .setInteractive( {useHandCursor: true} )
@@ -280,20 +286,20 @@ class StoryBoardScene4 extends Phaser.Scene {
         /* 
         blah blah blah blah
         */
-        this.text1 = this.add.text(game.config.width/2, game.config.height/1.2, 'blah blah', {fontFamily: 'Retro Gaming', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text1 = this.add.text(game.config.width/2, game.config.height/1.2, 'blah blah', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
-        this.text2 = this.add.text(game.config.width/2, game.config.height/1.13, 'baahahbhdbhidfoh', {fontFamily: 'Retro Gaming', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text2 = this.add.text(game.config.width/2, game.config.height/1.13, 'baahahbhdbhidfoh', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
-        this.text3 = this.add.text(game.config.width/2, game.config.height/1.065, 'start the game', {fontFamily: 'Retro Gaming', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text3 = this.add.text(game.config.width/2, game.config.height/1.065, 'start the game', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
         //skippable feature
-        var skip = this.add.text(game.config.width/1.03, game.config.height/1.06, '>>', {fontFamily: 'Retro Gaming', fontSize: '90px', align: 'center', color: '#F7D060'})
+        var skip = this.add.text(game.config.width/1.03, game.config.height/1.06, '>>', {fontFamily: 'CustomFont', fontSize: '90px', align: 'center', color: '#F7D060'})
         .setOrigin(0.5)
         .setDepth(1)
         .setInteractive( {useHandCursor: true} )
@@ -384,15 +390,15 @@ class HowToPlayScene extends Phaser.Scene {
         this.pearl = this.add.sprite(1400, 1140, 'pearl')
         .setScale(2.2)
 
-        this.powerupDes = this.add.text(game.config.width/7.5, game.config.height/1.4, 'collect powerups\n' + 'to break obstacles', {fontFamily: 'Retro Gaming', fontSize: '70px', align: 'left', color: '#FFFFFF'})
+        this.powerupDes = this.add.text(game.config.width/7.5, game.config.height/1.4, 'collect powerups\n' + 'to break obstacles', {fontFamily: 'CustomFont', fontSize: '70px', align: 'left', color: '#FFFFFF'})
         // .setOrign(0.5)
         // .setDepth(1)
 
-        // this.title = this.add.text(game.config.width/3.3, game.config.height/7.5, 'HOW TO PLAY', {fontFamily: 'Retro Gaming', fontSize: '200px', color: '#FFFFFF'})
+        // this.title = this.add.text(game.config.width/3.3, game.config.height/7.5, 'HOW TO PLAY', {fontFamily: 'CustomFont', fontSize: '200px', color: '#FFFFFF'})
         // .setOrigin(0.5)
         // .setDepth(1)
 
-        this.obstacleDes = this.add.text(game.config.width/2, game.config.height/1.09, 'Don\'t hit the obstacles!', {fontFamily: 'Retro Gaming', fontSize: '70px', align: 'left', color: '#FFACAC'})
+        this.obstacleDes = this.add.text(game.config.width/2, game.config.height/1.09, 'Don\'t hit the obstacles!', {fontFamily: 'CustomFont', fontSize: '70px', align: 'left', color: '#FFACAC'})
         .setDepth(1)
         .setOrigin(0.5)
 
@@ -400,7 +406,7 @@ class HowToPlayScene extends Phaser.Scene {
         .setScale(5.2)
         .setDepth(1)
 
-        this.controlDes = this.add.text(game.config.width/1.2, game.config.height/3, 'use the '+ '      ' + '\nkeys to move', {fontFamily: 'Retro Gaming', fontSize: '80px', align: 'right', color: '#FFFFFF'})
+        this.controlDes = this.add.text(game.config.width/1.2, game.config.height/3, 'use the '+ '      ' + '\nkeys to move', {fontFamily: 'CustomFont', fontSize: '80px', align: 'right', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setDepth(1)
 
@@ -410,12 +416,12 @@ class HowToPlayScene extends Phaser.Scene {
         .setScale(2)
 
 
-        this.jumpDes = this.add.text(game.config.width/1.18, game.config.height/1.7, 'push SPACE\n' + 'to jump!', {fontFamily: 'Retro Gaming', fontSize: '80px', align: 'right', color: '#FFFFFF'})
+        this.jumpDes = this.add.text(game.config.width/1.18, game.config.height/1.7, 'push SPACE\n' + 'to jump!', {fontFamily: 'CustomFont', fontSize: '80px', align: 'right', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setDepth(1)
 
 
-        play = this.add.text(game.config.width/1.1, game.config.height/1.1, 'Let\'s Play! →', {fontFamily: 'Retro Gaming', fontSize: '55px', align: 'right', color: '#FFFFFF'})
+        play = this.add.text(game.config.width/1.1, game.config.height/1.1, 'Let\'s Play! →', {fontFamily: 'CustomFont', fontSize: '55px', align: 'right', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true })
         .setDepth(1)
@@ -431,7 +437,7 @@ class HowToPlayScene extends Phaser.Scene {
             this.swtichScenes()
         },this);
 
-        home = this.add.text(game.config.width/9, game.config.height/1.1, '← Back to Home', {fontFamily: 'Retro Gaming', fontSize: '55px', align: 'left', color: '#FFFFFF'})
+        home = this.add.text(game.config.width/9, game.config.height/1.1, '← Back to Home', {fontFamily: 'CustomFont', fontSize: '55px', align: 'left', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true })
         .setDepth(1)
@@ -547,31 +553,31 @@ class DeathScene extends Phaser.Scene {
         .setOrigin(0.5)
         .setScale(2.8)
 
-        let playTitle = this.add.text(game.config.width/1.68, game.config.height/2, 'Play', {fontFamily: 'Retro Gaming', fontSize: '80px', color: '00000'})
+        let playTitle = this.add.text(game.config.width/1.68, game.config.height/2, 'Play', {fontFamily: 'CustomFont', fontSize: '80px', color: '00000'})
         .setOrigin(0.5)
 
-        let againTitle = this.add.text(game.config.width/1.68, game.config.height/1.72, 'Again?', {fontFamily: 'Retro Gaming', fontSize: '80px', color: '00000'})
+        let againTitle = this.add.text(game.config.width/1.68, game.config.height/1.72, 'Again?', {fontFamily: 'CustomFont', fontSize: '80px', color: '00000'})
         .setOrigin(0.5)
 
 
-        var yes = this.add.text(game.config.width/1.88, game.config.height/1.5, 'yes', {fontFamily: 'Retro Gaming', fontSize: '60px', color: '00000'})
+        var yes = this.add.text(game.config.width/1.88, game.config.height/1.5, 'yes', {fontFamily: 'CustomFont', fontSize: '60px', color: '00000'})
         .setInteractive({ useHandCursor: true })
 
-        var no = this.add.text(game.config.width/1.62, game.config.height/1.5, 'no', {fontFamily: 'Retro Gaming', fontSize: '60px', color: '00000'})
+        var no = this.add.text(game.config.width/1.62, game.config.height/1.5, 'no', {fontFamily: 'CustomFont', fontSize: '60px', color: '00000'})
         .setInteractive({ useHandCursor: true })
 
 
-        let gameOver = this.add.text(game.config.width/2.12, game.config.height/3.5, 'GAME OVER', {fontFamily: 'Retro Gaming', fontSize: '100px', color: '#D81414'})
+        let gameOver = this.add.text(game.config.width/2.12, game.config.height/3.5, 'GAME OVER', {fontFamily: 'CustomFont', fontSize: '100px', color: '#D81414'})
         .setOrigin(0.5)
 
         let quote = this.getRandomItem(quotes)
         
-        let randomQuote = this.add.text(game.config.width/2.12, game.config.height/2.9, quote, {fontFamily: 'Retro Gaming', fontSize: '40px', align: 'center', color: '00000'})
+        let randomQuote = this.add.text(game.config.width/2.12, game.config.height/2.9, quote, {fontFamily: 'CustomFont', fontSize: '40px', align: 'center', color: '00000'})
         .setOrigin(0.5)
 
-        let distance = this.add.text(game.config.width/2.9, game.config.height/2.12, 'Distance', {fontFamily: 'Retro Gaming', fontSize: '55px', color: '00000'})
+        let distance = this.add.text(game.config.width/2.9, game.config.height/2.12, 'Distance', {fontFamily: 'CustomFont', fontSize: '55px', color: '00000'})
 
-        let userScore = this.add.text(game.config.width/2.9, game.config.height/1.9, Math.trunc(metersSwam) + 'M', {fontFamily: 'Retro Gaming', fontSize: '55px', color: '00000'})
+        let userScore = this.add.text(game.config.width/2.9, game.config.height/1.9, Math.trunc(metersSwam) + 'M', {fontFamily: 'CustomFont', fontSize: '55px', color: '00000'})
         // .setOrigin(0.5)
 
         //color the button when cursor is hovered over
@@ -1087,13 +1093,13 @@ class GameScene extends Phaser.Scene {
         camera.startFollow(ollie, false, 0.5, 0.03);
         //METERS SWAM TEXT
         metersSwam = 0
-        metersSwamText = this.add.text(game.config.width * 0.024, game.config.height * 0.00001, '000000' , {fontFamily: 'Retro Gaming', fontSize: '70px', color: '#FFF'}).setScrollFactor(0).setDepth(1);
+        metersSwamText = this.add.text(game.config.width * 0.024, game.config.height * 0.00001, '000000' , {fontFamily: 'CustomFont', fontSize: '70px', color: '#FFF'}).setScrollFactor(0).setDepth(1);
         //JUMP TEXT
-        canJumpText = this.add.text(game.config.width * 0.44, game.config.height * 0.00001, 'jump', {fontFamily: 'Retro Gaming', fontSize: '70px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0).setDepth(1);
+        canJumpText = this.add.text(game.config.width * 0.44, game.config.height * 0.00001, 'jump', {fontFamily: 'CustomFont', fontSize: '70px', color: 'rgba(256,256,256,0.5)'}).setScrollFactor(0).setDepth(1);
         //SHELL COUNT
         shellCount = 0
         this.shellCounter = this.add.image(game.config.width * 0.875, game.config.height * 0.03, 'shell_pink').setOrigin(0.5).setScrollFactor(0,0).setScale(2).setDepth(1);
-        shellCountText = this.add.text(game.config.width * 0.93, game.config.height * 0.03,'00000', {fontFamily: 'Retro Gaming', fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0).setDepth(2);
+        shellCountText = this.add.text(game.config.width * 0.93, game.config.height * 0.03,'00000', {fontFamily: 'CustomFont', fontSize: '65px', fill: '#FFF'}).setOrigin(0.5).setScrollFactor(0,0).setDepth(2);
         //OBSTACLES
         this.groundObstacles = this.physics.add.group();
         this.createGroundObstacles(this.groundObstacles);
