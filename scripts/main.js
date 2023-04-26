@@ -30,7 +30,7 @@ window.onload = function() {
         width: 3000,
         height: 1452,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        scene: [CreditsScene, StoryBoardScene1, StoryBoardScene2, StoryBoardScene3, StoryBoardScene4, TitleScene, GameScene, PauseScene, DeathScene, PreGameScene, HowToPlayScene], //made it a scene array to switch between scenes
+        scene: [StoryBoardScene1, StoryBoardScene2, StoryBoardScene3, StoryBoardScene4, TitleScene, GameScene, PauseScene, DeathScene, PreGameScene, HowToPlayScene, CreditsScene], //made it a scene array to switch between scenes
         physics: {
             default: "arcade",
             arcade: { debug:true }
