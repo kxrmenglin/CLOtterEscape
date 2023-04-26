@@ -30,7 +30,7 @@ window.onload = function() {
         width: 3000,
         height: 1452,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        scene: [StoryBoardScene1, StoryBoardScene2, StoryBoardScene3, StoryBoardScene4, TitleScene, GameScene, PauseScene, DeathScene, PreGameScene, HowToPlayScene, CreditsScene], //made it a scene array to switch between scenes
+        scene: [CreditsScene, StoryBoardScene1, StoryBoardScene2, StoryBoardScene3, StoryBoardScene4, TitleScene, GameScene, PauseScene, DeathScene, PreGameScene, HowToPlayScene], //made it a scene array to switch between scenes
         physics: {
             default: "arcade",
             arcade: { debug:true }
@@ -80,11 +80,6 @@ class StoryBoardScene1 extends Phaser.Scene {
         this.scene1 = this.add.sprite(1500, 550, 'scene1')
         .setOrigin(0.5)
         .setScale(1.5)
-
-        // this.add.text(128, 128, 'This is a test using customfont.ttf instead of retro gaming.ttf', {
-        //     fontFamily: 'CustomFont',
-        //     fontSize: '80px'
-        // });
 
         //text
         /*Once upon a time, there was an otter named Ollie. 
@@ -1643,7 +1638,14 @@ class CreditsScene extends Phaser.Scene {
         
     }//END PRELOAD
     create() {
-        this.add.image(game.config.width / 2, game.config.height / 2, 'credits')
+        this.add.image(game.config.width / 2, game.config.height / 2.1, 'credits')
+        .setScale(1.2)
+        .setOrigin(0.5)
+
+        this.add.text(game.config.width/2.2, game.config.height/5, 'THANK YOU 4' + '\nPLAYING', {fontFamily: 'CustomFont', fontSize: '190px', align: 'left', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setStroke('#ECB519',15);
+
     }//END CREATE
 
     update() {
@@ -1660,7 +1662,7 @@ class CreditsScene extends Phaser.Scene {
         } else {
             
         }
-        await delay(2000)
+        await delay(4000)
     }
 }//END DEATHSCENE
 
