@@ -21,7 +21,7 @@ window.onload = function() {
     let preGameScene = new PreGameScene();
     let howToPlayScene = new HowToPlayScene();
     let storyboardScene1 = new StoryBoardScene1();
-    let storyboardScene2 = new StoryBoardScene2();
+    // let storyboardScene2 = new StoryBoardScene2(); //got rid of scene 2
     let storyboardScene3 = new StoryBoardScene3();
     let storyboardScene4 = new StoryBoardScene4();
     // object containing configuration options
@@ -30,7 +30,7 @@ window.onload = function() {
         width: 3000,
         height: 1452,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        scene: [StoryBoardScene1, StoryBoardScene2, StoryBoardScene3, StoryBoardScene4, TitleScene, GameScene, PauseScene, DeathScene, PreGameScene, HowToPlayScene, CreditsScene], //made it a scene array to switch between scenes
+        scene: [StoryBoardScene1, StoryBoardScene3, StoryBoardScene4, TitleScene, GameScene, PauseScene, DeathScene, PreGameScene, HowToPlayScene, CreditsScene], //made it a scene array to switch between scenes
         physics: {
             default: "arcade",
             arcade: { debug:true }
@@ -54,7 +54,7 @@ window.onload = function() {
     game.scene.add('HowToPlayScene', howToPlayScene);
 
     game.scene.add('StoryBoardScene1', storyboardScene1);
-    game.scene.add('StoryBoardScene2', storyboardScene2);
+    // game.scene.add('StoryBoardScene2', storyboardScene2);
     game.scene.add('StoryBoardScene3', storyboardScene3);
     game.scene.add('StoryBoardScene4', storyboardScene4);
 
@@ -81,84 +81,29 @@ class StoryBoardScene1 extends Phaser.Scene {
         .setOrigin(0.5)
         .setScale(1.5)
 
-        //text
-        /*Once upon a time, there was an otter named Ollie. 
-        Ollie and his family spent every day together, sharing stories 
-        and meals as they enjoyed their beautiful, underwater home. */
-
-
-        this.text1 = this.add.text(game.config.width/2, game.config.height/1.19, 'Once upon a time, there was an otter named Ollie.', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        
+        this.text1 = this.add.text(game.config.width/2, game.config.height*0.05, 'Once upon a time, there was an otter named Ollie. Ollie and his family spent', {fontFamily: 'CustomFont', fontSize: '55px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
-        this.text2 = this.add.text(game.config.width/2, game.config.height/1.12, 'Ollie and his family spent every day together, sharing stories', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text2 = this.add.text(game.config.width/2, game.config.height*0.1, 'every day together, sharing stories as they enjoyed their beautiful,', {fontFamily: 'CustomFont', fontSize: '55px', align: 'center', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setStroke('#000000',10);
+        this.text2_1 = this.add.text(game.config.width/2, game.config.height*0.15, 'underwater home', {fontFamily: 'CustomFont', fontSize: '55px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
-        this.text3 = this.add.text(game.config.width/2, game.config.height/1.06, 'and meals as they enjoyed their beautiful, underwater home.', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text3 = this.add.text(game.config.width/2, game.config.height/1.19, 'But one fateful day, evil humans began to steal local marine life.', {fontFamily: 'CustomFont', fontSize: '55px', align: 'center', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setStroke('#000000',10);
+        this.text4 = this.add.text(game.config.width/2, game.config.height/1.12, 'Amidst chaos, every animal in the ocean began to flee. Everyone was safe,', {fontFamily: 'CustomFont', fontSize: '55px', align: 'center', color: '#FFFFFF'})
+        .setOrigin(0.5)
+        .setStroke('#000000',10);
+        this.text4 = this.add.text(game.config.width/2, game.config.height/1.06, 'Everyone was safe, except for one, lone otter: Ollie.', {fontFamily: 'CustomFont', fontSize: '55px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
-        //skippable feature
-        var skip = this.add.text(game.config.width/1.03, game.config.height/1.06, '>>', {fontFamily: 'CustomFont', fontSize: '90px', align: 'center', color: '#F7D060'})
-        .setOrigin(0.5)
-        .setDepth(1)
-        .setInteractive( {useHandCursor: true} )
-        skip.on('pointerover', function(event) {
-            skip.setColor('#000000');
-            menuClick.play()
-        });
-        skip.on('pointerout', function (pointer) {
-            skip.setColor('#F7D060');
-        });
-        skip.on('pointerdown', function(pointer) { 
-            // this.swtichStory();
-            game.scene.start('StoryBoardScene2')
-            game.scene.stop('StoryBoardScene1')
 
-        }, this);
-
-        //skips automatically after 10 seconds
-        this.timedEvent = this.time.delayedCall(10000, this.onEvent, [], this);
-
-    }//END CREATE
-    onEvent() {
-        game.scene.start('StoryBoardScene2')
-        game.scene.stop('StoryBoardScene1')
-    }//END ONEVENT
-}//END STORYBOARDSCENE1
-
-class StoryBoardScene2 extends Phaser.Scene {
-    constructor() {
-        super({key: 'StoryBoardScene2'});
-    }//END CONSTRUCTOR
-
-    preload() {
-        this.load.image('scene2', 'assets/storyboard4.png') //placeholder
-
-    }//END PRELOAD
-
-    create() {
-        //scene 2 stuff
-        this.scene2 = this.add.sprite(1500, 790, 'scene2')
-        .setOrigin(0.5)
-        .setScale(2)
-
-        //text
-        /* But one fateful day, two evil humans went on a mission to steal local 
-        marine life. In a chaotic hurry, every animal in the ocean began to flee. 
-        Everyone was safe, except for one, lone otter: Ollie. */
-        this.text1 = this.add.text(game.config.width/2, game.config.height/1.2, 'But one fateful day, two evil humans went on a mission to steal local', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
-        .setOrigin(0.5)
-        .setStroke('#000000',10);
-
-        this.text2 = this.add.text(game.config.width/2, game.config.height/1.13, 'marine life. In a chaotic hurry, every animal in the ocean began to flee.', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
-        .setOrigin(0.5)
-        .setStroke('#000000',10);
-
-        this.text3 = this.add.text(game.config.width/2, game.config.height/1.07, 'Everyone was safe, except for one, lone otter: Ollie.', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
-        .setOrigin(0.5)
-        .setStroke('#000000',10);
 
         //skippable feature
         var skip = this.add.text(game.config.width/1.03, game.config.height/1.06, '>>', {fontFamily: 'CustomFont', fontSize: '90px', align: 'center', color: '#F7D060'})
@@ -175,7 +120,7 @@ class StoryBoardScene2 extends Phaser.Scene {
         skip.on('pointerdown', function(pointer) { 
             // this.swtichStory();
             game.scene.start('StoryBoardScene3')
-            game.scene.stop('StoryBoardScene2')
+            game.scene.stop('StoryBoardScene1')
 
         }, this);
 
@@ -185,9 +130,9 @@ class StoryBoardScene2 extends Phaser.Scene {
     }//END CREATE
     onEvent() {
         game.scene.start('StoryBoardScene3')
-        game.scene.stop('StoryBoardScene2')
+        game.scene.stop('StoryBoardScene1')
     }//END ONEVENT
-}//END STORYBOARDSCENE2
+}//END STORYBOARDSCENE1
 
 class StoryBoardScene3 extends Phaser.Scene {
     constructor() {
@@ -205,26 +150,19 @@ class StoryBoardScene3 extends Phaser.Scene {
         .setOrigin(0.5)
         .setScale(2.5)
 
-        //text
-        /*
-        Ollie was captured and thrown in a cage, all while listening to haunting 
-        whispers of being sold or killed. Ollie couldn’t believe he was separated 
-        from his beloved family, crying for several nights in a row. With no food 
-        or resources, Ollie decided he had to find his way out.
-         */
-        this.text1 = this.add.text(game.config.width/2, game.config.height/1.28, 'Ollie was captured and thrown in a cage, all while listening to haunting', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text1 = this.add.text(game.config.width/2, game.config.height*0.05, 'Ollie was captured and thrown in a cage, all while listening to haunting', {fontFamily: 'CustomFont', fontSize: '55px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
-        this.text2 = this.add.text(game.config.width/2, game.config.height/1.2, 'whispers of being sold or killed. Ollie couldn’t believe he was separated', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text2 = this.add.text(game.config.width/2, game.config.height*0.1, 'whispers of being sold or killed. Ollie couldn’t believe he was separated', {fontFamily: 'CustomFont', fontSize: '55px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
-        this.text3 = this.add.text(game.config.width/2, game.config.height/1.12, 'from his beloved family, crying for several nights in a row. With no food', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text3 = this.add.text(game.config.width/2, game.config.height/1.12, 'from his beloved family, crying for several nights in a row. With no food', {fontFamily: 'CustomFont', fontSize: '55px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
-        this.text4 = this.add.text(game.config.width/2, game.config.height/1.055, 'or resources, Ollie decided he had to find his way out.', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text4 = this.add.text(game.config.width/2, game.config.height/1.055, 'or resources, Ollie decided he had to find his way out.', {fontFamily: 'CustomFont', fontSize: '55px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
@@ -277,19 +215,11 @@ class StoryBoardScene4 extends Phaser.Scene {
         .setOrigin(0.5)
         .setScale(2)
 
-        //text
-        /* 
-        blah blah blah blah
-        */
-        this.text1 = this.add.text(game.config.width/2, game.config.height/1.2, 'blah blah', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text2 = this.add.text(game.config.width/2, game.config.height/1.12, 'After hours of searching, Ollie discovered an abandoned sewer entrance', {fontFamily: 'CustomFont', fontSize: '55px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
-        this.text2 = this.add.text(game.config.width/2, game.config.height/1.13, 'baahahbhdbhidfoh', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
-        .setOrigin(0.5)
-        .setStroke('#000000',10);
-
-        this.text3 = this.add.text(game.config.width/2, game.config.height/1.065, 'start the game', {fontFamily: 'CustomFont', fontSize: '58px', align: 'center', color: '#FFFFFF'})
+        this.text3 = this.add.text(game.config.width/2, game.config.height/1.055, 'leading back to the ocean. Will Ollie be able to escape successfully?', {fontFamily: 'CustomFont', fontSize: '55px', align: 'center', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#000000',10);
 
@@ -1642,9 +1572,18 @@ class CreditsScene extends Phaser.Scene {
         .setScale(1.2)
         .setOrigin(0.5)
 
-        this.add.text(game.config.width/2.2, game.config.height/5, 'THANK YOU 4' + '\nPLAYING', {fontFamily: 'CustomFont', fontSize: '190px', align: 'left', color: '#FFFFFF'})
+        let title = this.add.text(game.config.width/2.2, game.config.height/5, 'THANK YOU 4' + '\nPLAYING', {fontFamily: 'CustomFont', fontSize: '190px', align: 'left', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#ECB519',15);
+
+        this.tweens.add({
+            targets: title,
+            alpha: 0,
+            ease: 'Circular.easeOut',  
+            duration: 800,
+            repeat: -1,
+            yoyo: true
+          })
 
     }//END CREATE
 
