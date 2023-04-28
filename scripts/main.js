@@ -58,6 +58,8 @@ window.onload = function() {
     game.scene.add('StoryBoardScene3', storyboardScene3);
     game.scene.add('StoryBoardScene4', storyboardScene4);
 
+    game.scene.add('CreditsScene', creditsScene);
+
 }//END load listener
 let menuClick
 
@@ -1596,7 +1598,7 @@ class CreditsScene extends Phaser.Scene {
           })
 
         wee = this.sound.add('wee', {loop: false})
-        this.add.image(game.config.width / 2, game.config.height / 2, 'credits')
+        // this.add.image(game.config.width / 2, game.config.height / 2, 'credits')
     }//END CREATE
 
     update() {
