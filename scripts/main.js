@@ -1598,12 +1598,12 @@ class CreditsScene extends Phaser.Scene {
         wee = this.sound.add('wee', {loop: false})
         this.add.image(game.config.width / 2, game.config.height / 2, 'credits')
 
-        let title = this.add.text(game.config.width/2.2, game.config.height/5, 'THANK YOU 4' + '\nPLAYING', {fontFamily: 'CustomFont', fontSize: '190px', align: 'left', color: '#FFFFFF'})
+        let thanks = this.add.text(game.config.width/2.2, game.config.height/5, 'THANK YOU 4' + '\nPLAYING', {fontFamily: 'CustomFont', fontSize: '190px', align: 'left', color: '#FFFFFF'})
         .setOrigin(0.5)
         .setStroke('#ECB519',15);
 
         this.tweens.add({
-            targets: title,
+            targets: thanks,
             alpha: 0,
             ease: 'Circular.easeOut',  
             duration: 800,
