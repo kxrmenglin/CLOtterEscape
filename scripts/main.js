@@ -1598,7 +1598,7 @@ class CreditsScene extends Phaser.Scene {
           })
 
         wee = this.sound.add('wee', {loop: false})
-        // this.add.image(game.config.width / 2, game.config.height / 2, 'credits')
+
     }//END CREATE
 
     update() {
