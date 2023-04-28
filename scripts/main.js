@@ -33,7 +33,7 @@ window.onload = function() {
         scene: [StoryBoardScene1, StoryBoardScene3, StoryBoardScene4, TitleScene, GameScene, PauseScene, DeathScene, PreGameScene, HowToPlayScene, CreditsScene], //made it a scene array to switch between scenes
         physics: {
             default: "arcade",
-            arcade: { debug:true }
+            arcade: { debug:false }
         }
     }
     game = new Phaser.Game(config);
@@ -900,7 +900,8 @@ let
         currencyTimer = 0,
         powerUpTimer = 0,
         loadedPowerUp = 0,
-        powerUpsQueue = []
+        powerUpsQueue = [],
+        playPearl = false
 //END DECLARATIONS
 class GameScene extends Phaser.Scene {
     constructor() { 
@@ -959,7 +960,7 @@ class GameScene extends Phaser.Scene {
         losepowerup = this.sound.add('losepowerup', {loop: false})
         pearlsound = this.sound.add('pearlsound', {loop: false})
         titleMusic.play()
-        titleMusic.volume = 0.2
+        titleMusic.volume = 0.5
         
 
         //WORLD
@@ -1136,7 +1137,12 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
                 ollie.angle = 0
                 await delay(1300)
                 ollie.angle = 30
-                ollie.anims.play('swim')
+                if(playPearl) {
+                    ollie.anims.play('pearl')
+                } else {
+
+                    ollie.anims.play('swim')
+                }
             } else if(cursors.down.isDown){
                 if(currentVelocity < 0){//switching directions
                     ollie.setAngularVelocity(currentAngularVelocity+100)
@@ -1208,7 +1214,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
 //---OBSTACLES---//
     moveObstacles(groundObstacles) {
         sx += 8; //movement of the obstacles
-        console.log('sx: ' + sx)
+        // console.log('sx: ' + sx)
         if (sx === 800){
             this.createGroundObstacles(groundObstacles);
             sx = 0;
@@ -1216,7 +1222,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
 
         groundObstacles.getChildren().forEach(obstacle => {
                 if (obstacle.getBounds().right < 0) {
-                    console.log('working')
+                    // console.log('working')
                     //this.createGroundObstacles(groundObstacles);
                     //groundObstacles.killAndHide(obstacle);
                     groundObstacles.remove(obstacle, true, true);
@@ -1323,7 +1329,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
         if (obstacleIndex === 2) {
             var floatObstacle = floatObstacles.create(game.config.width + 50, 300, chosenFloatObstacle)
             floatObstacle.setOrigin(0.5, 0)
-            console.log(floatObstacle.body.halfWidth + '+'+ floatObstacle.body.halfHeight)
+            // console.log(floatObstacle.body.halfWidth + '+'+ floatObstacle.body.halfHeight)
             floatObstacle.body
             .setCircle(75, 0, 0)
         }
@@ -1383,8 +1389,8 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
     }//END CHECK FOR POWERUPS
     createPowerUps(powerUps) {
         var powerUpList = ['rockpowerup', 'bubblepowerup']
-        // let powerUpIndex = Phaser.Math.RND.between(0,1)
-        let powerUpIndex = 1
+        let powerUpIndex = Phaser.Math.RND.between(0,1)
+        // let powerUpIndex = 1
         var chosenPowerUp = powerUpList[powerUpIndex]
         let powerUpHeight = Phaser.Math.RND.between(2000, 500)
         var powerUp = powerUps.create(game.config.width * 0.97, powerUpHeight, chosenPowerUp);
@@ -1429,7 +1435,8 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
             console.log(currentPowerUp)
             if(currentPowerUp) {
                 currentPowerUp.destroy()
-            }
+            } 
+            playPearl = false
             powerUpsQueue.shift()
             if(powerUpsQueue.length === 1) {
                 onDeck.destroy() 
@@ -1442,7 +1449,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
             ollie.body.setSize(120,30,true).setOffset(20,35)
             this.loadNextPowerUp()
         } else {
-            console.log('Hit ' + JSON.stringify(obstacle) + '!')
+            // console.log('Hit ' + JSON.stringify(obstacle) + '!')
             ollie.anims.play('death');
             death.play()
             ollie.body.velocity.x = -564;
@@ -1462,6 +1469,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
                     setTimeout(() => {
                         ollie.anims.play('pearl');
                         ollie.body.setSize(120,30,true).setOffset(40,80)
+                        playPearl = true
                     }, 1000);
                     break;
                 case 2:
@@ -1524,7 +1532,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
         }
         //(chosenCurrency)
         var currency = currencies.create(game.config.width + 50, currencyHeight, chosenCurrency)
-        console.log(currency.body.halfHeight + '+' + currency.body.halfWidth)
+        // console.log(currency.body.halfHeight + '+' + currency.body.halfWidth)
         currency.body.setSize(20,23,true).setOffset(0,3)
         currency
         .setScale(2)
@@ -1535,7 +1543,7 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
         var maxShells = '00000'
         currency.destroy();
         coin1.play()
-        console.log(currency.texture.key)
+        // console.log(currency.texture.key)
         switch(currency.texture.key) {
             case 'shell_pink':
                 shellCount++;
@@ -1556,7 +1564,8 @@ movement = async() => { //DECREASING Y IS UP AND INCREASING IS DOWN. NEGATIVE IS
 
 } //END GAMESCENE
 
-let yollie
+let yollie,
+wee
 
 class CreditsScene extends Phaser.Scene {
     constructor() {
@@ -1565,6 +1574,7 @@ class CreditsScene extends Phaser.Scene {
     preload() {
         this.load.image('credits', 'assets/otterescape_endingcredits .png' )
         this.load.image('yeti', 'assets/yeti.png')
+        this.load.audio('wee', ['assets/audio/wee.wav'])
         
     }//END PRELOAD
     create() {
@@ -1585,6 +1595,8 @@ class CreditsScene extends Phaser.Scene {
             yoyo: true
           })
 
+        wee = this.sound.add('wee', {loop: false})
+        this.add.image(game.config.width / 2, game.config.height / 2, 'credits')
     }//END CREATE
 
     update() {
@@ -1595,8 +1607,10 @@ class CreditsScene extends Phaser.Scene {
         var spawnChance = Phaser.Math.RND.between(0,1000)
         var randomHeight = Phaser.Math.RND.between(0, 1400)
         if(spawnChance < 2) {
+            wee.play();
             yollie = this.physics.add.sprite(0, randomHeight, 'yeti')
             console.log("yollie  @ " + randomHeight)
+            
             yollie.setScale(0.2).setVelocityX(2000)
         } else {
             
